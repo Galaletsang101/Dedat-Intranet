@@ -1,0 +1,12 @@
+#root {
+  min-height: 100vh;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 50px;
+}
+
+p {
+  text-align: center;
+}

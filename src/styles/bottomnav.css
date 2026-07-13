@@ -1,0 +1,84 @@
+.bottomnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  background-color:var(--salamander) ;
+  gap: 20px;
+}
+
+
+.bottomnav button {
+
+  display: flex;
+
+  flex-direction: row;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  min-width: auto;
+
+  padding: 8px 14px;
+
+  background: transparent;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: var(--white);
+
+  font-family: "Roboto", Helvetica, sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+}
+
+
+.nav-icon {
+
+  display: flex;
+
+  align-items: center;
+
+  font-size: 16px;
+
+
+}
+
+
+/* Hover effect */
+
+.bottomnav button:hover {
+
+ 
+  transform: translateY(-2px);
+
+}
+
+
+.nav-icon {
+
+  font-size: 18px;
+
+  display: flex;
+
+}
+
+
+.bottomnav button:hover {
+
+ 
+  transform: translateY(-3px);
+
+}
