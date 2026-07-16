@@ -11,6 +11,7 @@ import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
+import FAQ from "./pages/FAQ";
 
 
 function App() {
@@ -39,6 +40,9 @@ function App() {
 
           <Route path="/knowledge-center" element={<KnowledgeCenter />} />
 
+          <Route path="/faq" element={<FAQ />} />
+
+          
         </Route>
 
       </Routes>
