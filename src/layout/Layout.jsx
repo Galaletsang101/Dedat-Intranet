@@ -1,16 +1,40 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import TopNav from "../components/TopNav";
 import BottomNav from "../components/BottomNav";
 import Footer from "../components/Footer";
 
+import "../styles/layout.css";
+
 
 function Layout() {
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+
+  function toggleMenu(){
+    setMenuOpen(!menuOpen);
+  }
+
+
+  function closeMenu(){
+    setMenuOpen(false);
+  }
+
+
   return (
     <>
-      <TopNav />
+      <TopNav 
+  toggleMenu={toggleMenu}
+  menuOpen={menuOpen}
+/>
 
-      <BottomNav />
+
+<BottomNav 
+  menuOpen={menuOpen}
+  closeMenu={closeMenu}
+/>
 
       <main>
         <Outlet />
@@ -19,6 +43,8 @@ function Layout() {
       <Footer />
     </>
   );
+
 }
+
 
 export default Layout;
