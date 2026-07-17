@@ -1,0 +1,30 @@
+/* Simple styles for Policies page */
+
+/* Desktop-first layout */
+.policies-page { padding: 28px; max-width: 980px; margin: 0 auto; font-family: Inter, Arial, sans-serif; }
+.policies-header { display:flex; gap:16px; align-items:center; margin-bottom:18px; }
+.policies-search { flex: 1; }
+.policies-search input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #f0e9e6; background: #fff; }
+.policies-filters { display:flex; gap:8px; }
+.chip { padding: 8px 12px; border-radius:20px; border:1px solid #f0e6e3; background:#fff; color:#8a6b4b; cursor:pointer; font-weight:600; }
+.chip.active { background:#d96723; color:#fff; border-color:transparent; }
+.policies-list .list-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.policies-list .muted { color:#8b8b8b; font-size:13px; }
+
+/* Grid of document cards for larger screens */
+.policies-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.doc-card { display:flex; gap:16px; align-items:center; background:#fff; border-radius:12px; padding:16px; border:1px solid #f1e0da; }
+.doc-icon { width:64px; height:64px; border-radius:12px; background:#fff6f0; display:flex; align-items:center; justify-content:center; color:#d96522; font-weight:800; border:1px solid #f2dcd2; }
+.doc-title { font-weight:700; color:#2f2f2f; font-size:16px; }
+.doc-meta { font-size:13px; color:#8b8b8b; margin-top:6px; }
+.doc-body { flex:1; }
+.doc-actions { display:flex; gap:10px; align-items:center; }
+.view { background:transparent; border:1px solid #d96723; color:#8b4a22; padding:8px 14px; border-radius:8px; cursor:pointer; }
+.download { background:#d96723; color:#fff; padding:9px 16px; border-radius:8px; border:none; cursor:pointer; }
+
+/* Single-column fallback for smaller screens */
+@media (max-width:900px){
+	.policies-list { grid-template-columns: 1fr; }
+	.policies-page { padding: 18px; }
+}
+

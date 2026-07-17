@@ -12,6 +12,8 @@ import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
 import FAQ from "./pages/FAQ";
+import IT from "./pages/IT";
+import Policies from "./pages/Policies";
 
 
 function App() {
@@ -41,6 +43,10 @@ function App() {
           <Route path="/knowledge-center" element={<KnowledgeCenter />} />
 
           <Route path="/faq" element={<FAQ />} />
+
+          <Route path="/it-support" element={<IT />} />
+
+          <Route path="/policies" element={<Policies />} />
 
           
         </Route>
