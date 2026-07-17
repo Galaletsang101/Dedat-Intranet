@@ -4,13 +4,13 @@ import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAG0ntFFMtmTYmqap7mpwN_SLbsjCQ4wwM",
-  authDomain: "dedat-internal-website.firebaseapp.com",
-  projectId: "dedat-internal-website",
-  storageBucket: "dedat-internal-website.firebasestorage.app",
-  messagingSenderId: "526155760957",
-  appId: "1:526155760957:web:01ad4527e2644e900ff154",
-  measurementId: "G-B0V7ESRTPL"
+  apiKey: import.meta.env.VITE_BASE_apiKey,
+  authDomain: import.meta.env.VITE_BASE_authDomain,
+  projectId: import.meta.env.VITE_BASE_projectId,
+  storageBucket: import.meta.env.VITE_BASE_storageBucket,
+  messagingSenderId: import.meta.env.VITE_BASE_messagingSenderId,
+  appId: import.meta.env.VITE_BASE_appId,
+  measurementId: import.meta.env.VITE_BASE_measurementId
 };
 
 
