@@ -10,15 +10,14 @@
 
   background-color: var(--white);
 
-  color: var(--white);
-
 }
 
 
 /* Logo */
 
 .logo img {
-width: 150px;
+
+  width: 150px;
 
   height: 50px;
 
@@ -27,16 +26,16 @@ width: 150px;
 
 /* Navigation */
 
-.main-links {
+.nav-links {
 
   display: flex;
 
-  gap: 40px;
+  gap: 25px;
 
 }
 
 
-.main-links a {
+.nav-links a {
 
   color: var(--black);
 
@@ -47,7 +46,7 @@ width: 150px;
 }
 
 
-.main-links a:hover {
+.nav-links a:hover {
 
   color: var(--salamander);
 
@@ -56,7 +55,7 @@ width: 150px;
 
 /* Active page */
 
-.main-links .active {
+.nav-links .active {
 
   border-bottom: 3px solid var(--salamander);
 
@@ -74,8 +73,6 @@ width: 150px;
   align-items: center;
 
   gap: 10px;
-
-
 
   color: var(--gravel);
 
@@ -116,3 +113,143 @@ width: 150px;
   font-size: 12px;
 
 }
+
+.topnav-avatar {
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:50%;
+
+    background:#d85f06;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    text-transform:uppercase;
+
+}
+
+.profile {
+
+    position: relative;
+
+    cursor: pointer;
+
+}
+
+.profile-menu {
+
+    position: absolute;
+
+    right: 0;
+
+    top: 55px;
+
+    width: 160px;
+
+    background: white;
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+
+    z-index: 1000;
+
+}
+
+.profile-menu button {
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: none;
+
+    background: transparent;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+}
+
+.profile-menu button:hover {
+
+    background: #e5c19b;
+
+    border-radius: 6px;
+
+}
+
+/* ===========================
+   HAMBURGER MENU
+=========================== */
+
+
+.hamburger {
+
+    display:none;
+
+    background:none;
+
+    border:none;
+
+    font-size:26px;
+
+    color:var(--gravel);
+
+    cursor:pointer;
+
+}
+
+
+/* Mobile links */
+
+.mobile-top-links{
+
+    display:none;
+
+}
+
+
+
+/* ===========================
+   TABLET
+=========================== */
+
+
+@media(max-width:992px){
+
+
+    .topnav {
+
+        padding:10px 15px;
+
+    }
+
+
+    .nav-links {
+
+        gap:15px;
+
+    }
+
+
+}
+
+
