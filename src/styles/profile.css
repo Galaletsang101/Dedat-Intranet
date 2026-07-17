@@ -1,0 +1,412 @@
+.profile-page {
+
+    min-height: calc(100vh - 120px);
+
+    padding: 40px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    background: #f7f7f7;
+
+    font-family: "Roboto", Helvetica, Arial, sans-serif;
+
+}
+
+
+
+
+.profile-card {
+
+    width: 100%;
+
+    max-width: 750px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+
+}
+
+
+
+
+
+/* Profile Header */
+
+.profile-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #e5e5e5;
+
+}
+
+
+
+.profile-avatar {
+
+    width: 90px;
+
+    height: 90px;
+
+    border-radius: 50%;
+
+    background: #d85f06;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 36px;
+
+    font-weight: bold;
+
+}
+
+
+
+
+.profile-header h1 {
+
+    margin: 0;
+
+    color: #5c5b5b;
+
+    font-size: 28px;
+
+}
+
+
+
+.profile-header p {
+
+    margin-top: 8px;
+
+    color: #777;
+
+    font-size: 16px;
+
+}
+
+
+
+
+
+/* Buttons */
+
+.profile-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin: 25px 0;
+
+}
+
+
+
+.profile-actions button,
+
+.save-button {
+
+
+    background: #d85f06;
+
+    color: white;
+
+    border: none;
+
+    padding: 10px 22px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    transition: 0.3s;
+
+}
+
+
+
+.profile-actions button:hover,
+
+.save-button:hover {
+
+    background: #b94f05;
+
+}
+
+
+
+
+
+
+/* Information Section */
+
+.profile-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
+
+
+
+.profile-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 15px;
+
+    background: #fafafa;
+
+    border-radius: 10px;
+
+    border-left: 4px solid #e5c19b;
+
+}
+
+
+
+.profile-row strong {
+
+    color: #5c5b5b;
+
+    font-size: 15px;
+
+}
+
+
+
+.profile-row span {
+
+    color: #444;
+
+    font-size: 15px;
+
+}
+
+
+
+
+
+/* Edit Inputs */
+
+.profile-row input {
+
+
+    width: 55%;
+
+    padding: 8px 12px;
+
+    border-radius: 6px;
+
+    border: 1px solid #ccc;
+
+    font-size: 14px;
+
+    outline: none;
+
+}
+
+
+
+.profile-row input:focus {
+
+    border-color: #d85f06;
+
+}
+
+
+
+
+
+
+.save-button {
+
+    margin-top: 25px;
+
+    width: 100%;
+
+}
+
+
+
+
+
+/* Mobile responsiveness */
+
+@media(max-width:768px){
+
+
+    .profile-page {
+
+        padding:20px;
+
+    }
+
+
+
+    .profile-header {
+
+        flex-direction: column;
+
+        text-align:center;
+
+    }
+
+
+
+    .profile-row {
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:8px;
+
+    }
+
+
+
+    .profile-row input {
+
+        width:100%;
+
+    }
+
+
+}
+
+/* ===========================
+   ADDITIONAL RESPONSIVE
+=========================== */
+
+@media (max-width:1200px){
+
+    .profile-page{
+        padding:35px;
+    }
+
+    .profile-card{
+        max-width:700px;
+    }
+
+}
+
+@media (max-width:992px){
+
+    .profile-page{
+        padding:30px 25px;
+    }
+
+    .profile-card{
+        padding:30px;
+    }
+
+    .profile-header h1{
+        font-size:26px;
+    }
+
+    .profile-avatar{
+        width:80px;
+        height:80px;
+        font-size:32px;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .profile-card{
+        padding:25px;
+    }
+
+    .profile-actions{
+        justify-content:center;
+    }
+
+    .profile-actions button{
+        width:100%;
+    }
+
+}
+
+@media (max-width:480px){
+
+    .profile-page{
+        padding:15px;
+    }
+
+    .profile-card{
+        padding:20px 15px;
+        border-radius:14px;
+    }
+
+    .profile-header{
+        gap:15px;
+    }
+
+    .profile-avatar{
+        width:70px;
+        height:70px;
+        font-size:28px;
+    }
+
+    .profile-header h1{
+        font-size:22px;
+    }
+
+    .profile-header p{
+        font-size:14px;
+    }
+
+    .profile-row{
+        padding:12px;
+    }
+
+    .profile-row strong,
+    .profile-row span{
+        font-size:14px;
+    }
+
+    .profile-row input{
+        font-size:14px;
+    }
+
+    .profile-actions button,
+    .save-button{
+        padding:12px;
+        font-size:14px;
+    }
+
+}
