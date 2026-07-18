@@ -5,7 +5,7 @@ import Layout from "./layout/Layout";
 import Login from "./pages/login";
 import Dashboard from "./pages/dashboard";
 import About from "./pages/about";
-import Home from "./pages/home";
+import Home from "./pages/Homepage";
 import Calendar from "./pages/Calendar";  
 import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";

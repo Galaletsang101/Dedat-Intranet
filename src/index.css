@@ -55,3 +55,24 @@ p {
   font-size: 16px;
   line-height: 1.5;
 }
+
+/* Add to your global CSS file */
+.hover-shadow:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+  border-color: #d85f06 !important;
+  transition: all 0.2s ease;
+}
+
+.transition {
+  transition: all 0.2s ease;
+}
+
+.skill-chip {
+  background: rgba(216, 95, 6, 0.1);
+  color: #d85f06;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-block;
+}
