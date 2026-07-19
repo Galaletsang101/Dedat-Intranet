@@ -1,4 +1,4 @@
-import { 
+import {
   FaFileSignature,
   FaFileUpload,
   FaLaptop,
@@ -8,11 +8,12 @@ import {
   FaHeart,
   FaHeadset
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 import "../styles/bottomnav.css";
 
-
 function BottomNav() {
+  const navigate = useNavigate();
 
   const buttons = [
     {
@@ -25,7 +26,8 @@ function BottomNav() {
     },
     {
       name: "IT Support",
-      icon: <FaLaptop />
+      icon: <FaLaptop />,
+      path: "/it-support"
     },
     {
       name: "Book Boardroom",
@@ -37,7 +39,8 @@ function BottomNav() {
     },
     {
       name: "Policies",
-      icon: <FaFileAlt />
+      icon: <FaFileAlt />,
+      path: "/policies"
     },
     {
       name: "Wellness",
@@ -49,30 +52,20 @@ function BottomNav() {
     }
   ];
 
-
   return (
     <div className="bottomnav-container">
-
       <div className="bottomnav">
-
         {buttons.map((button, index) => (
-
-          <button key={index}>
-
-            <span className="nav-icon">
-              {button.icon}
-            </span>
-
-            <span>
-              {button.name}
-            </span>
-
+          <button
+            key={index}
+            type="button"
+            onClick={() => button.path && navigate(button.path)}
+          >
+            <span className="nav-icon">{button.icon}</span>
+            <span>{button.name}</span>
           </button>
-
         ))}
-
       </div>
-
     </div>
   );
 }
