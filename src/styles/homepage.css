@@ -102,9 +102,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   
 }
-.text-md-left h2,p,button, .badge-featured {
-    margin-left: 5vh;
-}
+
 
 
 .hero-carousel .carousel-item {
