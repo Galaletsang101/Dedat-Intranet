@@ -12,8 +12,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 // Main pages
 import Dashboard from "./pages/dashboard";
 import About from "./pages/about";
-import Home from "./pages/home";
-import Calendar from "./pages/Calendar";
+import Home from "./pages/Homepage";
+import Calendar from "./pages/Calendar";  
 import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
