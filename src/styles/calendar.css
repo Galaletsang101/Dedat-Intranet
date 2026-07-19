@@ -1,0 +1,601 @@
+/* =========================
+   CALENDAR PAGE
+========================= */
+
+.calendar-page {
+
+    padding:30px;
+    font-family:Arial, Helvetica, sans-serif;
+
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.calendar-search {
+
+    margin-bottom:25px;
+
+}
+
+
+.calendar-search input {
+
+    width:100%;
+    padding:15px;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:8px;
+
+}
+
+
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.calendar-layout {
+
+    display:flex;
+    gap:25px;
+
+}
+
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.calendar-sidebar {
+
+    width:250px;
+    background:#f5f5f5;
+    padding:20px;
+    border-radius:10px;
+    height:max-content;
+
+}
+
+
+.calendar-sidebar h3 {
+
+    color:#5c5b5b;
+    margin-bottom:15px;
+
+}
+
+
+
+.calendar-sidebar label {
+
+    display:block;
+    margin-bottom:12px;
+    cursor:pointer;
+
+}
+
+
+
+/* =========================
+   BOARDROOM SCHEDULE
+========================= */
+
+.boardroom-status {
+
+    margin-top:30px;
+    border-top:1px solid #ddd;
+    padding-top:20px;
+
+}
+
+
+
+.boardroom-slot {
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:12px;
+
+    margin-bottom:10px;
+
+    border-radius:8px;
+
+    font-size:14px;
+
+}
+
+
+
+.boardroom-slot strong {
+
+    display:block;
+
+}
+
+
+
+.boardroom-slot p {
+
+    margin:5px 0 0;
+
+    font-size:12px;
+
+    color:#666;
+
+}
+
+
+
+.boardroom-slot.available {
+
+    background:#d8f3dc;
+
+}
+
+
+
+.boardroom-slot.booked {
+
+    background:#ffd6d6;
+
+}
+
+
+
+/* =========================
+   CALENDAR AREA
+========================= */
+
+
+.calendar-content {
+
+    flex:1;
+
+}
+
+
+
+
+.calendar-header {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.calendar-header h1 {
+
+    font-size:28px;
+
+    color:#5c5b5b;
+
+}
+
+
+
+
+.calendar-header button {
+
+
+    background:#d85f06;
+
+    color:white;
+
+    border:none;
+
+    width:45px;
+
+    height:40px;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+    border-radius:5px;
+
+
+}
+
+
+
+.calendar-header button:hover {
+
+    opacity:0.8;
+
+}
+
+
+
+
+
+/* =========================
+   TODAY BUTTON
+========================= */
+
+
+.today-btn {
+
+
+    background:#5c5b5b;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 20px;
+
+    border-radius:5px;
+
+    cursor:pointer;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+/* =========================
+   WEEK DAYS
+========================= */
+
+
+.weekdays {
+
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    background:#e5c19b;
+
+    text-align:center;
+
+    font-weight:bold;
+
+
+}
+
+
+
+.weekdays div {
+
+
+    padding:15px;
+
+    border:1px solid #ddd;
+
+
+}
+
+
+
+
+/* =========================
+   CALENDAR GRID
+========================= */
+
+
+.calendar-grid {
+
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+
+}
+
+
+
+
+.calendar-box {
+
+
+    min-height:120px;
+
+    border:1px solid #ddd;
+
+    padding:10px;
+
+    background:white;
+
+    cursor:pointer;
+
+
+}
+
+
+
+.calendar-box:hover {
+
+
+    background:#f8f8f8;
+
+
+}
+
+
+
+.empty {
+
+
+    background:#f4f4f4;
+
+}
+
+
+
+
+.date-number {
+
+
+    font-weight:bold;
+
+    color:#5c5b5b;
+
+
+}
+
+
+
+
+/* =========================
+   EVENTS
+========================= */
+
+
+.events-container {
+
+    margin-top:10px;
+
+}
+
+
+
+.event-card {
+
+
+    color:white;
+
+    padding:8px;
+
+    border-radius:5px;
+
+    margin-bottom:5px;
+
+    font-size:12px;
+
+
+}
+
+
+
+.event-card strong {
+
+
+    display:block;
+
+
+}
+
+
+
+.event-card small {
+
+
+    opacity:0.9;
+
+
+}
+
+
+
+/* Event Categories */
+
+
+.meeting {
+
+
+    background:#d85f06;
+
+}
+
+
+
+.training {
+
+
+    background:#084195;
+
+}
+
+
+
+.leave {
+
+
+    background:#008F46;
+
+}
+
+
+
+.deadline {
+
+
+    background:#7b2cbf;
+
+}
+
+
+
+
+
+/* =========================
+   MODAL
+========================= */
+
+
+.modal-overlay {
+
+    position:fixed;
+    z-index:9999;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+
+    background:rgba(0,0,0,0.5);
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+}
+
+
+
+
+.event-modal {
+
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    width:350px;
+    z-index:10000;
+
+}
+
+.boardroom-slot{
+
+cursor:pointer;
+
+}
+
+.event-modal h2 {
+
+
+    color:#5c5b5b;
+
+    margin-bottom:20px;
+
+
+}
+
+
+
+
+.event-modal input,
+
+.event-modal select {
+
+
+    width:100%;
+
+    padding:10px;
+
+    margin-bottom:15px;
+
+
+    border:1px solid #ccc;
+
+    border-radius:5px;
+
+
+}
+
+
+
+
+
+.event-modal button {
+
+
+    width:100%;
+
+    padding:10px;
+
+
+    background:#d85f06;
+
+    color:white;
+
+
+    border:none;
+
+    border-radius:5px;
+
+
+    cursor:pointer;
+
+    margin-top:10px;
+
+
+}
+
+
+
+.close-btn {
+
+
+    background:#5c5b5b !important;
+
+
+}
+
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+
+@media(max-width:900px){
+
+
+    .calendar-layout {
+
+        flex-direction:column;
+
+    }
+
+
+    .calendar-sidebar {
+
+        width:auto;
+
+    }
+
+
+    .calendar-grid {
+
+        overflow-x:auto;
+
+    }
+
+
+}
