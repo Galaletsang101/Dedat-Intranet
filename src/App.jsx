@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./layout/Layout";
 
-import Login from "./pages/login";
-import Dashboard from "./pages/dashboard";
-import About from "./pages/about";
-import Home from "./pages/home";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
+import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";  
 import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";
@@ -20,14 +20,14 @@ function App() {
       <Routes>
 
         <Route path="/" element={<Login />} />
+        
+        <Route path="/about" element={<About />} />
 
         <Route element={<Layout />}>
 
           <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/home" element={<Home />} />
-
-          <Route path="/about" element={<About />} />
 
           <Route path="/calendar" element={<Calendar />} />
 
