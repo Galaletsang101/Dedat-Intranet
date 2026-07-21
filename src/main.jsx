@@ -6,6 +6,8 @@ import "./index.css";
 import "./styles/variables.css";
 // src/main.jsx or src/index.jsx
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "./styles/knowledgecenter.css";
+
 import App from "./App.jsx";
 
 

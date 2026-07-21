@@ -13,7 +13,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/dashboard";
 import About from "./pages/about";
 import Home from "./pages/Homepage";
-import Calendar from "./pages/Calendar";  
+import Calendar from "./pages/Calendar";
 import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
@@ -22,89 +22,44 @@ import FAQ from "./pages/FAQ";
 import IT from "./pages/IT";
 import Policies from "./pages/Policies";
 
-
 function App() {
-
   return (
-
     <BrowserRouter>
-
       <Routes>
-
         {/* Authentication Routes */}
         {AuthRoutes()}
 
-
         {/* Main Intranet Routes */}
-   <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/home" element={<Home />} />
 
-    <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
 
- <Route 
-            path="/home" 
-            element={<Home />} 
-          />
+            <Route path="/about" element={<About />} />
 
+            <Route path="/profile" element={<Profile />} />
 
-          <Route 
-            path="/dashboard" 
-            element={<Dashboard />} 
-          />
+            <Route path="/calendar" element={<Calendar />} />
 
-         
+            <Route path="/news-circulus" element={<NewsCirculus />} />
 
-          <Route 
-            path="/about" 
-            element={<About />} 
-          />
+            <Route path="/programs-units" element={<ProgramsUnits />} />
 
-          <Route 
-    path="/profile" 
-    element={<Profile />} 
-/>
+            <Route path="/staff-directory" element={<StaffDirectory />} />
 
-          <Route 
-            path="/calendar" 
-            element={<Calendar />} 
-          />
+            <Route path="/knowledge-center" element={<KnowledgeCenter />} />
 
-          <Route 
-            path="/news-circulus" 
-            element={<NewsCirculus />} 
-          />
+            <Route path="/faq" element={<FAQ />} />
 
-          <Route 
-            path="/programs-units" 
-            element={<ProgramsUnits />} 
-          />
+            <Route path="/it-support" element={<IT />} />
 
-          <Route 
-            path="/staff-directory" 
-            element={<StaffDirectory />} 
-          />
-
-          <Route 
-            path="/knowledge-center" 
-            element={<KnowledgeCenter />} />
-
-          <Route path="/faq" element={<FAQ />} />
-
-          <Route path="/it-support" element={<IT />} />
-
-          <Route path="/policies" element={<Policies />} />
-
-          
+            <Route path="/policies" element={<Policies />} />
+          </Route>
         </Route>
-
-      </Route>
-
       </Routes>
-
     </BrowserRouter>
-
   );
-
 }
-
 
 export default App;
