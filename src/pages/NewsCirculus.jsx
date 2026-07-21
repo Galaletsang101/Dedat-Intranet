@@ -1,9 +1,11 @@
-function NewsCirculus() {
-  return (
-    <div>
-      <h1>News Circulus Page</h1>
-    </div>
-  );
-}
+// src/pages/NewsPage.jsx
+import React from 'react';
+import NewsPage from '../components/news/newspage_Component';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../components/news/NewsPage.css';
 
-export default NewsCirculus;
+const NewsPageWrapper = () => {
+  return <NewsPage />;
+};
+
+export default NewsPageWrapper;
