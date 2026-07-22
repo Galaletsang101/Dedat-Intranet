@@ -26,8 +26,7 @@ function BottomNav() {
     },
     {
       name: "IT Support",
-      icon: <FaLaptop />,
-      path: "/it-support"
+      icon: <FaLaptop />
     },
     {
       name: "Book Boardroom",
