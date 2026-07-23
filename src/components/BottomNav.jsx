@@ -6,7 +6,8 @@ import {
   FaEnvelope,
   FaFileAlt,
   FaHeart,
-  FaHeadset
+  FaHeadset,
+  FaTachometerAlt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -17,38 +18,43 @@ function BottomNav() {
 
   const buttons = [
     {
+      name: "Dashboard",
+      icon: <FaTachometerAlt />,
+      path: "/dashboard",
+    },
+    {
       name: "E-Leave",
-      icon: <FaFileSignature />
+      icon: <FaFileSignature />,
     },
     {
       name: "E-Submission",
-      icon: <FaFileUpload />
+      icon: <FaFileUpload />,
     },
     {
       name: "IT Support",
-      icon: <FaLaptop />
+      icon: <FaLaptop />,
     },
     {
       name: "Book Boardroom",
-      icon: <FaBuilding />
+      icon: <FaBuilding />,
     },
     {
       name: "GroupWise",
-      icon: <FaEnvelope />
+      icon: <FaEnvelope />,
     },
     {
       name: "Policies",
       icon: <FaFileAlt />,
-      path: "/policies"
+      path: "/policies",
     },
     {
       name: "Wellness",
-      icon: <FaHeart />
+      icon: <FaHeart />,
     },
     {
       name: "Help Desk",
-      icon: <FaHeadset />
-    }
+      icon: <FaHeadset />,
+    },
   ];
 
   return (
