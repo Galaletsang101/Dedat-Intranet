@@ -33,6 +33,22 @@
   gap: 12px;
 }
 
+.dashboard-filter-btn {
+  border: 1px solid #dbe4ef;
+  background: transparent;
+  color: #0f172a;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-filter-btn.active {
+  background: #091426;
+  color: #ffffff;
+  border-color: #091426;
+}
+
 .dashboard-search {
   width: 320px;
   border-radius: 999px;
@@ -156,6 +172,15 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dashboard-feature-large.selected,
+.dashboard-card-small.selected {
+  border-color: #fe932c;
+  box-shadow: 0 10px 24px rgba(254, 147, 44, 0.22);
 }
 
 .dashboard-feature-large img {
@@ -192,6 +217,8 @@
   border-radius: 18px;
   padding: 18px;
   border: 1px solid #dbe4ef;
+  cursor: pointer;
+  text-align: left;
 }
 
 .dashboard-card-small.primary {
@@ -319,6 +346,17 @@
 .dashboard-activity-item {
   display: flex;
   gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+.dashboard-activity-item.expanded {
+  background: #f8fafc;
+}
+
+.dashboard-activity-copy {
+  flex: 1;
 }
 
 .dashboard-avatar,
@@ -341,10 +379,32 @@
   font-weight: 800;
 }
 
+.dashboard-feed-action {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dashboard-activity-comment {
+  margin-top: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
 .dashboard-resource-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.dashboard-resource-button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
 .dashboard-resource-item {
@@ -394,6 +454,22 @@
   color: #fff;
   font-size: 1.4rem;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+}
+
+.dashboard-inline-note {
+  margin-top: 10px;
+  color: #475569;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.dashboard-empty-state {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  text-align: center;
 }
 
 @media (max-width: 991px) {

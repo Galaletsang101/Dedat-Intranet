@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Container, Button } from "react-bootstrap";
 import "../styles/dashboard.css";
 
@@ -34,6 +35,7 @@ const workspaces = [
     icon: "📊",
     button: "Enter",
     type: "light",
+    kind: "team",
   },
   {
     title: "Policy Reform Group",
@@ -43,6 +45,7 @@ const workspaces = [
     icon: "📘",
     button: "Join Space",
     type: "outline",
+    kind: "cop",
   },
 ];
 
@@ -78,7 +81,103 @@ const resources = [
   { icon: "📽", title: "DEDAT Brand Guide", meta: "PDF • 8.4 MB" },
 ];
 
+const workspaceFilters = ["All", "Teams", "CoPs"];
+
 function Dashboard() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [visibleActivityCount, setVisibleActivityCount] = useState(2);
+  const [helperMessage, setHelperMessage] = useState("Search, filter, and join spaces from the dashboard.");
+  const [votes, setVotes] = useState({
+    "Unified Data Dashboard": 152,
+    "Remote Work Hubs": 89,
+  });
+  const [selectedResource, setSelectedResource] = useState("");
+  const [selectedFeatured, setSelectedFeatured] = useState(featuredSpaces[0].title);
+  const [activityFeed, setActivityFeed] = useState(activityItems);
+  const [expandedActivity, setExpandedActivity] = useState(activityItems[0].name + activityItems[0].time);
+
+  const filteredWorkspaces = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return workspaces.filter((space) => {
+      const matchesFilter =
+        activeFilter === "All" ||
+        (activeFilter === "Teams" && space.kind === "team") ||
+        (activeFilter === "CoPs" && space.kind === "cop");
+
+      const matchesSearch =
+        !query ||
+        [space.title, space.description, space.members, space.status]
+          .join(" ")
+          .toLowerCase()
+          .includes(query);
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [activeFilter, searchTerm]);
+
+  const visibleActivities = activityFeed.slice(0, visibleActivityCount);
+  const activeFeaturedSpace = featuredSpaces.find((space) => space.title === selectedFeatured) ?? featuredSpaces[0];
+
+  const handleVote = (idea) => {
+    setVotes((currentVotes) => ({
+      ...currentVotes,
+      [idea]: (currentVotes[idea] ?? 0) + 1,
+    }));
+    setHelperMessage(`You voted for ${idea}. Thanks for supporting the idea.`);
+  };
+
+  const handleWorkspaceAction = (spaceTitle) => {
+    setHelperMessage(`${spaceTitle} is now available in your quick-access list.`);
+  };
+
+  const handleResourceClick = (resourceTitle) => {
+    setSelectedResource(resourceTitle);
+    setHelperMessage(`${resourceTitle} was added to your downloads queue.`);
+  };
+
+  const handleLoadMore = () => {
+    setVisibleActivityCount((currentCount) => Math.min(currentCount + 1, activityFeed.length));
+    setHelperMessage("Showing more recent activity.");
+  };
+
+  const handleFeaturedClick = (title) => {
+    setSelectedFeatured(title);
+    setHelperMessage(`${title} is now highlighted as the featured community preview.`);
+  };
+
+  const handleActivityAction = (itemId, action) => {
+    setActivityFeed((currentFeed) =>
+      currentFeed.map((item) => {
+        if ((item.name + item.time) !== itemId) {
+          return item;
+        }
+
+        if (action === "like") {
+          return {
+            ...item,
+            likes: (item.likes ?? 0) + 1,
+          };
+        }
+
+        return {
+          ...item,
+          replies: (item.replies ?? 0) + 1,
+        };
+      })
+    );
+
+    setHelperMessage(
+      action === "like" ? "You liked that activity update." : "Reply thread opened for this activity."
+    );
+  };
+
+  const handleActivityToggle = (itemId) => {
+    setExpandedActivity((currentId) => (currentId === itemId ? "" : itemId));
+    setHelperMessage("Activity details updated.");
+  };
+
   return (
     <div className="dashboard-shell">
       <Container fluid className="dashboard-page">
@@ -90,15 +189,17 @@ function Dashboard() {
                 className="dashboard-search"
                 placeholder="Search spaces, projects..."
                 aria-label="Search spaces"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
               />
             </div>
-            <button className="dashboard-icon-btn" type="button">
+            <button className="dashboard-icon-btn" type="button" onClick={() => setHelperMessage("Notifications panel opened.")}>
               🔔
             </button>
-            <button className="dashboard-icon-btn" type="button">
+            <button className="dashboard-icon-btn" type="button" onClick={() => setHelperMessage("Apps menu opened.")}>
               ⌘
             </button>
-            <button className="dashboard-icon-btn" type="button">
+            <button className="dashboard-icon-btn" type="button" onClick={() => setHelperMessage("Help panel opened.")}>
               ?
             </button>
             <img
@@ -116,8 +217,13 @@ function Dashboard() {
               Connect with colleagues, share departmental knowledge, and drive
               cross-functional regional development projects in real-time.
             </p>
+            <div className="dashboard-inline-note">{helperMessage}</div>
           </div>
-          <Button className="dashboard-cta" type="button">
+          <Button
+            className="dashboard-cta"
+            type="button"
+            onClick={() => setHelperMessage("A new collaboration draft is ready to start.")}
+          >
             <span>＋</span>
             Start New Collaboration
           </Button>
@@ -134,7 +240,11 @@ function Dashboard() {
               </div>
 
               <div className="dashboard-feature-grid">
-                <div className="dashboard-feature-large">
+                <button
+                  className={selectedFeatured === featuredSpaces[0].title ? "dashboard-feature-large selected" : "dashboard-feature-large"}
+                  type="button"
+                  onClick={() => handleFeaturedClick(featuredSpaces[0].title)}
+                >
                   <img src={featuredSpaces[0].image} alt={featuredSpaces[0].title} />
                   <div className="dashboard-feature-large-content">
                     <span className="dashboard-badge">{featuredSpaces[0].badge}</span>
@@ -145,27 +255,39 @@ function Dashboard() {
                       <span>{featuredSpaces[0].members}</span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 <div className="dashboard-card-small-stack">
-                  <div className="dashboard-card-small primary">
+                  <button
+                    className={selectedFeatured === featuredSpaces[1].title ? "dashboard-card-small primary selected" : "dashboard-card-small primary"}
+                    type="button"
+                    onClick={() => handleFeaturedClick(featuredSpaces[1].title)}
+                  >
                     <h4>{featuredSpaces[1].title}</h4>
                     <p>{featuredSpaces[1].detail}</p>
                     <div className="dashboard-space-meta">
                       <span className="dashboard-status-pill">{featuredSpaces[1].badge}</span>
                       <span>→</span>
                     </div>
-                  </div>
+                  </button>
 
-                  <div className="dashboard-card-small alt">
+                  <button
+                    className={selectedFeatured === featuredSpaces[2].title ? "dashboard-card-small alt selected" : "dashboard-card-small alt"}
+                    type="button"
+                    onClick={() => handleFeaturedClick(featuredSpaces[2].title)}
+                  >
                     <h4>{featuredSpaces[2].title}</h4>
                     <p>{featuredSpaces[2].detail}</p>
                     <div className="dashboard-space-meta">
                       <span>💬 {featuredSpaces[2].badge}</span>
                       <span>→</span>
                     </div>
-                  </div>
+                  </button>
                 </div>
+              </div>
+
+              <div className="dashboard-inline-note">
+                Featured preview: {activeFeaturedSpace.title} • {activeFeaturedSpace.description ?? activeFeaturedSpace.detail}
               </div>
             </section>
 
@@ -173,40 +295,48 @@ function Dashboard() {
               <div className="dashboard-card-header">
                 <h2 className="dashboard-card-title">Team Workspaces &amp; CoPs</h2>
                 <div className="dashboard-topbar-actions">
-                  <button className="dashboard-status-pill" type="button">
-                    All
-                  </button>
-                  <button className="dashboard-link-btn" type="button">
-                    Teams
-                  </button>
-                  <button className="dashboard-link-btn" type="button">
-                    CoPs
-                  </button>
+                  {workspaceFilters.map((filter) => (
+                    <button
+                      key={filter}
+                      className={filter === activeFilter ? "dashboard-filter-btn active" : "dashboard-filter-btn"}
+                      type="button"
+                      onClick={() => setActiveFilter(filter)}
+                    >
+                      {filter}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div className="dashboard-space-grid">
-                {workspaces.map((space) => (
-                  <article className="dashboard-space-card" key={space.title}>
-                    <div className="dashboard-space-card-header">
-                      <div className={`dashboard-space-icon ${space.type === "outline" ? "two" : "one"}`}>
-                        {space.icon}
+                {filteredWorkspaces.length > 0 ? (
+                  filteredWorkspaces.map((space) => (
+                    <article className="dashboard-space-card" key={space.title}>
+                      <div className="dashboard-space-card-header">
+                        <div className={`dashboard-space-icon ${space.type === "outline" ? "two" : "one"}`}>
+                          {space.icon}
+                        </div>
+                        <span className="dashboard-status-pill">{space.status}</span>
                       </div>
-                      <span className="dashboard-status-pill">{space.status}</span>
-                    </div>
-                    <h4>{space.title}</h4>
-                    <p>{space.description}</p>
-                    <div className="dashboard-space-meta">
-                      <div>👥 {space.members}</div>
-                      <Button
-                        className={space.type === "outline" ? "dashboard-action-btn light" : "dashboard-action-btn"}
-                        type="button"
-                      >
-                        {space.button}
-                      </Button>
-                    </div>
-                  </article>
-                ))}
+                      <h4>{space.title}</h4>
+                      <p>{space.description}</p>
+                      <div className="dashboard-space-meta">
+                        <div>👥 {space.members}</div>
+                        <Button
+                          className={space.type === "outline" ? "dashboard-action-btn light" : "dashboard-action-btn"}
+                          type="button"
+                          onClick={() => handleWorkspaceAction(space.title)}
+                        >
+                          {space.button}
+                        </Button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="dashboard-empty-state">
+                    No spaces match your current search and workspace filter.
+                  </div>
+                )}
               </div>
             </section>
 
@@ -225,14 +355,14 @@ function Dashboard() {
                 <div className="dashboard-innovation-card">
                   <div className="dashboard-space-meta">
                     <strong>Unified Data Dashboard</strong>
-                    <span>+152</span>
+                    <span>+{votes["Unified Data Dashboard"]}</span>
                   </div>
                   <p>Proposed by: Sipho M. • 2 days ago</p>
                   <div className="dashboard-space-meta">
-                    <button className="dashboard-link-btn" type="button">
+                    <button className="dashboard-link-btn" type="button" onClick={() => handleVote("Unified Data Dashboard")}>
                       Vote Up
                     </button>
-                    <button className="dashboard-link-btn" type="button">
+                    <button className="dashboard-link-btn" type="button" onClick={() => setHelperMessage("Unified Data Dashboard pitch opened.")}>
                       Read Pitch
                     </button>
                   </div>
@@ -241,14 +371,14 @@ function Dashboard() {
                 <div className="dashboard-innovation-card">
                   <div className="dashboard-space-meta">
                     <strong>Remote Work Hubs</strong>
-                    <span>+89</span>
+                    <span>+{votes["Remote Work Hubs"]}</span>
                   </div>
                   <p>Proposed by: Lerato K. • 4 days ago</p>
                   <div className="dashboard-space-meta">
-                    <button className="dashboard-link-btn" type="button">
+                    <button className="dashboard-link-btn" type="button" onClick={() => handleVote("Remote Work Hubs")}>
                       Vote Up
                     </button>
-                    <button className="dashboard-link-btn" type="button">
+                    <button className="dashboard-link-btn" type="button" onClick={() => setHelperMessage("Remote Work Hubs pitch opened.")}>
                       Read Pitch
                     </button>
                   </div>
@@ -263,29 +393,64 @@ function Dashboard() {
                 <h2 className="dashboard-card-title">Recent Activity</h2>
               </div>
               <div className="dashboard-activity-list">
-                {activityItems.map((item) => (
-                  <div className="dashboard-activity-item" key={item.name + item.time}>
-                    {item.avatar ? (
-                      <img className="dashboard-avatar" src={item.avatar} alt={item.name} />
-                    ) : (
-                      <div className="dashboard-avatar-plain">{item.avatarLabel}</div>
-                    )}
-                    <div>
-                      <p>
-                        <strong>{item.name}</strong> {item.text}
-                      </p>
-                      {item.comment ? <p>{item.comment}</p> : null}
-                      <div className="dashboard-space-meta">
-                        <span>👍 {item.likes ?? ""}</span>
-                        <span>💬 {item.replies ?? ""}</span>
-                        <span>{item.time}</span>
+                {visibleActivities.map((item) => {
+                  const itemId = item.name + item.time;
+                  const isExpanded = expandedActivity === itemId;
+
+                  return (
+                    <div
+                      className={isExpanded ? "dashboard-activity-item expanded" : "dashboard-activity-item"}
+                      key={itemId}
+                      onClick={() => handleActivityToggle(itemId)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          handleActivityToggle(itemId);
+                        }
+                      }}
+                    >
+                      {item.avatar ? (
+                        <img className="dashboard-avatar" src={item.avatar} alt={item.name} />
+                      ) : (
+                        <div className="dashboard-avatar-plain">{item.avatarLabel}</div>
+                      )}
+                      <div className="dashboard-activity-copy">
+                        <p>
+                          <strong>{item.name}</strong> {item.text}
+                        </p>
+                        {isExpanded ? <p className="dashboard-activity-comment">{item.comment ?? "Open discussion thread ready."}</p> : null}
+                        <div className="dashboard-space-meta">
+                          <button
+                            className="dashboard-feed-action"
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleActivityAction(itemId, "like");
+                            }}
+                          >
+                            👍 {item.likes ?? ""}
+                          </button>
+                          <button
+                            className="dashboard-feed-action"
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleActivityAction(itemId, "reply");
+                            }}
+                          >
+                            💬 {item.replies ?? ""}
+                          </button>
+                          <span>{item.time}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-              <button className="dashboard-link-btn" type="button" style={{ marginTop: 16 }}>
-                Load More Activity
+              <button className="dashboard-link-btn" type="button" style={{ marginTop: 16 }} onClick={handleLoadMore}>
+                {visibleActivityCount < activityFeed.length ? "Load More Activity" : "All Activity Loaded"}
               </button>
             </section>
 
@@ -295,15 +460,23 @@ function Dashboard() {
               </div>
               <div className="dashboard-resource-list">
                 {resources.map((resource) => (
-                  <div className="dashboard-resource-item" key={resource.title}>
+                  <button
+                    className="dashboard-resource-item dashboard-resource-button"
+                    key={resource.title}
+                    type="button"
+                    onClick={() => handleResourceClick(resource.title)}
+                  >
                     <div className="dashboard-resource-icon">{resource.icon}</div>
                     <div>
                       <strong>{resource.title}</strong>
                       <div className="text-muted">{resource.meta}</div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
+              {selectedResource ? (
+                <div className="dashboard-inline-note">Selected resource: {selectedResource}</div>
+              ) : null}
             </section>
 
             <section className="dashboard-side-card">
@@ -324,7 +497,12 @@ function Dashboard() {
               <p>
                 “Amara has successfully facilitated over 15 cross-departmental workshops this quarter. Reach out to her for facilitation tips!”
               </p>
-              <Button className="dashboard-action-btn light" type="button" style={{ width: "100%" }}>
+              <Button
+                className="dashboard-action-btn light"
+                type="button"
+                style={{ width: "100%" }}
+                onClick={() => setHelperMessage("Amara's contact card is ready to open.")}
+              >
                 Connect with Amara
               </Button>
             </section>
