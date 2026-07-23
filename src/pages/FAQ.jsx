@@ -3,7 +3,7 @@ import '../styles/faq.css'
 
 export default function FAQ() {
   return (
-    <div className="faq-page">
+    <div className="faq-page" id="top">
       <h1>Frequently Asked Questions</h1>
 
       <section className="faq-section">

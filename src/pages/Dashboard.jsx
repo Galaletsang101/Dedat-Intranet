@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Container, Button } from "react-bootstrap";
+import { FaBell } from "react-icons/fa";
 import "../styles/dashboard.css";
 
 const featuredSpaces = [
@@ -194,7 +195,7 @@ function Dashboard() {
               />
             </div>
             <button className="dashboard-icon-btn" type="button" onClick={() => setHelperMessage("Notifications panel opened.")}>
-              🔔
+              <FaBell aria-hidden="true" />
             </button>
             <button className="dashboard-icon-btn" type="button" onClick={() => setHelperMessage("Apps menu opened.")}>
               ⌘
