@@ -19,7 +19,7 @@ const About = () => {
             Driving Economic Growth and Sustainable Tourism in the Northern Cape.
           </p>
           <div className="hero-grid">
-            <div className="hero-card">
+            <div className="hero-card">  
               <div className="hero-card-icon">
                 <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />

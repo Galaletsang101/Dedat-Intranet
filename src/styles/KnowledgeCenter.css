@@ -2,13 +2,13 @@
    GLOBAL RESET
 ========================= */
 
-* {
+*{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
-body {
+body{
     font-family:'Inter', Arial, sans-serif;
     background:#f8f9fa;
     color:#0f172a;
@@ -19,12 +19,10 @@ body {
    MAIN CONTAINER
 ========================= */
 
-.knowledgecenter-app-container {
-
+.knowledgecenter-app-container{
     max-width:1280px;
     margin:auto;
     padding:32px;
-
 }
 
 
@@ -32,60 +30,51 @@ body {
    HEADER
 ========================= */
 
-
-.knowledgecenter-main-header {
-
+.knowledgecenter-main-header{
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
     gap:30px;
     margin-bottom:40px;
-
 }
 
 
-.knowledgecenter-header-title {
-
+.knowledgecenter-header-title{
     font-size:32px;
     font-weight:700;
     color:#d85f06;
-
-
 }
 
 
-.knowledgecenter-header-subtitle {
-
+.knowledgecenter-header-subtitle{
     margin-top:10px;
     max-width:620px;
-    color:#5c5b5b;
+    color:#64748b;
     line-height:1.6;
-    
-
 }
 
 
-.knowledgecenter-header-actions {
-
+.knowledgecenter-header-actions{
     display:flex;
     gap:15px;
-
 }
 
 
 .knowledgecenter-btn-outline,
-.knowledgecenter-btn-primary {
+.knowledgecenter-btn-primary{
 
     padding:12px 22px;
     border-radius:8px;
     cursor:pointer;
     font-weight:600;
     border:none;
-
+    display:flex;
+    align-items:center;
+    gap:8px;
 }
 
 
-.knowledgecenter-btn-outline {
+.knowledgecenter-btn-outline{
 
     background:white;
     border:1px solid #e5c19b;
@@ -93,10 +82,17 @@ body {
 }
 
 
-.knowledgecenter-btn-primary {
+.knowledgecenter-btn-primary{
 
     background:#d85f06;
     color:white;
+
+}
+
+
+.knowledgecenter-btn-primary:hover{
+
+    background:#b94f05;
 
 }
 
@@ -106,8 +102,7 @@ body {
    PRIMARY CARDS
 ========================= */
 
-
-.knowledgecenter-primary-grid {
+.knowledgecenter-primary-grid{
 
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -117,24 +112,31 @@ body {
 }
 
 
-.knowledgecenter-card {
+.knowledgecenter-card{
 
     background:white;
     padding:28px;
     border-radius:16px;
     border:1px solid #e5c19b;
-    
+    transition:.3s;
 
 }
 
 
-.knowledgecenter-card-icon {
+.knowledgecenter-card:hover{
+
+    transform:translateY(-5px);
+
+}
+
+
+.knowledgecenter-card-icon{
 
     width:50px;
     height:50px;
     display:flex;
-    align-items:center;
     justify-content:center;
+    align-items:center;
     border-radius:12px;
     margin-bottom:20px;
     font-size:22px;
@@ -142,7 +144,7 @@ body {
 }
 
 
-.knowledgecenter-navy {
+.knowledgecenter-navy{
 
     background:#0f172a;
     color:white;
@@ -150,7 +152,7 @@ body {
 }
 
 
-.knowledgecenter-green {
+.knowledgecenter-green{
 
     background:#dcfce7;
     color:#16a34a;
@@ -158,7 +160,7 @@ body {
 }
 
 
-.knowledgecenter-orange {
+.knowledgecenter-orange{
 
     background:#fff0e6;
     color:#d85f06;
@@ -166,80 +168,27 @@ body {
 }
 
 
-.knowledgecenter-card h3 {
+.knowledgecenter-card h3{
 
-    font-size:20px;
-    margin-bottom:10px;
     color:#d85f06;
-    
+    margin-bottom:10px;
 
 }
 
 
-.knowledgecenter-card p {
+.knowledgecenter-card p{
 
-    color:#5c5b5b;
+    color:#64748b;
     margin-bottom:18px;
 
 }
 
 
-.knowledgecenter-card a {
+.knowledgecenter-card a{
 
+    color:#d85f06;
     text-decoration:none;
-    color:#d85f06;
     font-weight:700;
-
-}
-
-
-
-/* =========================
-   UTILITY CARDS
-========================= */
-
-
-.knowledgecenter-utility-grid {
-
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-    margin-bottom:40px;
-
-}
-
-
-.knowledgecenter-utility-card {
-
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    border:1px solid #e5c19b;
-
-}
-
-
-.knowledgecenter-utility-icon {
-
-    font-size:25px;
-    color:#5c5b5b;
-    margin-bottom:15px;
-
-}
-
-
-.knowledgecenter-utility-card h4 {
-
-    margin-bottom:8px;
-    color:#d85f06;
-
-}
-
-
-.knowledgecenter-utility-card p {
-
-    color:#5c5b5b;
-    font-size:14px;
 
 }
 
@@ -250,7 +199,7 @@ body {
 ========================= */
 
 
-.knowledgecenter-main-grid {
+.knowledgecenter-main-grid{
 
     display:grid;
     grid-template-columns:2fr 1fr;
@@ -259,31 +208,70 @@ body {
 }
 
 
-
 /* =========================
-   DOCUMENT TABLE
+   DOCUMENT SECTION
 ========================= */
 
-
-.knowledgecenter-table-section {
+.knowledgecenter-table-section{
 
     background:white;
-    border-radius:16px;
     padding:25px;
+    border-radius:16px;
     border:1px solid #e5c19b;
 
 }
 
 
-.knowledgecenter-table-section h2 {
+.knowledgecenter-table-section h2{
 
+    color:#d85f06;
     margin-bottom:20px;
+
+}
+
+
+/* SEARCH */
+
+.knowledgecenter-search{
+
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:25px;
+
+}
+
+
+.knowledgecenter-search svg{
+
     color:#d85f06;
 
 }
 
 
-.knowledgecenter-table {
+.knowledgecenter-search input{
+
+    flex:1;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
+
+}
+
+
+.knowledgecenter-search select{
+
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    cursor:pointer;
+
+}
+
+
+
+.knowledgecenter-table{
 
     width:100%;
     border-collapse:collapse;
@@ -291,17 +279,17 @@ body {
 }
 
 
-.knowledgecenter-table th {
+.knowledgecenter-table th{
 
     background:#f8f9fa;
     padding:15px;
     text-align:left;
-    color:#5c5b5b;
+    color:#64748b;
 
 }
 
 
-.knowledgecenter-table td {
+.knowledgecenter-table td{
 
     padding:15px;
     border-top:1px solid #e5c19b;
@@ -309,7 +297,8 @@ body {
 }
 
 
-.knowledgecenter-document-name {
+
+.knowledgecenter-document-name{
 
     display:flex;
     align-items:center;
@@ -319,7 +308,7 @@ body {
 }
 
 
-.knowledgecenter-document-name svg {
+.knowledgecenter-document-name svg{
 
     color:#d85f06;
 
@@ -331,8 +320,7 @@ body {
    BADGES
 ========================= */
 
-
-.knowledgecenter-badge {
+.knowledgecenter-badge{
 
     background:#e5c19b;
     color:#5c5b5b;
@@ -343,7 +331,7 @@ body {
 }
 
 
-.knowledgecenter-status {
+.knowledgecenter-status{
 
     color:#16a34a;
     font-weight:600;
@@ -352,12 +340,34 @@ body {
 
 
 
+/* DOWNLOAD BUTTON */
+
+.download-btn{
+
+    background:#d85f06;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
+
+}
+
+
+.download-btn:hover{
+
+    background:#b94f05;
+
+}
+
+
+
 /* =========================
-   RIGHT SIDE
+   RIGHT COLUMN
 ========================= */
 
 
-.knowledgecenter-right-column {
+.knowledgecenter-right-column{
 
     display:flex;
     flex-direction:column;
@@ -366,7 +376,7 @@ body {
 }
 
 
-.knowledgecenter-stats-card {
+.knowledgecenter-stats-card{
 
     background:#0f172a;
     color:white;
@@ -376,7 +386,7 @@ body {
 }
 
 
-.knowledgecenter-stats {
+.knowledgecenter-stats{
 
     display:flex;
     justify-content:space-between;
@@ -385,14 +395,14 @@ body {
 }
 
 
-.knowledgecenter-stats strong {
+.knowledgecenter-stats strong{
 
     font-size:35px;
 
 }
 
 
-.knowledgecenter-stats p {
+.knowledgecenter-stats p{
 
     color:#e5c19b;
 
@@ -400,12 +410,9 @@ body {
 
 
 
-/* =========================
-   SUPPORT CARD
-========================= */
+/* SUPPORT */
 
-
-.knowledgecenter-support-card {
+.knowledgecenter-support-card{
 
     background:#d85f06;
     color:white;
@@ -415,14 +422,7 @@ body {
 }
 
 
-.knowledgecenter-support-card p {
-
-    margin-top:10px;
-
-}
-
-
-.knowledgecenter-support-btn {
+.knowledgecenter-support-btn{
 
     margin-top:20px;
     padding:12px 20px;
@@ -438,6 +438,73 @@ body {
 
 
 /* =========================
+   MODALS
+========================= */
+
+
+.modal{
+
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+
+}
+
+
+.modal-box{
+
+    background:white;
+    width:400px;
+    padding:30px;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+
+}
+
+
+.modal-box h2{
+
+    color:#d85f06;
+
+}
+
+
+.modal-box input,
+.modal-box textarea{
+
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+
+}
+
+
+.modal-box textarea{
+
+    min-height:120px;
+}
+
+
+.modal-box button{
+
+    padding:12px;
+    background:#d85f06;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+
+}
+
+
+
+/* =========================
    RESPONSIVE
 ========================= */
 
@@ -445,24 +512,16 @@ body {
 @media(max-width:1000px){
 
     .knowledgecenter-primary-grid,
-    .knowledgecenter-utility-grid,
-    .knowledgecenter-main-grid {
+    .knowledgecenter-main-grid{
 
         grid-template-columns:1fr;
 
     }
 
 
-    .knowledgecenter-main-header {
+    .knowledgecenter-main-header{
 
         flex-direction:column;
-
-    }
-
-
-    .knowledgecenter-header-actions {
-
-        width:100%;
 
     }
 
@@ -472,25 +531,45 @@ body {
 
 @media(max-width:600px){
 
-
-    .knowledgecenter-app-container {
+    .knowledgecenter-app-container{
 
         padding:20px;
 
     }
 
 
-    .knowledgecenter-table {
+    .knowledgecenter-search{
 
-        font-size:13px;
+        flex-direction:column;
 
     }
 
 
-    .knowledgecenter-header-title {
+    .knowledgecenter-search input,
+    .knowledgecenter-search select{
+
+        width:100%;
+
+    }
+
+
+    .knowledgecenter-header-title{
 
         font-size:25px;
-        
+
+    }
+
+
+    .modal-box{
+
+        width:90%;
+
+    }
+
+
+    .knowledgecenter-table{
+
+        min-width:650px;
 
     }
 
