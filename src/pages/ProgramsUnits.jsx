@@ -1,8 +1,13 @@
-import React from 'react';
-import '../styles/programs.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/programs.css";
 
 
 const ProgramsUnits = () => {
+
+
+const navigate = useNavigate();
+
 
 
 const units = [
@@ -72,8 +77,64 @@ description:"Developing and promoting Northern Cape as a premier tourism destina
 tags:["Tourism Routes","Media Kit"]
 }
 
-
 ];
+
+
+
+
+
+const exportDirectory = ()=>{
+
+
+const file = new Blob(
+
+[JSON.stringify(units,null,2)],
+
+{
+type:"application/json"
+}
+
+);
+
+
+
+const url = URL.createObjectURL(file);
+
+
+
+const link = document.createElement("a");
+
+
+link.href = url;
+
+
+link.download = "Programmes_Directory.json";
+
+
+document.body.appendChild(link);
+
+
+link.click();
+
+
+document.body.removeChild(link);
+
+
+URL.revokeObjectURL(url);
+
+
+};
+
+
+
+
+
+const resetUnits = ()=>{
+
+window.location.reload();
+
+};
+
 
 
 
@@ -87,12 +148,16 @@ return (
 <div className="header-controls">
 
 
+
 <div className="header-content">
 
 
 <h1 className="page-title">
+
 Programmes & Units
+
 </h1>
+
 
 
 
@@ -109,22 +174,33 @@ Access departmental resources, specialized toolkits, and collaboration workspace
 
 
 
+
 <div className="action-buttons">
 
 
-<button 
-type="button"
-className="btn btn-outline">
+<button
 
-Filter Units
+className="btn btn-outline"
+
+onClick={resetUnits}
+
+>
+
+Reset Units
 
 </button>
 
 
 
+
+
 <button
-type="button"
-className="btn btn-primary">
+
+className="btn btn-primary"
+
+onClick={exportDirectory}
+
+>
 
 Export Directory
 
@@ -135,8 +211,8 @@ Export Directory
 </div>
 
 
-</div>
 
+</div>
 
 
 
@@ -147,15 +223,19 @@ Export Directory
 
 
 {
-units.map((unit,index)=>(
+units.map((unit)=>(
+
 
 <UnitCard
 
-key={index}
+key={unit.title}
 
 {...unit}
 
+navigate={navigate}
+
 />
+
 
 ))
 
@@ -163,16 +243,7 @@ key={index}
 
 
 </div>
-
-
-
-
-
-
-
-
 <div className="bottom-section">
-
 
 
 <div className="knowledge-portal">
@@ -186,7 +257,6 @@ Departmental Knowledge Portal
 
 
 
-
 <div className="stats-grid">
 
 
@@ -196,11 +266,14 @@ Departmental Knowledge Portal
 Total Assets
 </p>
 
+
 <h2>
-1,429
+{units.length * 238}
 </h2>
 
+
 </div>
+
 
 
 
@@ -208,12 +281,20 @@ Total Assets
 <div className="stat-card">
 
 <p>
-COP Sessions
+Active Units
 </p>
 
+
 <h2>
-24 Active
+
+{
+units.filter(
+(unit)=>unit.status==="Active Unit"
+).length
+}
+
 </h2>
+
 
 </div>
 
@@ -227,16 +308,17 @@ COP Sessions
 Knowledge Shares
 </p>
 
+
 <h2>
-312
+{units.length * 52}
 </h2>
 
-</div>
-
-
 
 </div>
 
+
+
+</div>
 
 
 </div>
@@ -252,17 +334,32 @@ Knowledge Shares
 
 
 <h2>
+
 Need Workspace Support?
+
 </h2>
 
 
+
+
 <p>
+
 Contact IT Support unit for portal assistance.
+
 </p>
 
 
 
-<button type="button">
+
+
+
+<button
+
+type="button"
+
+onClick={()=>navigate("/support")}
+
+>
 
 Get Help Now
 
@@ -295,6 +392,8 @@ Get Help Now
 
 
 
+
+
 function UnitCard({
 
 icon,
@@ -303,21 +402,27 @@ status,
 statusType,
 title,
 description,
-tags
+tags,
+navigate
 
 }){
 
 
 return (
 
+
 <div className="unit-card">
+
+
 
 
 
 <div className="unit-header">
 
 
+
 <div className={`unit-icon ${iconBg}`}>
+
 
 
 <svg
@@ -333,6 +438,7 @@ viewBox="0 0 24 24"
 >
 
 
+
 <path
 
 d={icon}
@@ -346,11 +452,15 @@ strokeWidth="2"
 />
 
 
+
 </svg>
 
 
 
 </div>
+
+
+
 
 
 
@@ -364,7 +474,10 @@ strokeWidth="2"
 
 
 
+
 </div>
+
+
 
 
 
@@ -383,6 +496,8 @@ strokeWidth="2"
 
 
 
+
+
 <p className="unit-description">
 
 {description}
@@ -395,30 +510,40 @@ strokeWidth="2"
 
 
 
+
+
 <div className="unit-tags">
 
 
 {
-tags.map((tag,index)=>(
+
+tags.map((tag)=>(
 
 
 <span
 
-key={index}
+key={tag}
 
-className="unit-tag">
+className="unit-tag"
+
+>
 
 {tag}
 
 </span>
 
 
+
 ))
+
 
 }
 
 
+
 </div>
+
+
 
 
 
@@ -430,9 +555,29 @@ className="unit-tag">
 
 
 
-<button 
+
+
+<button
+
 type="button"
-className="workspace-btn">
+
+className="workspace-btn"
+
+onClick={()=>
+
+
+navigate(
+
+`/programmes/${title
+.toLowerCase()
+.replace(/\s+/g,"-")}`
+
+)
+
+
+}
+
+>
 
 Enter Workspace
 
@@ -442,9 +587,17 @@ Enter Workspace
 
 
 
-<button 
+
+
+<button
+
 type="button"
-className="secondary-btn">
+
+className="secondary-btn"
+
+onClick={()=>navigate("/policies")}
+
+>
 
 Policies
 
@@ -454,9 +607,17 @@ Policies
 
 
 
-<button 
+
+
+<button
+
 type="button"
-className="secondary-btn">
+
+className="secondary-btn"
+
+onClick={()=>navigate("/contacts")}
+
+>
 
 Contacts
 
@@ -464,18 +625,24 @@ Contacts
 
 
 
-</div>
-
-
 
 
 </div>
+
+
+
+
+
+
+</div>
+
 
 
 );
 
 
 }
+
 
 
 

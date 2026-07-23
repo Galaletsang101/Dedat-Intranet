@@ -1,5 +1,5 @@
-import React from 'react';
-import '../styles/About.css';
+import React from "react";
+import "../styles/About.css";
 
 
 
@@ -311,7 +311,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       <section className="timeline-section" id="history-timeline">
         <div className="container timeline-container">
           <div className="timeline">

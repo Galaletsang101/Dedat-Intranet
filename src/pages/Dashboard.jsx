@@ -1,9 +1,10 @@
-function Dashboard() {
-  return (
-    <div>
-      <h1>Dashboard Page</h1>
-    </div>
-  );
-}
+// src/pages/DashboardPage.jsx
+import React from 'react';
+
+import '../styles/dashboard.css';
+
+const Dashboard = () => {
+  return <Home />;
+};
 
 export default Dashboard;

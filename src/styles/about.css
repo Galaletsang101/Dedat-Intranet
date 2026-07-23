@@ -40,7 +40,7 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background:#5c5b5b;
 }
 
 .hero-content {
@@ -132,7 +132,7 @@ body {
 .section-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0c1334;
+  color:#5c5b5b;
 }
 
 .section-subtitle {
@@ -190,7 +190,7 @@ body {
 
 .value-text {
   font-size: 0.75rem;
-  color: #4b5563;
+  color: #5c5b5b;
 }
 
 /* ===== Goals Section ===== */
@@ -572,7 +572,7 @@ body {
 
 .timeline-title {
   font-weight: 700;
-  color: #0c1334;
+  color: #5c5b5b;
   margin-top: 0.25rem;
 }
 
@@ -658,7 +658,7 @@ body {
 
 .report-title {
   font-weight: 700;
-  color: #0c1334;
+  color: #5c5b5b;
   font-size: 0.875rem;
 }
 
@@ -685,5 +685,5 @@ body {
   padding: 0;
 }
 .report-download:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline
+  }

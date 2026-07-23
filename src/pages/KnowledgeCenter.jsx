@@ -1,5 +1,5 @@
-import React from "react";
-import "../styles/knowledgeCenter.css";
+import React, { useState } from "react";
+import "../styles/knowledgecenter.css";
 
 import {
   FaFileAlt,
@@ -8,10 +8,13 @@ import {
   FaClipboardList,
   FaFileContract,
   FaWpforms,
+  FaSearch,
+  FaUpload,
+  FaDownload,
 } from "react-icons/fa";
 
 
-const documents = [
+const initialDocuments = [
   {
     name: "NC_Economic_Strategy_2024.pdf",
     category: "POLICY",
@@ -37,294 +40,617 @@ const documents = [
 
 
 const KnowledgeCenter = () => {
-  return (
-    <div className="knowledge-app-container">
 
-      <header className="knowledge-main-header">
 
-        <div>
-          <h1 className="knowledge-header-title">
-            Institutional Repository
-          </h1>
+const [documents,setDocuments] = useState(initialDocuments);
 
-          <p className="knowledge-header-subtitle">
-            Access NCDEDAT&apos;s centralized collective intelligence.
-            Manage economic reports, tourism insights, and departmental
-            governance documentation.
-          </p>
-        </div>
+const [search,setSearch] = useState("");
 
+const [category,setCategory] = useState("ALL");
 
-        <div className="knowledge-header-actions">
 
-          <button className="knowledge-btn-outline">
-            My Downloads
-          </button>
+const [showUpload,setShowUpload] = useState(false);
 
-          <button className="knowledge-btn-primary">
-            Upload Resource
-          </button>
+const [showSupport,setShowSupport] = useState(false);
 
-        </div>
 
-      </header>
 
+const filteredDocuments = documents.filter((doc)=>{
 
+return (
 
-      <section className="knowledge-primary-grid">
+doc.name.toLowerCase().includes(search.toLowerCase())
 
-        <Card
-          icon={<FaFileAlt />}
-          title="Policies Repository"
-          text="Departmental mandates and regulatory frameworks."
-          color="navy"
-        />
+&&
 
+(category==="ALL" || doc.category===category)
 
-        <Card
-          icon={<FaChartBar />}
-          title="Reports Library"
-          text="Annual reviews, economic outlooks and tourism studies."
-          color="green"
-        />
+)
 
+});
 
-        <Card
-          icon={<FaLightbulb />}
-          title="Research & Insights"
-          text="Academic partnerships and sector analysis."
-          color="salamander"
-        />
 
-      </section>
 
 
 
-      <section className="knowledge-utility-grid">
+const uploadResource = ()=>{
 
-        <Utility
-          icon={<FaClipboardList />}
-          title="SOPs"
-          text="Standard Operating Procedures"
-        />
 
+const newDoc={
 
-        <Utility
-          icon={<FaFileContract />}
-          title="Templates"
-          text="Official branding documents"
-        />
+name:"New_Department_File.pdf",
 
+category:"POLICY",
 
-        <Utility
-          icon={<FaWpforms />}
-          title="Forms"
-          text="Department applications"
-        />
+status:"Pending",
 
-      </section>
+version:"v1.0",
 
+date:"Just now"
 
+};
 
-      <section className="knowledge-main-grid">
 
+setDocuments([newDoc,...documents]);
 
-        <div className="knowledge-table-section">
+setShowUpload(false);
 
-          <h2>
-            Recent Documents
-          </h2>
 
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Version</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-
-
-            <tbody>
-
-              {documents.map((doc)=>(
-                <tr key={doc.name}>
-
-                  <td>
-                    {doc.name}
-                  </td>
-
-
-                  <td>
-                    <span className="knowledge-badge">
-                      {doc.category}
-                    </span>
-                  </td>
-
-
-                  <td>
-                    <span className="knowledge-status">
-                      ● {doc.status}
-                    </span>
-                  </td>
-
-
-                  <td>
-                    {doc.version}
-                  </td>
-
-
-                  <td>
-                    {doc.date}
-                  </td>
-
-                </tr>
-              ))}
-
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-
-
-        <aside className="knowledge-right-column">
-
-
-          <div className="knowledge-stats-card">
-
-            <h3>
-              Knowledge Stats
-            </h3>
-
-
-            <div className="knowledge-stats">
-
-              <div>
-                <strong>
-                  1284
-                </strong>
-                <p>
-                  Total Assets
-                </p>
-              </div>
-
-
-              <div>
-                <strong>
-                  +42
-                </strong>
-
-                <p>
-                  New Month
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-
-
-          <div className="knowledge-support-card">
-
-            <h3>
-              Need KM Support?
-            </h3>
-
-            <p>
-              Contact Information Governance team.
-            </p>
-
-
-            <button>
-              Open Support Ticket
-            </button>
-
-
-          </div>
-
-
-        </aside>
-
-
-      </section>
-
-
-    </div>
-  );
 };
 
 
 
 
-function Card({icon,title,text,color}) {
+return (
 
-  return (
-
-    <div className="knowledge-card">
-
-      <div className={`knowledge-card-icon knowledge-${color}`}>
-        {icon}
-      </div>
+<div className="knowledgecenter-app-container">
 
 
-      <h3>
-        {title}
-      </h3>
+
+<header className="knowledgecenter-main-header">
 
 
-      <p>
-        {text}
-      </p>
+<div>
+
+<h1 className="knowledgecenter-header-title">
+
+Institutional Repository
+
+</h1>
 
 
-      <a href="#">
-        View Documents →
-      </a>
+<p className="knowledgecenter-header-subtitle">
+
+Access NCDEDAT's centralized collective intelligence.
+
+</p>
 
 
-    </div>
+</div>
 
-  );
+
+
+<div className="knowledgecenter-header-actions">
+
+
+<button className="knowledgecenter-btn-outline">
+
+<FaDownload/> My Downloads
+
+</button>
+
+
+
+
+<button
+
+className="knowledgecenter-btn-primary"
+
+onClick={()=>setShowUpload(true)}
+
+>
+
+<FaUpload/> Upload Resource
+
+</button>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+<section className="knowledgecenter-primary-grid">
+
+
+<Card
+
+icon={<FaFileAlt/>}
+
+title="Policies Repository"
+
+text="Departmental mandates and regulatory frameworks."
+
+color="navy"
+
+/>
+
+
+
+<Card
+
+icon={<FaChartBar/>}
+
+title="Reports Library"
+
+text="Annual reviews and economic studies."
+
+color="green"
+
+/>
+
+
+
+<Card
+
+icon={<FaLightbulb/>}
+
+title="Research & Insights"
+
+text="Academic partnerships and analysis."
+
+color="orange"
+
+/>
+
+
+</section>
+
+
+
+
+
+
+
+<section className="knowledgecenter-main-grid">
+
+
+
+<div className="knowledgecenter-table-section">
+
+
+<h2>
+
+Recent Documents
+
+</h2>
+
+
+
+
+<div className="knowledgecenter-search">
+
+
+<FaSearch/>
+
+
+<input
+
+placeholder="Search documents..."
+
+value={search}
+
+onChange={(e)=>setSearch(e.target.value)}
+
+/>
+
+
+
+
+<select
+
+onChange={(e)=>setCategory(e.target.value)}
+
+>
+
+<option value="ALL">
+All Categories
+</option>
+
+
+<option>
+POLICY
+</option>
+
+
+<option>
+REPORT
+</option>
+
+
+<option>
+SOP
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<table className="knowledgecenter-table">
+
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+<th>Category</th>
+<th>Status</th>
+<th>Version</th>
+<th>Action</th>
+
+</tr>
+
+
+</thead>
+
+
+
+
+<tbody>
+
+
+{
+
+filteredDocuments.map((doc)=>(
+
+
+<tr key={doc.name}>
+
+
+<td className="knowledgecenter-document-name">
+
+<FaFileAlt/>
+
+{doc.name}
+
+</td>
+
+
+
+<td>
+
+<span className="knowledgecenter-badge">
+
+{doc.category}
+
+</span>
+
+</td>
+
+
+
+
+<td>
+
+<span className="knowledgecenter-status">
+
+● {doc.status}
+
+</span>
+
+</td>
+
+
+
+
+<td>
+
+{doc.version}
+
+</td>
+
+
+
+
+<td>
+
+
+<button
+
+className="download-btn"
+
+onClick={()=>alert(`Downloading ${doc.name}`)}
+
+>
+
+Download
+
+</button>
+
+
+</td>
+
+
+
+</tr>
+
+
+
+))
+
+}
+
+
+</tbody>
+
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+<aside className="knowledgecenter-right-column">
+
+
+<div className="knowledgecenter-stats-card">
+
+
+<h3>
+
+Knowledge Stats
+
+</h3>
+
+
+<div className="knowledgecenter-stats">
+
+
+<div>
+
+<strong>
+
+{documents.length}
+
+</strong>
+
+<p>
+Total Assets
+</p>
+
+</div>
+
+
+
+<div>
+
+<strong>
+
++42
+
+</strong>
+
+<p>
+New Month
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div className="knowledgecenter-support-card">
+
+
+<h3>
+
+Need KM Support?
+
+</h3>
+
+
+
+<p>
+
+Contact Information Governance team.
+
+</p>
+
+
+
+<button
+
+className="knowledgecenter-support-btn"
+
+onClick={()=>setShowSupport(true)}
+
+>
+
+Open Support Ticket
+
+</button>
+
+
+</div>
+
+
+
+</aside>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+{
+showUpload &&
+
+<div className="modal">
+
+
+<div className="modal-box">
+
+
+<h2>
+
+Upload Resource
+
+</h2>
+
+
+<input type="file"/>
+
+
+<button onClick={uploadResource}>
+
+Upload
+
+</button>
+
+
+<button onClick={()=>setShowUpload(false)}>
+
+Cancel
+
+</button>
+
+
+</div>
+
+
+</div>
 
 }
 
 
 
-function Utility({icon,title,text}) {
-
-  return (
-
-    <div className="knowledge-utility-card">
-
-      <div className="knowledge-utility-icon">
-        {icon}
-      </div>
 
 
-      <h4>
-        {title}
-      </h4>
+{
+showSupport &&
+
+<div className="modal">
 
 
-      <p>
-        {text}
-      </p>
+<div className="modal-box">
 
 
-    </div>
+<h2>
 
-  );
+Support Ticket
+
+</h2>
+
+
+<textarea placeholder="Describe your issue"/>
+
+
+<button
+
+onClick={()=>{
+
+alert("Ticket submitted");
+
+setShowSupport(false);
+
+}}
+
+>
+
+Submit
+
+</button>
+
+
+</div>
+
+
+</div>
+
+}
+
+
+
+</div>
+
+
+);
+
+};
+
+
+
+
+
+function Card({icon,title,text,color}){
+
+return(
+
+<div className="knowledgecenter-card">
+
+
+<div className={`knowledgecenter-card-icon knowledgecenter-${color}`}>
+
+{icon}
+
+</div>
+
+
+<h3>{title}</h3>
+
+<p>{text}</p>
+
+
+<a href="#">
+
+View Documents →
+
+</a>
+
+
+</div>
+
+)
 
 }
 
 
 
 export default KnowledgeCenter;
+
