@@ -9,156 +9,76 @@ import AuthInput from "../components/auth/AuthInput";
 import { registerUser } from "../services/authService";
 import { validateGovernmentEmail } from "../services/validation";
 
-
-function Signup(){
-
+function Signup() {
   const navigate = useNavigate();
 
-
   const [formData, setFormData] = useState({
-
-    firstName:"",
-    surname:"",
-    employeeNumber:"",
-    programme:"",
-    position:"",
-    email:"",
-    password:"",
-    confirmPassword:""
-
+    firstName: "",
+    surname: "",
+    programme: "",
+    subprogramme: "",
+    position: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
+  const [error, setError] = useState("");
 
-  const [error,setError] = useState("");
-
-
-
-  function handleChange(e){
-
+  function handleChange(e) {
     setFormData({
-
       ...formData,
-
-      [e.target.name]: e.target.value
-
+      [e.target.name]: e.target.value,
     });
-
   }
 
-
-
-  async function handleSignup(e){
-
+  async function handleSignup(e) {
     e.preventDefault();
-
 
     setError("");
 
-
-
-    if(!validateGovernmentEmail(formData.email)){
-
-      setError(
-        "Please use your @ncdedat.gov.za email address."
-      );
-
+    if (!validateGovernmentEmail(formData.email)) {
+      setError("Please use your @ncdedat.gov.za email address.");
       return;
-
     }
 
-
-
-    if(formData.password !== formData.confirmPassword){
-
-      setError(
-        "Passwords do not match."
-      );
-
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
       return;
-
     }
 
-
-
-    try{
-
-
-      await registerUser(
-
-        formData.email,
-
-        formData.password,
-
-        {
-
-          firstName: formData.firstName,
-
-          surname: formData.surname,
-
-          employeeNumber: formData.employeeNumber,
-
-          programme: formData.programme,
-
-          position: formData.position
-
-        }
-
-      );
-
+    try {
+      await registerUser(formData.email, formData.password, {
+        firstName: formData.firstName,
+        surname: formData.surname,
+        programme: formData.programme,
+        subprogramme: formData.subprogramme,
+        position: formData.position,
+      });
 
       navigate("/");
-
-
-
-    }catch(error){
-
-
+    } catch (error) {
       console.log(error);
-
       setError(error.message);
-
-
     }
-
-
   }
 
-
-
-
   return (
-
     <AuthLayout>
-
-
       <AuthCard>
-
-
         <div className="form-header">
+          <h1>Create Account</h1>
 
-          <h1>
-            Create Account
-          </h1>
-
-
-          <p>
-            Register your DeDAaT account
-          </p>
-
+          <p>Register your DeDAaT account</p>
         </div>
 
-
-
         <form onSubmit={handleSignup}>
-
-
           <AuthInput
             label="First Name"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
           />
-
 
           <AuthInput
             label="Surname"
@@ -167,15 +87,6 @@ function Signup(){
             onChange={handleChange}
           />
 
-
-          <AuthInput
-            label="Employee Number"
-            name="employeeNumber"
-            value={formData.employeeNumber}
-            onChange={handleChange}
-          />
-
-
           <AuthInput
             label="Programme"
             name="programme"
@@ -183,6 +94,12 @@ function Signup(){
             onChange={handleChange}
           />
 
+          <AuthInput
+            label="Subprogramme"
+            name="subprogramme"
+            value={formData.subprogramme}
+            onChange={handleChange}
+          />
 
           <AuthInput
             label="Position"
@@ -190,7 +107,6 @@ function Signup(){
             value={formData.position}
             onChange={handleChange}
           />
-
 
           <AuthInput
             label="Government Email"
@@ -200,7 +116,6 @@ function Signup(){
             onChange={handleChange}
           />
 
-
           <AuthInput
             label="Password"
             name="password"
@@ -208,7 +123,6 @@ function Signup(){
             value={formData.password}
             onChange={handleChange}
           />
-
 
           <AuthInput
             label="Confirm Password"
@@ -218,54 +132,20 @@ function Signup(){
             onChange={handleChange}
           />
 
+          {error && <p className="error-message">{error}</p>}
 
-
-          {
-            error && (
-
-              <p className="error-message">
-                {error}
-              </p>
-
-            )
-          }
-
-
-
-          <AuthButton
-            text="Create Account"
-          />
-
-
+          <AuthButton text="Create Account" />
         </form>
 
-
-
         <div className="auth-links">
-
           <p>
-
             Already have an account?
-
-            <a href="/">
-              Login
-            </a>
-
+            <a href="/">Login</a>
           </p>
-
-
         </div>
-
-
       </AuthCard>
-
-
     </AuthLayout>
-
   );
-
-
 }
-
 
 export default Signup;
