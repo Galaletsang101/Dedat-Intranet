@@ -2,99 +2,168 @@
    GLOBAL RESET
 ========================= */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-    font-family:'Inter', Arial, sans-serif;
-    background:#f8f9fa;
-    color:#0f172a;
+
+body {
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    background: #f8f9fa;
+
+    color: #5c5b5b;
+
 }
+
 
 
 /* =========================
    MAIN CONTAINER
 ========================= */
 
-.knowledgecenter-app-container{
-    max-width:1280px;
-    margin:auto;
-    padding:32px;
+
+.knowledgecenter-app-container {
+
+    max-width: 1280px;
+
+    margin: auto;
+
+    padding: 32px;
+
 }
+
 
 
 /* =========================
    HEADER
 ========================= */
 
-.knowledgecenter-main-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:30px;
-    margin-bottom:40px;
+
+.knowledgecenter-main-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 30px;
+
+    margin-bottom: 40px;
+
 }
 
 
-.knowledgecenter-header-title{
-    font-size:32px;
-    font-weight:700;
-    color:#d85f06;
+
+.knowledgecenter-header-title {
+
+    font-size: 32px;
+
+    font-weight: 700;
+
+    color: #d85f06;
+
 }
 
 
-.knowledgecenter-header-subtitle{
-    margin-top:10px;
-    max-width:620px;
-    color:#64748b;
-    line-height:1.6;
+
+.knowledgecenter-header-subtitle {
+
+    margin-top: 10px;
+
+    max-width: 620px;
+
+    color: #64748b;
+
+    line-height: 1.6;
+
 }
 
 
-.knowledgecenter-header-actions{
-    display:flex;
-    gap:15px;
+
+.knowledgecenter-header-actions {
+
+    display: flex;
+
+    gap: 15px;
+
 }
+
+
+
+
+/* =========================
+   BUTTONS
+========================= */
 
 
 .knowledgecenter-btn-outline,
-.knowledgecenter-btn-primary{
 
-    padding:12px 22px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    border:none;
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
+.knowledgecenter-btn-primary {
 
+    padding: 12px 22px;
 
-.knowledgecenter-btn-outline{
+    border-radius: 8px;
 
-    background:white;
-    border:1px solid #e5c19b;
+    cursor: pointer;
 
-}
+    font-weight: 600;
 
+    border: none;
 
-.knowledgecenter-btn-primary{
+    display: flex;
 
-    background:#d85f06;
-    color:white;
+    align-items: center;
+
+    gap: 8px;
+
+    transition: 0.3s ease;
 
 }
 
 
-.knowledgecenter-btn-primary:hover{
 
-    background:#b94f05;
+.knowledgecenter-btn-outline {
+
+    background: white;
+
+    border: 1px solid #5c5b5b;
+
+    color: #5c5b5b;
 
 }
+
+
+
+.knowledgecenter-btn-outline:hover {
+
+    background: #f8f9fa;
+
+}
+
+
+
+.knowledgecenter-btn-primary {
+
+    background: #d85f06;
+
+    color: white;
+
+}
+
+
+
+.knowledgecenter-btn-primary:hover {
+
+    background: #b94f05;
+
+}
+
+
 
 
 
@@ -102,217 +171,352 @@ body{
    PRIMARY CARDS
 ========================= */
 
-.knowledgecenter-primary-grid{
 
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:24px;
-    margin-bottom:35px;
+.knowledgecenter-primary-grid {
 
-}
+    display: grid;
 
+    grid-template-columns: repeat(3,1fr);
 
-.knowledgecenter-card{
+    gap: 24px;
 
-    background:white;
-    padding:28px;
-    border-radius:16px;
-    border:1px solid #e5c19b;
-    transition:.3s;
-
-}
-
-
-.knowledgecenter-card:hover{
-
-    transform:translateY(-5px);
-
-}
-
-
-.knowledgecenter-card-icon{
-
-    width:50px;
-    height:50px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    border-radius:12px;
-    margin-bottom:20px;
-    font-size:22px;
-
-}
-
-
-.knowledgecenter-navy{
-
-    background:#0f172a;
-    color:white;
-
-}
-
-
-.knowledgecenter-green{
-
-    background:#dcfce7;
-    color:#16a34a;
-
-}
-
-
-.knowledgecenter-orange{
-
-    background:#fff0e6;
-    color:#d85f06;
-
-}
-
-
-.knowledgecenter-card h3{
-
-    color:#d85f06;
-    margin-bottom:10px;
-
-}
-
-
-.knowledgecenter-card p{
-
-    color:#64748b;
-    margin-bottom:18px;
-
-}
-
-
-.knowledgecenter-card a{
-
-    color:#d85f06;
-    text-decoration:none;
-    font-weight:700;
+    margin-bottom: 35px;
 
 }
 
 
 
+.knowledgecenter-card {
+
+    background: white;
+
+    padding: 28px;
+
+    border-radius: 16px;
+
+    border: 1px solid #e5c19b;
+
+    transition: 0.3s ease;
+
+}
+
+
+
+.knowledgecenter-card:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+
+}
+
+
+
+.knowledgecenter-card-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 12px;
+
+    margin-bottom: 20px;
+
+    font-size: 22px;
+
+}
+
+
+
+/* Card Colors */
+
+
+.knowledgecenter-navy {
+
+    background: #5c5b5b;
+
+    color: white;
+
+}
+
+
+
+.knowledgecenter-green {
+
+    background: #dcfce7;
+
+    color: #16a34a;
+
+}
+
+
+
+.knowledgecenter-orange {
+
+    background: #fff0e6;
+
+    color: #d85f06;
+
+}
+
+
+
+.knowledgecenter-card h3 {
+
+    color: #d85f06;
+
+    margin-bottom: 10px;
+
+}
+
+
+
+.knowledgecenter-card p {
+
+    color: #64748b;
+
+    margin-bottom: 18px;
+
+}
+
+
+
+
+/* =========================
+   REACT LINK BUTTON
+========================= */
+
+
+.knowledgecenter-link-btn {
+
+    background: none;
+
+    border: none;
+
+    color: #d85f06;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    padding: 0;
+
+    font-size: 15px;
+
+    transition: 0.3s ease;
+
+}
+
+
+
+.knowledgecenter-link-btn:hover {
+
+    color: #b94f05;
+
+    text-decoration: underline;
+
+}
+
+
+
+.nav a {
+
+    color: black;
+
+}
 /* =========================
    MAIN CONTENT
 ========================= */
 
 
-.knowledgecenter-main-grid{
+.knowledgecenter-main-grid {
 
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:30px;
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+
+    gap: 30px;
 
 }
+
 
 
 /* =========================
    DOCUMENT SECTION
 ========================= */
 
-.knowledgecenter-table-section{
 
-    background:white;
-    padding:25px;
-    border-radius:16px;
-    border:1px solid #e5c19b;
+.knowledgecenter-table-section {
 
-}
+    background: white;
 
+    padding: 25px;
 
-.knowledgecenter-table-section h2{
+    border-radius: 16px;
 
-    color:#d85f06;
-    margin-bottom:20px;
+    border: 1px solid #e5c19b;
 
-}
-
-
-/* SEARCH */
-
-.knowledgecenter-search{
-
-    display:flex;
-    gap:12px;
-    align-items:center;
-    margin-bottom:25px;
-
-}
-
-
-.knowledgecenter-search svg{
-
-    color:#d85f06;
-
-}
-
-
-.knowledgecenter-search input{
-
-    flex:1;
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #ddd;
-    outline:none;
-
-}
-
-
-.knowledgecenter-search select{
-
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #ddd;
-    cursor:pointer;
+    overflow-x: auto;
 
 }
 
 
 
-.knowledgecenter-table{
+.knowledgecenter-table-section h2 {
 
-    width:100%;
-    border-collapse:collapse;
+    color: #d85f06;
 
-}
-
-
-.knowledgecenter-table th{
-
-    background:#f8f9fa;
-    padding:15px;
-    text-align:left;
-    color:#64748b;
-
-}
-
-
-.knowledgecenter-table td{
-
-    padding:15px;
-    border-top:1px solid #e5c19b;
+    margin-bottom: 20px;
 
 }
 
 
 
-.knowledgecenter-document-name{
+/* =========================
+   SEARCH
+========================= */
 
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-weight:600;
+
+.knowledgecenter-search {
+
+    display: flex;
+
+    gap: 12px;
+
+    align-items: center;
+
+    margin-bottom: 25px;
 
 }
 
 
-.knowledgecenter-document-name svg{
 
-    color:#d85f06;
+.knowledgecenter-search svg {
+
+    color: #d85f06;
 
 }
+
+
+
+.knowledgecenter-search input {
+
+    flex: 1;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ddd;
+
+    outline: none;
+
+}
+
+
+
+.knowledgecenter-search select {
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ddd;
+
+    cursor: pointer;
+
+}
+
+
+
+.knowledgecenter-search input:focus,
+
+.knowledgecenter-search select:focus {
+
+    border-color: #d85f06;
+
+    box-shadow: 0 0 0 3px rgba(216,95,6,0.15);
+
+}
+
+
+
+
+
+/* =========================
+   TABLE
+========================= */
+
+
+.knowledgecenter-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+
+.knowledgecenter-table th {
+
+    background: #f8f9fa;
+
+    padding: 15px;
+
+    text-align: left;
+
+    color: #64748b;
+
+}
+
+
+
+.knowledgecenter-table td {
+
+    padding: 15px;
+
+    border-top: 1px solid #e5c19b;
+
+}
+
+
+
+.knowledgecenter-table tr:hover {
+
+    background: #fffaf5;
+
+}
+
+
+
+.knowledgecenter-document-name {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-weight: 600;
+
+}
+
+
+
+.knowledgecenter-document-name svg {
+
+    color: #d85f06;
+
+}
+
+
 
 
 
@@ -320,45 +524,67 @@ body{
    BADGES
 ========================= */
 
-.knowledgecenter-badge{
 
-    background:#e5c19b;
-    color:#5c5b5b;
-    padding:5px 12px;
-    border-radius:20px;
-    font-size:12px;
+.knowledgecenter-badge {
 
-}
+    background: #e5c19b;
 
+    color: #5c5b5b;
 
-.knowledgecenter-status{
+    padding: 5px 12px;
 
-    color:#16a34a;
-    font-weight:600;
+    border-radius: 20px;
+
+    font-size: 12px;
 
 }
 
 
 
-/* DOWNLOAD BUTTON */
+.knowledgecenter-status {
 
-.download-btn{
+    color: #16a34a;
 
-    background:#d85f06;
-    color:white;
-    border:none;
-    padding:8px 15px;
-    border-radius:8px;
-    cursor:pointer;
+    font-weight: 600;
 
 }
 
 
-.download-btn:hover{
 
-    background:#b94f05;
+
+
+/* =========================
+   DOWNLOAD BUTTON
+========================= */
+
+
+.download-btn {
+
+    background: #d85f06;
+
+    color: white;
+
+    border: none;
+
+    padding: 8px 15px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition: 0.3s ease;
 
 }
+
+
+
+.download-btn:hover {
+
+    background: #b94f05;
+
+}
+
+
 
 
 
@@ -367,140 +593,237 @@ body{
 ========================= */
 
 
-.knowledgecenter-right-column{
+.knowledgecenter-right-column {
 
-    display:flex;
-    flex-direction:column;
-    gap:25px;
+    display: flex;
 
-}
+    flex-direction: column;
 
-
-.knowledgecenter-stats-card{
-
-    background:#0f172a;
-    color:white;
-    padding:30px;
-    border-radius:16px;
-
-}
-
-
-.knowledgecenter-stats{
-
-    display:flex;
-    justify-content:space-between;
-    margin-top:25px;
-
-}
-
-
-.knowledgecenter-stats strong{
-
-    font-size:35px;
-
-}
-
-
-.knowledgecenter-stats p{
-
-    color:#e5c19b;
+    gap: 25px;
 
 }
 
 
 
-/* SUPPORT */
-
-.knowledgecenter-support-card{
-
-    background:#d85f06;
-    color:white;
-    padding:30px;
-    border-radius:16px;
-
-}
 
 
-.knowledgecenter-support-btn{
+/* =========================
+   STATS CARD
+========================= */
 
-    margin-top:20px;
-    padding:12px 20px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    background:white;
-    color:#d85f06;
-    font-weight:700;
+
+.knowledgecenter-stats-card {
+
+    background: #5c5b5b;
+
+    color: white;
+
+    padding: 30px;
+
+    border-radius: 16px;
 
 }
 
 
 
+.knowledgecenter-stats {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 25px;
+
+}
+
+
+
+.knowledgecenter-stats strong {
+
+    font-size: 35px;
+
+}
+
+
+
+.knowledgecenter-stats p {
+
+    color: #e5c19b;
+
+}
+
+
+
+
+
+/* =========================
+   SUPPORT CARD
+========================= */
+
+
+.knowledgecenter-support-card {
+
+    background: #d85f06;
+
+    color: white;
+
+    padding: 30px;
+
+    border-radius: 16px;
+
+}
+
+
+
+.knowledgecenter-support-btn {
+
+    margin-top: 20px;
+
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    background: white;
+
+    color: #d85f06;
+
+    font-weight: 700;
+
+    transition: 0.3s ease;
+
+}
+
+
+
+.knowledgecenter-support-btn:hover {
+
+    background: #f4f4f4;
+
+}
 /* =========================
    MODALS
 ========================= */
 
 
-.modal{
+.modal {
 
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.5);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:999;
+    position: fixed;
 
-}
+    inset: 0;
 
+    background: rgba(0,0,0,0.5);
 
-.modal-box{
+    display: flex;
 
-    background:white;
-    width:400px;
-    padding:30px;
-    border-radius:16px;
-    display:flex;
-    flex-direction:column;
-    gap:15px;
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 999;
 
 }
 
 
-.modal-box h2{
 
-    color:#d85f06;
+.modal-box {
+
+    background: white;
+
+    width: 400px;
+
+    padding: 30px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
 
 }
+
+
+
+.modal-box h2 {
+
+    color: #d85f06;
+
+}
+
 
 
 .modal-box input,
-.modal-box textarea{
 
-    padding:12px;
-    border:1px solid #ddd;
-    border-radius:8px;
+.modal-box textarea {
+
+    padding: 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    font-family: inherit;
+
+}
+
+
+
+.modal-box textarea {
+
+    min-height: 120px;
+
+    resize: vertical;
 
 }
 
 
-.modal-box textarea{
 
-    min-height:120px;
+.modal-box input:focus,
+
+.modal-box textarea:focus {
+
+    border-color: #d85f06;
+
+    box-shadow: 0 0 0 3px rgba(216,95,6,0.15);
+
+}
+
+
+
+.modal-box button {
+
+    padding: 12px;
+
+    background: #d85f06;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition: 0.3s ease;
+
 }
 
 
-.modal-box button{
 
-    padding:12px;
-    background:#d85f06;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
+.modal-box button:hover {
+
+    background: #0f172a;
 
 }
+
+
 
 
 
@@ -511,66 +834,166 @@ body{
 
 @media(max-width:1000px){
 
+
     .knowledgecenter-primary-grid,
-    .knowledgecenter-main-grid{
 
-        grid-template-columns:1fr;
+    .knowledgecenter-main-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .knowledgecenter-main-header {
+
+        flex-direction: column;
 
     }
 
 
-    .knowledgecenter-main-header{
+    .knowledgecenter-header-actions {
 
-        flex-direction:column;
+        width: 100%;
 
     }
+
 
 }
+
+
 
 
 
 @media(max-width:600px){
 
-    .knowledgecenter-app-container{
 
-        padding:20px;
+    .knowledgecenter-app-container {
+
+        padding: 20px;
+
+    }
+
+
+
+    .knowledgecenter-search {
+
+        flex-direction: column;
+
+        align-items: stretch;
 
     }
 
-
-    .knowledgecenter-search{
-
-        flex-direction:column;
-
-    }
 
 
     .knowledgecenter-search input,
-    .knowledgecenter-search select{
 
-        width:100%;
+    .knowledgecenter-search select {
 
-    }
-
-
-    .knowledgecenter-header-title{
-
-        font-size:25px;
+        width: 100%;
 
     }
 
 
-    .modal-box{
 
-        width:90%;
+    .knowledgecenter-header-title {
+
+        font-size: 25px;
 
     }
 
 
-    .knowledgecenter-table{
 
-        min-width:650px;
+    .knowledgecenter-header-actions {
+
+        flex-direction: column;
+
+    }
+
+
+
+    .knowledgecenter-btn-outline,
+
+    .knowledgecenter-btn-primary {
+
+        width: 100%;
+
+        justify-content: center;
+
+    }
+
+
+
+    .modal-box {
+
+        width: 90%;
+
+    }
+
+
+
+    .knowledgecenter-table {
+
+        min-width: 650px;
 
     }
 
 }
+
+
+
+
+
+/* =========================
+   SMOOTH UI EFFECTS
+========================= */
+
+
+.knowledgecenter-card,
+
+.knowledgecenter-stats-card,
+
+.knowledgecenter-support-card,
+
+.knowledgecenter-table-section {
+
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+}
+
+
+
+.knowledgecenter-stats-card:hover,
+
+.knowledgecenter-support-card:hover {
+
+    transform: translateY(-3px);
+
+}
+
+
+
+
+
+/* =========================
+   BRAND COLORS REFERENCE
+========================= */
+
+
+/*
+
+Primary Orange:
+#d85f06
+
+Dark Navy:
+#0f172a
+
+Grey:
+#5c5b5b
+
+Soft Beige:
+#e5c19b
+
+Background:
+#f8f9fa
+
+*/

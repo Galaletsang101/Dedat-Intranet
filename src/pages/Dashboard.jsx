@@ -1007,40 +1007,33 @@ item.type==="urgent"
 const SuggestionBox = () => {
 
 
+const [open,setOpen]=useState(false);
+
 const [suggestion,setSuggestion]=useState("");
 
 const [message,setMessage]=useState("");
 
 
 
-
 const submitSuggestion=(e)=>{
-
 
 e.preventDefault();
 
 
-
 if(!suggestion.trim()){
-
 
 setMessage("Please enter your suggestion.");
 
 return;
 
-
 }
-
 
 
 setMessage("Suggestion submitted successfully.");
 
 setSuggestion("");
 
-
-
 };
-
 
 
 
@@ -1059,14 +1052,31 @@ Suggestion Box
 
 
 
-
 <p>
-
 Have an idea to improve our workplace? We would love to hear it.
-
 </p>
 
 
+
+<button
+onClick={()=>setOpen(!open)}
+>
+
+{
+open
+?
+"Hide Suggestion Form"
+:
+"Submit Suggestion"
+}
+
+</button>
+
+
+
+
+{
+open &&
 
 <form onSubmit={submitSuggestion}>
 
@@ -1094,6 +1104,8 @@ Submit Idea
 
 </form>
 
+}
+
 
 
 
@@ -1113,19 +1125,10 @@ message &&
 
 </section>
 
-
 );
 
 
 };
-
-
-
-
-
-
-
-
 
 /* =====================================
    GRIEVANCE BOX
@@ -1151,9 +1154,7 @@ const [message,setMessage]=useState("");
 
 
 
-
 const handleChange=(e)=>{
-
 
 setForm({
 
@@ -1163,15 +1164,12 @@ setForm({
 
 });
 
-
 };
 
 
 
 
-
 const submitGrievance=(e)=>{
-
 
 e.preventDefault();
 
@@ -1179,11 +1177,9 @@ e.preventDefault();
 
 if(!form.subject || !form.description){
 
-
 setMessage("Please complete all fields.");
 
 return;
-
 
 }
 
@@ -1203,9 +1199,7 @@ description:""
 });
 
 
-
 setOpen(false);
-
 
 
 };
@@ -1249,11 +1243,23 @@ All submissions are handled confidentially by HR Ethics Committee.
 
 <button
 
-onClick={()=>setOpen(true)}
+onClick={()=>setOpen(!open)}
 
 >
 
-File a Complaint
+{
+
+open
+
+?
+
+"Cancel Complaint"
+
+:
+
+"File a Complaint"
+
+}
 
 </button>
 
@@ -1278,6 +1284,7 @@ Submit Grievance
 
 
 
+
 <input
 
 type="text"
@@ -1291,6 +1298,7 @@ value={form.subject}
 onChange={handleChange}
 
 />
+
 
 
 
@@ -1310,6 +1318,7 @@ onChange={handleChange}
 
 
 
+
 <button type="submit">
 
 Submit Complaint
@@ -1319,29 +1328,15 @@ Submit Complaint
 
 
 
-<button
-
-type="button"
-
-onClick={()=>setOpen(false)}
-
->
-
-Cancel
-
-</button>
-
-
-
-
 </form>
-
 
 
 </div>
 
 
 }
+
+
 
 
 
@@ -1368,10 +1363,6 @@ message &&
 
 
 };
-
-
-
-
 
 
 
