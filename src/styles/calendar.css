@@ -9,6 +9,11 @@
 
 }
 
+.event-card.holiday {
+  background: #d32f2f;
+  color: white;
+  border-left: 4px solid #8b0000;
+}
 
 /* =========================
    SEARCH

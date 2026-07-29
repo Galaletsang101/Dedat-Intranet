@@ -17,11 +17,7 @@ function BottomNav() {
   const navigate = useNavigate();
 
   const buttons = [
-    {
-      name: "Dashboard",
-      icon: <FaTachometerAlt />,
-      path: "/dashboard",
-    },
+ 
     {
       name: "E-Leave",
       icon: <FaFileSignature />,
