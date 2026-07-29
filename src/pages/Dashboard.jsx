@@ -310,6 +310,13 @@ icon:<HiUser/>
 title:"Health Circulars",
 desc:"Health updates and protocols",
 icon:<HiDocument/>
+},
+
+
+{
+title:"First Aid Services",
+desc:"Emergency assistance, first aid procedures and safety support",
+icon:<HiHeart/>
 }
 
 
@@ -1001,14 +1008,14 @@ item.type==="urgent"
 
 
 
-
 /* =====================================
    SUGGESTION BOX
 ===================================== */
 
-
 const SuggestionBox = () => {
 
+
+const [visible,setVisible]=useState(false);
 
 const [open,setOpen]=useState(false);
 
@@ -1040,6 +1047,32 @@ setSuggestion("");
 
 
 
+
+if(!visible){
+
+return (
+
+<section className="dashboard-widget">
+
+
+<button
+onClick={()=>setVisible(true)}
+>
+
+Show Suggestion Box
+
+</button>
+
+
+</section>
+
+);
+
+}
+
+
+
+
 return (
 
 <section className="dashboard-widget">
@@ -1061,16 +1094,23 @@ Have an idea to improve our workplace? We would love to hear it.
 
 
 
+
 <button
 onClick={()=>setOpen(!open)}
 >
 
 {
+
 open
+
 ?
+
 "Hide Suggestion Form"
+
 :
+
 "Submit Suggestion"
+
 }
 
 </button>
@@ -1078,7 +1118,9 @@ open
 
 
 
+
 {
+
 open &&
 
 <form onSubmit={submitSuggestion}>
@@ -1126,6 +1168,21 @@ message &&
 
 
 
+
+<button
+
+className="remove-widget"
+
+onClick={()=>setVisible(false)}
+
+>
+
+Hide Suggestion Box
+
+</button>
+
+
+
 </section>
 
 );
@@ -1137,9 +1194,10 @@ message &&
    GRIEVANCE BOX
 ===================================== */
 
-
 const GrievanceBox = () => {
 
+
+const [visible,setVisible]=useState(false);
 
 const [open,setOpen]=useState(false);
 
@@ -1211,6 +1269,32 @@ setOpen(false);
 
 
 
+if(!visible){
+
+return (
+
+<section className="dashboard-widget">
+
+
+<button
+onClick={()=>setVisible(true)}
+>
+
+Show Grievance Box
+
+</button>
+
+
+</section>
+
+);
+
+}
+
+
+
+
+
 return (
 
 <section className="dashboard-widget">
@@ -1223,6 +1307,7 @@ return (
 Grievance Box
 
 </h3>
+
 
 
 
@@ -1240,6 +1325,7 @@ Submit formal complaints or report issues securely.
 All submissions are handled confidentially by HR Ethics Committee.
 
 </div>
+
 
 
 
@@ -1343,7 +1429,6 @@ Submit Complaint
 
 
 
-
 {
 
 message &&
@@ -1359,14 +1444,27 @@ message &&
 
 
 
-</section>
+<button
 
+className="remove-widget"
+
+onClick={()=>setVisible(false)}
+
+>
+
+Hide Grievance Box
+
+</button>
+
+
+
+
+</section>
 
 );
 
 
 };
-
 
 
 
