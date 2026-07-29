@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import "../styles/dashboard.css";
 
@@ -87,6 +88,16 @@ icon:<HiTemplate/>
 title:"Contact HR",
 desc:"Support & inquiries",
 icon:<HiUserGroup/>
+=======
+import React from "react";
+
+function Dashboard() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+    </div>
+  );
+>>>>>>> 0cf6175dc8bc3da75632c7d255a3083322ab828a
 }
 
 ];

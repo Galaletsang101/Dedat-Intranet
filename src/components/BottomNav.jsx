@@ -1,4 +1,4 @@
-import { 
+import {
   FaFileSignature,
   FaFileUpload,
   FaLaptop,
@@ -6,73 +6,67 @@ import {
   FaEnvelope,
   FaFileAlt,
   FaHeart,
-  FaHeadset
+  FaHeadset,
+  FaTachometerAlt,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 import "../styles/bottomnav.css";
 
-
 function BottomNav() {
+  const navigate = useNavigate();
 
   const buttons = [
+ 
     {
       name: "E-Leave",
-      icon: <FaFileSignature />
+      icon: <FaFileSignature />,
     },
     {
       name: "E-Submission",
-      icon: <FaFileUpload />
+      icon: <FaFileUpload />,
     },
     {
       name: "IT Support",
-      icon: <FaLaptop />
+      icon: <FaLaptop />,
     },
     {
       name: "Book Boardroom",
-      icon: <FaBuilding />
+      icon: <FaBuilding />,
     },
     {
       name: "GroupWise",
-      icon: <FaEnvelope />
+      icon: <FaEnvelope />,
     },
     {
       name: "Policies",
-      icon: <FaFileAlt />
+      icon: <FaFileAlt />,
+      path: "/policies",
     },
     {
       name: "Wellness",
-      icon: <FaHeart />
+      icon: <FaHeart />,
     },
     {
       name: "Help Desk",
-      icon: <FaHeadset />
-    }
+      icon: <FaHeadset />,
+    },
   ];
-
 
   return (
     <div className="bottomnav-container">
-
       <div className="bottomnav">
-
         {buttons.map((button, index) => (
-
-          <button key={index}>
-
-            <span className="nav-icon">
-              {button.icon}
-            </span>
-
-            <span>
-              {button.name}
-            </span>
-
+          <button
+            key={index}
+            type="button"
+            onClick={() => button.path && navigate(button.path)}
+          >
+            <span className="nav-icon">{button.icon}</span>
+            <span>{button.name}</span>
           </button>
-
         ))}
-
       </div>
-
     </div>
   );
 }

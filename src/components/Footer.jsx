@@ -4,6 +4,10 @@ import logo from "../assets/DEDAT-HD-small.jpg";
 import { Link } from "react-router-dom";
 
 function Footer() {
+  const handleFaqClick = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -53,7 +57,11 @@ function Footer() {
             <li><Link to="/it-support">IT Support</Link></li>
             <li><Link to="/hr">Human Resources</Link></li>
             <li><Link to="/feedback">Feedback / Suggestions</Link></li>
-            <li><Link to="/faq">FAQ</Link></li>
+            <li>
+              <Link to="/faq" onClick={handleFaqClick}>
+                FAQ
+              </Link>
+            </li>
           </ul>
         </div>
 
