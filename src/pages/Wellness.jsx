@@ -1,161 +1,251 @@
-import React, { useState } from "react";
+import { useMemo, useRef, useState } from "react";
+
 import {
+  FaHeart,
   FaPhoneAlt,
   FaEnvelope,
   FaGlobe,
   FaCloudUploadAlt,
   FaPlay,
-  FaArrowRight,
-  FaClock,
-  FaChevronLeft,
-  FaChevronRight,
 } from "react-icons/fa";
+
+import { storage, db } from "../firebase/firebase";
+
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 import "../styles/wellness.css";
 
-const webinars = [
-  {
-    id: 1,
-    title: "Mindfulness at Work",
-    category: "Mental Health",
-    description:
-      "Practical techniques to stay grounded and focused during high-pressure work days.",
-    duration: "45 mins",
-    image:
-      "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800",
-      video: "/videos/mindfulness.mp4",
-    tag: "NEW",
-  },
-  {
-    id: 2,
-    title: "Managing Stress",
-    category: "Mental Health",
-    description:
-      "A deep dive into cognitive tools for identifying and mitigating burnout before it starts.",
-    duration: "60 mins",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800",
-      video: "/videos/stress.mp4"
-  },
-  {
-    id: 3,
-    title: "Sleep Hygiene",
-    category: "Physical Care",
-    description:
-      "Optimize your nightly routine to improve recovery and overall wellbeing.",
-    duration: "35 mins",
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800",
-    video: "/videos/sleep.mp4"
-  },
-  {
-    id: 4,
-    title: "Work-Life Balance",
-    category: "Productivity",
-    description:
-      "Learn practical strategies for balancing work responsibilities and personal wellbeing.",
-    duration: "40 mins",
-    image:
-      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800",
-    video: "/videos/worklife.mp4",
-  },
-];
-  
-
-
 function Wellness() {
+  const fileInputRef = useRef(null);
 
-const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
-const [selectedWebinar, setSelectedWebinar] = useState(null);
+  const [videos, setVideos] = useState([
+    {
+      id: 1,
+      title: "Mindfulness at Work",
+      description:
+        "Practical techniques to stay grounded and focused during high-pressure work days.",
+      duration: "45 mins",
+      category: "Mental Health",
+      thumbnail:
+        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900",
+      video:
+        "https://www.w3schools.com/html/mov_bbb.mp4",
+      featured: true,
+    },
+    {
+      id: 2,
+      title: "Managing Stress",
+      description:
+        "Learn practical ways to reduce workplace stress and avoid burnout.",
+      duration: "60 mins",
+      category: "Mental Health",
+      thumbnail:
+        "https://images.unsplash.com/photo-1493836512294-502baa1986e2?w=900",
+      video:
+        "https://www.w3schools.com/html/movie.mp4",
+    },
+    {
+      id: 3,
+      title: "Healthy Sleep",
+      description:
+        "Improve your sleeping habits and increase productivity every day.",
+      duration: "35 mins",
+      category: "Physical Care",
+      thumbnail:
+        "https://images.unsplash.com/photo-1511296265581-c2450046447d?w=900",
+      video:
+        "https://www.w3schools.com/html/mov_bbb.mp4",
+    },
+    {
+      id: 4,
+      title: "Work-Life Balance",
+      description:
+        "Finding balance between your career and your personal life.",
+      duration: "52 mins",
+      category: "Productivity",
+      thumbnail:
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900",
+      video:
+        "https://www.w3schools.com/html/movie.mp4",
+    },
+  ]);
 
-const categories = [
-  "All",
-  ...new Set(webinars.map((webinar) => webinar.category)),
-];
+  const categories = [
+    "All",
+    "Mental Health",
+    "Productivity",
+    "Physical Care",
+  ];
 
-const filteredWebinars =
-  selectedCategory === "All"
-    ? webinars
-    : webinars.filter(
-        (webinar) => webinar.category === selectedCategory
-      );
-  return (
+    const filteredVideos = useMemo(() => {
+    return videos.filter((video) => {
+      const matchesCategory =
+        selectedCategory === "All" ||
+        video.category === selectedCategory;
+
+      const matchesSearch =
+        video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        video.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [videos, selectedCategory, searchTerm]);
+
+  const openVideo = (video) => {
+    setSelectedVideo(video);
+  };
+
+  const closeVideo = () => {
+    setSelectedVideo(null);
+  };
+
+  const uploadVideo = async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  try {
+    // Create a unique filename
+    const fileName = `${Date.now()}-${file.name}`;
+
+    // Upload to Firebase Storage
+    const storageRef = ref(storage, `wellnessVideos/${fileName}`);
+
+    await uploadBytes(storageRef, file);
+
+    // Get the video's download URL
+    const videoURL = await getDownloadURL(storageRef);
+
+    // Default thumbnail (we'll improve this later)
+    const thumbnail =
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900";
+
+    // Save metadata to Firestore
+    const docRef = await addDoc(collection(db, "wellnessVideos"), {
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      description: "Uploaded webinar",
+      duration: "--",
+      category: "Mental Health",
+      thumbnail,
+      video: videoURL,
+      createdAt: serverTimestamp(),
+    });
+
+    // Immediately show the uploaded video in the UI
+    const newVideo = {
+      id: docRef.id,
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      description: "Uploaded webinar",
+      duration: "--",
+      category: "Mental Health",
+      thumbnail,
+      video: videoURL,
+    };
+
+    setVideos((prev) => [newVideo, ...prev]);
+
+    event.target.value = "";
+
+    alert("Video uploaded successfully!");
+
+  } catch (error) {
+    console.error(error);
+    alert("Upload failed. Check the console for details.");
+  }
+};
+
+    return (
     <div className="wellness-page">
 
-      {/* HERO */}
+      {/* ================= HEADER ================= */}
 
-      <section className="wellness-hero">
+    
+
+      {/* ================= HERO ================= */}
+
+      <section className="hero">
 
         <div className="hero-content">
 
-          <span className="hero-tag">
-            Employee Health & Wellness
-          </span>
-
           <h1>
+
             Find your balance,
-            <br />
-            <span>anytime, anywhere.</span>
+
+            <span> anytime, anywhere.</span>
+
           </h1>
 
           <p>
+
             Welcome to your dedicated Employee Health and Wellness
-            space. Access wellness resources, webinars and support
-            services designed to help you stay healthy,
-            productive and resilient.
+            space where you can discover wellness resources,
+            webinars and support whenever you need them.
+
           </p>
 
         </div>
 
       </section>
 
-      {/* TOP CARDS */}
+      {/* ================= TOP CARDS ================= */}
 
-      <section className="wellness-grid">
+      <section className="top-section">
 
-        {/* CONTACT CARD */}
+        {/* Contact Card */}
 
-        <div className="wellness-card contact-card">
+        <div className="contact-card">
 
-          <div className="card-header">
-            <h2>Lyra Contact Details</h2>
-          </div>
+          <h2>Lyra Contact Details</h2>
 
           <div className="contact-item">
 
-            <div className="icon-circle">
-              <FaPhoneAlt />
-            </div>
+            <FaPhoneAlt />
 
             <div>
-              <span>Phone Support</span>
-              <h4>1-800-LYRA-HELP</h4>
-            </div>
 
-          </div>
+              <small>Phone</small>
 
-          <div className="contact-item">
+              <h3>1-800-LYRA-HELP</h3>
 
-            <div className="icon-circle">
-              <FaEnvelope />
-            </div>
-
-            <div>
-              <span>Email</span>
-              <h4>support@lyrahealth.com</h4>
             </div>
 
           </div>
 
           <div className="contact-item">
 
-            <div className="icon-circle">
-              <FaGlobe />
-            </div>
+            <FaEnvelope />
 
             <div>
-              <span>Website</span>
+
+              <small>Email</small>
+
+              <h3>support@lyrahealth.com</h3>
+
+            </div>
+
+          </div>
+
+          <div className="contact-item">
+
+            <FaGlobe />
+
+            <div>
+
+              <small>Website</small>
 
               <a
                 href="https://www.lyrahealth.com"
@@ -171,189 +261,221 @@ const filteredWebinars =
 
         </div>
 
-        {/* UPLOAD CARD */}
+        {/* Upload Card */}
 
-        <div className="wellness-card upload-card">
+        <div className="upload-card">
 
-          <div className="upload-icon">
-            <FaCloudUploadAlt />
-          </div>
+          <FaCloudUploadAlt className="upload-icon" />
 
           <h2>Submit Recording</h2>
 
           <p>
-            Upload webinar recordings for review and publication
-            by the Wellness Administration team.
+
+            Upload a webinar recording for review.
+
           </p>
 
-          <button className="upload-btn">
-            <FaCloudUploadAlt />
-            Select File
+          <input
+            type="file"
+            accept="video/*"
+            ref={fileInputRef}
+            onChange={uploadVideo}
+            hidden
+          />
+
+          <button
+            onClick={() => fileInputRef.current.click()}
+          >
+            Upload Video
           </button>
 
         </div>
 
       </section>
 
-            {/* WEBINAR LIBRARY */}
+      {/* ================= WEBINAR SECTION ================= */}
 
-      <section className="webinar-section">
+      <section className="library">
 
-        <div className="section-header">
+        <div className="library-top">
 
           <div>
+
             <h2>Webinar Library</h2>
 
             <p>
-              Explore expert-led wellness sessions designed to support
-              your physical, emotional and mental wellbeing.
+
+              Browse all employee wellness webinars.
+
             </p>
+
           </div>
 
-          <div className="category-list">
-           {categories.map((category) => (
-            <button
-              key={category}
-              className={`category-btn ${
-                selectedCategory === category ? "active" : ""
-                 }`}
-              onClick={() => setSelectedCategory(category)}
-    >
-             {category}
-             </button>
-             ))}
-     </div>
+          
+
+          <div className="library-actions">
+
+            <input
+              type="text"
+              placeholder="Search webinars..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+
+          </div>
 
         </div>
 
-        <div className="webinar-grid">
+        <div className="category-buttons">
 
-          {filteredWebinars.map((webinar) => (
+          {categories.map((category) => (
 
-            <div
-              key={webinar.id}
-              className="webinar-card"
+            <button
+              key={category}
+              className={
+                selectedCategory === category
+                  ? "category-btn active"
+                  : "category-btn"
+              }
+              onClick={() => setSelectedCategory(category)}
             >
-
-              <div className="image-wrapper">
-
-                <img
-                  src={webinar.image}
-                  alt={webinar.title}
-                />
-
-                {webinar.tag && (
-                  <div className="new-tag">
-                    {webinar.tag}
-                  </div>
-                )}
-
-                <div className="play-overlay">
-
-                  <button
-                  className="play-button"
-                  onClick={() => setSelectedWebinar(webinar)}
->
-                  <FaPlay />
-                  </button>
-
-                </div>
-
-              </div>
-
-              <div className="webinar-content">
-
-                <h3>{webinar.title}</h3>
-
-                <p>
-                  {webinar.description}
-                </p>
-
-                <div className="webinar-footer">
-
-                  <div className="duration">
-
-                    <FaClock />
-
-                    <span>
-                      {webinar.duration}
-                    </span>
-
-                  </div>
-
-                  <button
-                  className="watch-btn"
-                   onClick={() => setSelectedWebinar(webinar)}
->
-                    Watch Now
-                  <FaArrowRight />
-                </button>
-
-                </div>
-
-              </div>
-
-            </div>
+              {category}
+            </button>
 
           ))}
 
         </div>
 
-           </section>
+        <div className="video-grid">
 
-      {selectedWebinar && (
-        <div
-          className="video-modal"
-          onClick={() => setSelectedWebinar(null)}
-        >
+          {filteredVideos.length > 0 ? (
+
+            filteredVideos.map((video) => (
+
+              <div
+                className="video-card"
+                key={video.id}
+              >
+
+                <div className="thumbnail">
+
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                  />
+
+                  {video.featured && (
+                    <span className="featured">
+                      NEW
+                    </span>
+                  )}
+
+                  <button
+                    className="play-button"
+                    onClick={() => openVideo(video)}
+                  >
+                    <FaPlay />
+                  </button>
+
+                </div>
+
+                <div className="video-content">
+
+                  <h3>{video.title}</h3>
+
+                  <p>{video.description}</p>
+
+                  <div className="video-footer">
+
+                    <span>
+                      {video.duration}
+                    </span>
+
+                    <button
+                      className="watch-btn"
+                      onClick={() => openVideo(video)}
+                    >
+                      Watch Now
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            ))
+
+          ) : (
+
+            <div className="empty-state">
+
+              <h2>No videos found</h2>
+
+              <p>
+                Try another search or category.
+              </p>
+
+            </div>
+
+          )}
+
+        </div>
+
+      </section>
+
+            {/* ================= VIDEO MODAL ================= */}
+
+      {selectedVideo && (
+        <div className="video-modal" onClick={closeVideo}>
+
           <div
             className="video-container"
             onClick={(e) => e.stopPropagation()}
           >
+
             <button
-              className="close-video"
-              onClick={() => setSelectedWebinar(null)}
+              className="close-btn"
+              onClick={closeVideo}
             >
               ✕
             </button>
 
-
-            <video controls autoPlay width="100%">
+            <video
+              controls
+              autoPlay
+              className="video-player"
+            >
               <source
-                src={selectedWebinar.video}
+                src={selectedVideo.video}
                 type="video/mp4"
               />
-              Your browser does not support this video.
+
+              Your browser does not support the video tag.
+
             </video>
 
-            <div className="video-info">
+            <div className="video-details">
 
-    <div className="video-header">
+              <h2>{selectedVideo.title}</h2>
 
-        <div>
+              <p>{selectedVideo.description}</p>
 
-            <span className="video-category">
-                {selectedWebinar.category}
-            </span>
+              <div className="video-info">
 
-            <h2>{selectedWebinar.title}</h2>
+                <span>{selectedVideo.duration}</span>
 
-        </div>
+                <span className="category">
+                  {selectedVideo.category}
+                </span>
 
-        <span className="video-duration">
-            <FaClock />
-            {selectedWebinar.duration}
-        </span>
+              </div>
 
-    </div>
-
-    <p>
-        {selectedWebinar.description}
-    </p>
-
-</div>
+            </div>
 
           </div>
+
         </div>
       )}
 
