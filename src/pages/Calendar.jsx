@@ -1,6 +1,15 @@
 import { useState } from "react";
 import "../styles/calendar.css";
+import { holidays } from "../data/holidays";
+import { db } from "../firebase/firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  Timestamp,
+} from "firebase/firestore";
 
+import { useEffect } from "react";
 
 const Calendar = () => {
 
@@ -16,28 +25,43 @@ const [showModal, setShowModal] = useState(false);
 const [searchTerm, setSearchTerm] = useState("");
 
 
-const [filters,setFilters] = useState({
-
-Meeting:true,
-Training:true,
-Leave:true,
-Deadline:true,
-Boardroom:true
-
+const [filters, setFilters] = useState({
+  Meeting: true,
+  Training: true,
+  Leave: true,
+  Deadline: true,
+  Boardroom: true,
+  Holiday: true,
 });
-
 
 
 const [eventData, setEventData] = useState({
-
-    title:"",
-    time:"",
-    endTime:"",
-    category:"Meeting"
-
+  title: "",
+  description: "",
+  time: "",
+  endTime: "",
+  category: "Meeting",
+  quarter: "Q1",
 });
 
+useEffect(() => {
+  loadEvents();
+}, []);
 
+const loadEvents = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "calendarEvents"));
+
+    const loadedEvents = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    setEvents(loadedEvents);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 
@@ -139,11 +163,12 @@ setSelectedDate(date);
 
 
 setEventData({
-
-    title:"",
-    time:"",
-    category:"Meeting"
-
+    title: "",
+    description: "",
+    time: "",
+    endTime: "",
+    category: "Meeting",
+    quarter: "Q1",
 });
 
 
@@ -155,20 +180,16 @@ setShowModal(true);
 
 
 
-const saveEvent = () => {
+const saveEvent = async () => {
+  if (
+    !eventData.title ||
+    !eventData.time ||
+    (eventData.category === "Boardroom" && !eventData.endTime)
+  ) {
+    alert("Please complete event details");
+    return;
+  }
 
-
-if(
-!eventData.title || 
-!eventData.time ||
-(eventData.category === "Boardroom" && !eventData.endTime)
-){
-
-alert("Please complete event details");
-
-return;
-
-}
 
 
 
@@ -221,22 +242,13 @@ setShowModal(false);
 
 
 
-const getEvents = (day)=>{
+const getEvents = (day) => {
+  const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-
-const date =
-
-`${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-
-
-
-return events.filter(
-
-(event)=>event.date === date
-
-);
-
-
+  return [
+    ...events.filter((event) => event.date === date),
+    ...holidays.filter((holiday) => holiday.date === date),
+  ];
 };
 
 
@@ -852,6 +864,16 @@ title:e.target.value
 
 />
 
+<textarea
+  placeholder="Event Description"
+  value={eventData.description}
+  onChange={(e) =>
+    setEventData({
+      ...eventData,
+      description: e.target.value,
+    })
+  }
+/>
 
 {
 eventData.category === "Boardroom" && (
