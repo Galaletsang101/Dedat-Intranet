@@ -1,7 +1,6 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  FaHeart,
   FaPhoneAlt,
   FaEnvelope,
   FaGlobe,
@@ -9,80 +8,24 @@ import {
   FaPlay,
 } from "react-icons/fa";
 
-import { storage, db } from "../firebase/firebase";
-
 import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
-
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+  uploadWellnessVideo,
+  getWellnessVideos,
+} from "../firebase/wellnessService";
 
 import "../styles/wellness.css";
 
 function Wellness() {
   const fileInputRef = useRef(null);
 
+  // ===========================
+  // STATE
+  // ===========================
+
+  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedVideo, setSelectedVideo] = useState(null);
-
-  const [videos, setVideos] = useState([
-    {
-      id: 1,
-      title: "Mindfulness at Work",
-      description:
-        "Practical techniques to stay grounded and focused during high-pressure work days.",
-      duration: "45 mins",
-      category: "Mental Health",
-      thumbnail:
-        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900",
-      video:
-        "https://www.w3schools.com/html/mov_bbb.mp4",
-      featured: true,
-    },
-    {
-      id: 2,
-      title: "Managing Stress",
-      description:
-        "Learn practical ways to reduce workplace stress and avoid burnout.",
-      duration: "60 mins",
-      category: "Mental Health",
-      thumbnail:
-        "https://images.unsplash.com/photo-1493836512294-502baa1986e2?w=900",
-      video:
-        "https://www.w3schools.com/html/movie.mp4",
-    },
-    {
-      id: 3,
-      title: "Healthy Sleep",
-      description:
-        "Improve your sleeping habits and increase productivity every day.",
-      duration: "35 mins",
-      category: "Physical Care",
-      thumbnail:
-        "https://images.unsplash.com/photo-1511296265581-c2450046447d?w=900",
-      video:
-        "https://www.w3schools.com/html/mov_bbb.mp4",
-    },
-    {
-      id: 4,
-      title: "Work-Life Balance",
-      description:
-        "Finding balance between your career and your personal life.",
-      duration: "52 mins",
-      category: "Productivity",
-      thumbnail:
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900",
-      video:
-        "https://www.w3schools.com/html/movie.mp4",
-    },
-  ]);
 
   const categories = [
     "All",
@@ -91,19 +34,31 @@ function Wellness() {
     "Physical Care",
   ];
 
-    const filteredVideos = useMemo(() => {
+  // ===========================
+  // FILTER VIDEOS
+  // ===========================
+
+  const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
       const matchesCategory =
         selectedCategory === "All" ||
         video.category === selectedCategory;
 
       const matchesSearch =
-        video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        video.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (video.title || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (video.description || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
       return matchesCategory && matchesSearch;
     });
   }, [videos, selectedCategory, searchTerm]);
+
+  // ===========================
+  // VIDEO MODAL
+  // ===========================
 
   const openVideo = (video) => {
     setSelectedVideo(video);
@@ -113,50 +68,40 @@ function Wellness() {
     setSelectedVideo(null);
   };
 
+  // ===========================
+  // LOAD VIDEOS FROM FIRESTORE
+  // ===========================
+
+const loadVideos = async () => {
+  try {
+    const firebaseVideos = await getWellnessVideos();
+    setVideos(firebaseVideos);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+  // ===========================
+  // PAGE LOAD
+  // ===========================
+
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  // ===========================
+  // UPLOAD VIDEO
+  // ===========================
+
   const uploadVideo = async (event) => {
   const file = event.target.files[0];
 
   if (!file) return;
 
   try {
-    // Create a unique filename
-    const fileName = `${Date.now()}-${file.name}`;
+    await uploadWellnessVideo(file);
 
-    // Upload to Firebase Storage
-    const storageRef = ref(storage, `wellnessVideos/${fileName}`);
-
-    await uploadBytes(storageRef, file);
-
-    // Get the video's download URL
-    const videoURL = await getDownloadURL(storageRef);
-
-    // Default thumbnail (we'll improve this later)
-    const thumbnail =
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900";
-
-    // Save metadata to Firestore
-    const docRef = await addDoc(collection(db, "wellnessVideos"), {
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      description: "Uploaded webinar",
-      duration: "--",
-      category: "Mental Health",
-      thumbnail,
-      video: videoURL,
-      createdAt: serverTimestamp(),
-    });
-
-    // Immediately show the uploaded video in the UI
-    const newVideo = {
-      id: docRef.id,
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      description: "Uploaded webinar",
-      duration: "--",
-      category: "Mental Health",
-      thumbnail,
-      video: videoURL,
-    };
-
-    setVideos((prev) => [newVideo, ...prev]);
+    await loadVideos();
 
     event.target.value = "";
 
@@ -164,16 +109,12 @@ function Wellness() {
 
   } catch (error) {
     console.error(error);
-    alert("Upload failed. Check the console for details.");
+    alert("Upload failed.");
   }
 };
 
     return (
     <div className="wellness-page">
-
-      {/* ================= HEADER ================= */}
-
-    
 
       {/* ================= HERO ================= */}
 
@@ -182,30 +123,25 @@ function Wellness() {
         <div className="hero-content">
 
           <h1>
-
             Find your balance,
-
             <span> anytime, anywhere.</span>
-
           </h1>
 
           <p>
-
             Welcome to your dedicated Employee Health and Wellness
             space where you can discover wellness resources,
             webinars and support whenever you need them.
-
           </p>
 
         </div>
 
       </section>
 
-      {/* ================= TOP CARDS ================= */}
+      {/* ================= TOP SECTION ================= */}
 
       <section className="top-section">
 
-        {/* Contact Card */}
+        {/* CONTACT CARD */}
 
         <div className="contact-card">
 
@@ -213,11 +149,13 @@ function Wellness() {
 
           <div className="contact-item">
 
-            <FaPhoneAlt />
+            <div className="contact-icon">
+              <FaPhoneAlt />
+            </div>
 
             <div>
 
-              <small>Phone</small>
+              <small>Phone Support</small>
 
               <h3>1-800-LYRA-HELP</h3>
 
@@ -227,7 +165,9 @@ function Wellness() {
 
           <div className="contact-item">
 
-            <FaEnvelope />
+            <div className="contact-icon">
+              <FaEnvelope />
+            </div>
 
             <div>
 
@@ -241,7 +181,9 @@ function Wellness() {
 
           <div className="contact-item">
 
-            <FaGlobe />
+            <div className="contact-icon">
+              <FaGlobe />
+            </div>
 
             <div>
 
@@ -261,29 +203,30 @@ function Wellness() {
 
         </div>
 
-        {/* Upload Card */}
+        {/* ================= UPLOAD CARD ================= */}
 
         <div className="upload-card">
 
           <FaCloudUploadAlt className="upload-icon" />
 
-          <h2>Submit Recording</h2>
+          <h2>Submit Webinar Recording</h2>
 
           <p>
-
-            Upload a webinar recording for review.
-
+            Upload a wellness webinar recording.
+            Once uploaded, it will be stored securely
+            in Firebase and added to the Webinar Library.
           </p>
 
           <input
             type="file"
-            accept="video/*"
+            accept="video/mp4,video/webm,video/ogg"
             ref={fileInputRef}
             onChange={uploadVideo}
             hidden
           />
 
           <button
+            className="upload-btn"
             onClick={() => fileInputRef.current.click()}
           >
             Upload Video
@@ -293,7 +236,7 @@ function Wellness() {
 
       </section>
 
-      {/* ================= WEBINAR SECTION ================= */}
+      {/* ================= WEBINAR LIBRARY ================= */}
 
       <section className="library">
 
@@ -304,23 +247,21 @@ function Wellness() {
             <h2>Webinar Library</h2>
 
             <p>
-
               Browse all employee wellness webinars.
-
             </p>
 
           </div>
-
-          
 
           <div className="library-actions">
 
             <input
               type="text"
+              className="search-input"
               placeholder="Search webinars..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              onChange={(e) =>
+                setSearchTerm(e.target.value)
+              }
             />
 
           </div>
@@ -338,7 +279,9 @@ function Wellness() {
                   ? "category-btn active"
                   : "category-btn"
               }
-              onClick={() => setSelectedCategory(category)}
+              onClick={() =>
+                setSelectedCategory(category)
+              }
             >
               {category}
             </button>
@@ -347,7 +290,7 @@ function Wellness() {
 
         </div>
 
-        <div className="video-grid">
+                <div className="video-grid">
 
           {filteredVideos.length > 0 ? (
 
@@ -358,10 +301,15 @@ function Wellness() {
                 key={video.id}
               >
 
+                {/* Thumbnail */}
+
                 <div className="thumbnail">
 
                   <img
-                    src={video.thumbnail}
+                    src={
+                      video.thumbnail ||
+                      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900"
+                    }
                     alt={video.title}
                   />
 
@@ -380,16 +328,23 @@ function Wellness() {
 
                 </div>
 
+                {/* Content */}
+
                 <div className="video-content">
 
-                  <h3>{video.title}</h3>
+                  <h3>
+                    {video.title || "Untitled Webinar"}
+                  </h3>
 
-                  <p>{video.description}</p>
+                  <p>
+                    {video.description ||
+                      "No description available."}
+                  </p>
 
                   <div className="video-footer">
 
-                    <span>
-                      {video.duration}
+                    <span className="duration">
+                      {video.duration || "--"}
                     </span>
 
                     <button
@@ -411,10 +366,10 @@ function Wellness() {
 
             <div className="empty-state">
 
-              <h2>No videos found</h2>
+              <h2>No webinars found</h2>
 
               <p>
-                Try another search or category.
+                Upload a webinar or try another search.
               </p>
 
             </div>
@@ -428,7 +383,10 @@ function Wellness() {
             {/* ================= VIDEO MODAL ================= */}
 
       {selectedVideo && (
-        <div className="video-modal" onClick={closeVideo}>
+        <div
+          className="video-modal"
+          onClick={closeVideo}
+        >
 
           <div
             className="video-container"
@@ -458,13 +416,19 @@ function Wellness() {
 
             <div className="video-details">
 
-              <h2>{selectedVideo.title}</h2>
+              <h2>
+                {selectedVideo.title}
+              </h2>
 
-              <p>{selectedVideo.description}</p>
+              <p>
+                {selectedVideo.description}
+              </p>
 
               <div className="video-info">
 
-                <span>{selectedVideo.duration}</span>
+                <span>
+                  Duration: {selectedVideo.duration || "--"}
+                </span>
 
                 <span className="category">
                   {selectedVideo.category}
