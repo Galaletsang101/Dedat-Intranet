@@ -10,11 +10,10 @@
 
 }
 
-
 /* LEFT */
 
 .auth-left{
-
+ 
     flex:1;
 
     background:var(--salamander);
