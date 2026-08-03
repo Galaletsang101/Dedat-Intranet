@@ -1,23 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   FaPhoneAlt,
   FaEnvelope,
   FaGlobe,
-  FaCloudUploadAlt,
   FaPlay,
 } from "react-icons/fa";
 
-import {
-  uploadWellnessVideo,
-  getWellnessVideos,
-} from "../firebase/wellnessService";
+import { getWellnessVideos } from "../firebase/wellnessService";
 
 import "../styles/wellness.css";
 
 function Wellness() {
-  const fileInputRef = useRef(null);
-
   // ===========================
   // STATE
   // ===========================
@@ -89,31 +83,7 @@ const loadVideos = async () => {
     loadVideos();
   }, []);
 
-  // ===========================
-  // UPLOAD VIDEO
-  // ===========================
-
-  const uploadVideo = async (event) => {
-  const file = event.target.files[0];
-
-  if (!file) return;
-
-  try {
-    await uploadWellnessVideo(file);
-
-    await loadVideos();
-
-    event.target.value = "";
-
-    alert("Video uploaded successfully!");
-
-  } catch (error) {
-    console.error(error);
-    alert("Upload failed.");
-  }
-};
-
-    return (
+  return (
     <div className="wellness-page">
 
       {/* ================= HERO ================= */}
@@ -143,7 +113,7 @@ const loadVideos = async () => {
 
         {/* CONTACT CARD */}
 
-        <div className="contact-card">
+        <div className="contact-card hover-shadow transition">
 
           <h2>Lyra Contact Details</h2>
 
@@ -203,37 +173,6 @@ const loadVideos = async () => {
 
         </div>
 
-        {/* ================= UPLOAD CARD ================= */}
-
-        <div className="upload-card">
-
-          <FaCloudUploadAlt className="upload-icon" />
-
-          <h2>Submit Webinar Recording</h2>
-
-          <p>
-            Upload a wellness webinar recording.
-            Once uploaded, it will be stored securely
-            in Firebase and added to the Webinar Library.
-          </p>
-
-          <input
-            type="file"
-            accept="video/mp4,video/webm,video/ogg"
-            ref={fileInputRef}
-            onChange={uploadVideo}
-            hidden
-          />
-
-          <button
-            className="upload-btn"
-            onClick={() => fileInputRef.current.click()}
-          >
-            Upload Video
-          </button>
-
-        </div>
-
       </section>
 
       {/* ================= WEBINAR LIBRARY ================= */}
@@ -256,7 +195,7 @@ const loadVideos = async () => {
 
             <input
               type="text"
-              className="search-input"
+              className="search-input transition"
               placeholder="Search webinars..."
               value={searchTerm}
               onChange={(e) =>
@@ -276,8 +215,8 @@ const loadVideos = async () => {
               key={category}
               className={
                 selectedCategory === category
-                  ? "category-btn active"
-                  : "category-btn"
+                  ? "category-btn active transition"
+                  : "category-btn transition"
               }
               onClick={() =>
                 setSelectedCategory(category)
@@ -297,7 +236,7 @@ const loadVideos = async () => {
             filteredVideos.map((video) => (
 
               <div
-                className="video-card"
+                className="video-card hover-shadow transition"
                 key={video.id}
               >
 
@@ -369,7 +308,7 @@ const loadVideos = async () => {
               <h2>No webinars found</h2>
 
               <p>
-                Upload a webinar or try another search.
+                Try another search or check back later for new content.
               </p>
 
             </div>
