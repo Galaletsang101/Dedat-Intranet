@@ -97,9 +97,7 @@ const StaffCard = ({ staff }) => {
             <span className="staff-experience">
               <FaBriefcase className="staff-meta-icon" /> {staff.experience || 'N/A'}
             </span>
-            <a href="#" className="staff-docs-link">
-              <FaFileAlt className="staff-meta-icon" /> View Documents
-            </a>
+           
           </div>
           <div className="staff-contact-buttons">
             <a href={`mailto:${staff.email}`} className="staff-btn staff-btn-primary">
