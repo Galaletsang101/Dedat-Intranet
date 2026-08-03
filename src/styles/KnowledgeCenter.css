@@ -10,160 +10,106 @@
 
 
 body {
-
     font-family: 'Inter', Arial, sans-serif;
-
     background: #f8f9fa;
-
     color: #5c5b5b;
-
 }
-
 
 
 /* =========================
    MAIN CONTAINER
 ========================= */
 
-
 .knowledgecenter-app-container {
-
     max-width: 1280px;
-
     margin: auto;
-
     padding: 32px;
-
 }
-
 
 
 /* =========================
    HEADER
 ========================= */
 
-
 .knowledgecenter-main-header {
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: flex-start;
-
     gap: 30px;
-
     margin-bottom: 40px;
-
 }
-
 
 
 .knowledgecenter-header-title {
-
     font-size: 32px;
-
     font-weight: 700;
-
     color: #d85f06;
-
 }
-
 
 
 .knowledgecenter-header-subtitle {
-
     margin-top: 10px;
-
     max-width: 620px;
-
     color: #64748b;
-
     line-height: 1.6;
-
 }
-
 
 
 .knowledgecenter-header-actions {
-
     display: flex;
-
     gap: 15px;
-
 }
-
-
 
 
 /* =========================
    BUTTONS
 ========================= */
 
-
 .knowledgecenter-btn-outline,
-
 .knowledgecenter-btn-primary {
 
     padding: 12px 22px;
-
     border-radius: 8px;
-
     cursor: pointer;
-
     font-weight: 600;
-
     border: none;
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
-    transition: 0.3s ease;
+    transition: all .3s ease;
 
 }
-
 
 
 .knowledgecenter-btn-outline {
 
     background: white;
-
     border: 1px solid #5c5b5b;
-
     color: #5c5b5b;
 
 }
 
 
-
 .knowledgecenter-btn-outline:hover {
 
-    background: #f8f9fa;
+    background: #f1f5f9;
 
 }
-
 
 
 .knowledgecenter-btn-primary {
 
     background: #d85f06;
-
-    color: white;
+    color:white;
 
 }
-
 
 
 .knowledgecenter-btn-primary:hover {
 
-    background: #b94f05;
+    background:#b94f05;
 
 }
-
-
 
 
 
@@ -171,97 +117,70 @@ body {
    PRIMARY CARDS
 ========================= */
 
-
 .knowledgecenter-primary-grid {
 
-    display: grid;
-
-    grid-template-columns: repeat(3,1fr);
-
-    gap: 24px;
-
-    margin-bottom: 35px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-bottom:35px;
 
 }
-
 
 
 .knowledgecenter-card {
 
-    background: white;
-
-    padding: 28px;
-
-    border-radius: 16px;
-
-    border: 1px solid #e5c19b;
-
-    transition: 0.3s ease;
+    background:white;
+    padding:28px;
+    border-radius:16px;
+    border:1px solid #e5c19b;
+    transition:.3s ease;
 
 }
-
 
 
 .knowledgecenter-card:hover {
 
-    transform: translateY(-5px);
-
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
 }
-
 
 
 .knowledgecenter-card-icon {
 
-    width: 50px;
-
-    height: 50px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    border-radius: 12px;
-
-    margin-bottom: 20px;
-
-    font-size: 22px;
+    width:50px;
+    height:50px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:12px;
+    margin-bottom:20px;
+    font-size:22px;
 
 }
 
-
-
-/* Card Colors */
 
 
 .knowledgecenter-navy {
 
-    background: #5c5b5b;
-
-    color: white;
+    background:#0f172a;
+    color:white;
 
 }
-
 
 
 .knowledgecenter-green {
 
-    background: #dcfce7;
-
-    color: #16a34a;
+    background:#dcfce7;
+    color:#16a34a;
 
 }
 
 
-
 .knowledgecenter-orange {
 
-    background: #fff0e6;
-
-    color: #d85f06;
+    background:#fff0e6;
+    color:#d85f06;
 
 }
 
@@ -269,79 +188,67 @@ body {
 
 .knowledgecenter-card h3 {
 
-    color: #d85f06;
-
-    margin-bottom: 10px;
+    color:#d85f06;
+    margin-bottom:10px;
 
 }
-
 
 
 .knowledgecenter-card p {
 
-    color: #64748b;
-
-    margin-bottom: 18px;
+    color:#64748b;
+    margin-bottom:18px;
 
 }
-
 
 
 
 /* =========================
-   REACT LINK BUTTON
+   LINK BUTTON
 ========================= */
-
 
 .knowledgecenter-link-btn {
 
-    background: none;
-
-    border: none;
-
-    color: #d85f06;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    padding: 0;
-
-    font-size: 15px;
-
-    transition: 0.3s ease;
+    background:none;
+    border:none;
+    color:#d85f06;
+    font-weight:700;
+    cursor:pointer;
+    padding:0;
+    font-size:15px;
 
 }
-
 
 
 .knowledgecenter-link-btn:hover {
 
-    color: #b94f05;
+    text-decoration:underline;
+    color:#b94f05;
 
-    text-decoration: underline;
+}
+
+
+
+/* Scoped navigation */
+
+.knowledgecenter-app-container .nav a {
+
+    color:black;
 
 }
 
 
 
-.nav a {
-
-    color: black;
-
-}
 /* =========================
-   MAIN CONTENT
+   MAIN GRID
 ========================= */
 
 
 .knowledgecenter-main-grid {
 
-    display: grid;
-
-    grid-template-columns: 2fr 1fr;
-
-    gap: 30px;
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:30px;
 
 }
 
@@ -351,28 +258,21 @@ body {
    DOCUMENT SECTION
 ========================= */
 
-
 .knowledgecenter-table-section {
 
-    background: white;
-
-    padding: 25px;
-
-    border-radius: 16px;
-
-    border: 1px solid #e5c19b;
-
-    overflow-x: auto;
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    border:1px solid #e5c19b;
+    overflow-x:auto;
 
 }
 
 
-
 .knowledgecenter-table-section h2 {
 
-    color: #d85f06;
-
-    margin-bottom: 20px;
+    color:#d85f06;
+    margin-bottom:20px;
 
 }
 
@@ -382,70 +282,49 @@ body {
    SEARCH
 ========================= */
 
-
 .knowledgecenter-search {
 
-    display: flex;
-
-    gap: 12px;
-
-    align-items: center;
-
-    margin-bottom: 25px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:25px;
 
 }
-
 
 
 .knowledgecenter-search svg {
 
-    color: #d85f06;
+    color:#d85f06;
 
 }
 
+
+.knowledgecenter-search input,
+.knowledgecenter-search select {
+
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
+
+}
 
 
 .knowledgecenter-search input {
 
-    flex: 1;
-
-    padding: 12px;
-
-    border-radius: 8px;
-
-    border: 1px solid #ddd;
-
-    outline: none;
-
-}
-
-
-
-.knowledgecenter-search select {
-
-    padding: 12px;
-
-    border-radius: 8px;
-
-    border: 1px solid #ddd;
-
-    cursor: pointer;
+    flex:1;
 
 }
 
 
 
 .knowledgecenter-search input:focus,
-
 .knowledgecenter-search select:focus {
 
-    border-color: #d85f06;
-
-    box-shadow: 0 0 0 3px rgba(216,95,6,0.15);
+    border-color:#d85f06;
+    box-shadow:0 0 0 3px rgba(216,95,6,.15);
 
 }
-
-
 
 
 
@@ -453,70 +332,54 @@ body {
    TABLE
 ========================= */
 
-
 .knowledgecenter-table {
 
-    width: 100%;
-
-    border-collapse: collapse;
+    width:100%;
+    border-collapse:collapse;
 
 }
-
 
 
 .knowledgecenter-table th {
 
-    background: #f8f9fa;
-
-    padding: 15px;
-
-    text-align: left;
-
-    color: #64748b;
+    background:#f8f9fa;
+    padding:15px;
+    text-align:left;
+    color:#64748b;
 
 }
-
 
 
 .knowledgecenter-table td {
 
-    padding: 15px;
-
-    border-top: 1px solid #e5c19b;
+    padding:15px;
+    border-top:1px solid #e5c19b;
 
 }
-
 
 
 .knowledgecenter-table tr:hover {
 
-    background: #fffaf5;
+    background:#fffaf5;
 
 }
-
 
 
 .knowledgecenter-document-name {
 
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    font-weight: 600;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
 
 }
-
 
 
 .knowledgecenter-document-name svg {
 
-    color: #d85f06;
+    color:#d85f06;
 
 }
-
-
 
 
 
@@ -524,67 +387,47 @@ body {
    BADGES
 ========================= */
 
-
 .knowledgecenter-badge {
 
-    background: #e5c19b;
-
-    color: #5c5b5b;
-
-    padding: 5px 12px;
-
-    border-radius: 20px;
-
-    font-size: 12px;
+    background:#e5c19b;
+    color:#5c5b5b;
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
 
 }
-
 
 
 .knowledgecenter-status {
 
-    color: #16a34a;
-
-    font-weight: 600;
+    color:#16a34a;
+    font-weight:600;
 
 }
-
-
 
 
 
 /* =========================
-   DOWNLOAD BUTTON
+   DOWNLOAD
 ========================= */
-
 
 .download-btn {
 
-    background: #d85f06;
-
-    color: white;
-
-    border: none;
-
-    padding: 8px 15px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition: 0.3s ease;
+    background:#d85f06;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
 
 }
-
 
 
 .download-btn:hover {
 
-    background: #b94f05;
+    background:#b94f05;
 
 }
-
-
 
 
 
@@ -592,138 +435,95 @@ body {
    RIGHT COLUMN
 ========================= */
 
-
 .knowledgecenter-right-column {
 
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 25px;
+    display:flex;
+    flex-direction:column;
+    gap:25px;
 
 }
 
-
-
-
-
-/* =========================
-   STATS CARD
-========================= */
 
 
 .knowledgecenter-stats-card {
 
-    background: #5c5b5b;
-
-    color: white;
-
-    padding: 30px;
-
-    border-radius: 16px;
+    background:#5c5b5b;
+    color:white;
+    padding:30px;
+    border-radius:16px;
 
 }
-
 
 
 .knowledgecenter-stats {
 
-    display: flex;
-
-    justify-content: space-between;
-
-    margin-top: 25px;
+    display:flex;
+    justify-content:space-between;
+    margin-top:25px;
 
 }
-
 
 
 .knowledgecenter-stats strong {
 
-    font-size: 35px;
+    font-size:35px;
 
 }
-
 
 
 .knowledgecenter-stats p {
 
-    color: #e5c19b;
+    color:#e5c19b;
 
 }
 
-
-
-
-
-/* =========================
-   SUPPORT CARD
-========================= */
 
 
 .knowledgecenter-support-card {
 
-    background: #d85f06;
-
-    color: white;
-
-    padding: 30px;
-
-    border-radius: 16px;
+    background:#d85f06;
+    color:white;
+    padding:30px;
+    border-radius:16px;
 
 }
-
 
 
 .knowledgecenter-support-btn {
 
-    margin-top: 20px;
-
-    padding: 12px 20px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    background: white;
-
-    color: #d85f06;
-
-    font-weight: 700;
-
-    transition: 0.3s ease;
+    margin-top:20px;
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:white;
+    color:#d85f06;
+    font-weight:700;
 
 }
-
 
 
 .knowledgecenter-support-btn:hover {
 
-    background: #f4f4f4;
+    background:#f4f4f4;
 
 }
+
+
+
 /* =========================
    MODALS
 ========================= */
 
-
 .modal {
 
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(0,0,0,0.5);
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    z-index: 999;
+    position:fixed;
+    inset:0;
+    background:#5b5c5c;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
 
 }
 
@@ -731,19 +531,13 @@ body {
 
 .modal-box {
 
-    background: white;
-
-    width: 400px;
-
-    padding: 30px;
-
-    border-radius: 16px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 15px;
+    background:white;
+    width:400px;
+    padding:30px;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
 
 }
 
@@ -751,47 +545,19 @@ body {
 
 .modal-box h2 {
 
-    color: #d85f06;
+    color:#d85f06;
 
 }
 
 
 
 .modal-box input,
-
 .modal-box textarea {
 
-    padding: 12px;
-
-    border: 1px solid #ddd;
-
-    border-radius: 8px;
-
-    outline: none;
-
-    font-family: inherit;
-
-}
-
-
-
-.modal-box textarea {
-
-    min-height: 120px;
-
-    resize: vertical;
-
-}
-
-
-
-.modal-box input:focus,
-
-.modal-box textarea:focus {
-
-    border-color: #d85f06;
-
-    box-shadow: 0 0 0 3px rgba(216,95,6,0.15);
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-family:inherit;
 
 }
 
@@ -799,31 +565,21 @@ body {
 
 .modal-box button {
 
-    padding: 12px;
-
-    background: #d85f06;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition: 0.3s ease;
+    padding:12px;
+    background:#d85f06;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
 
 }
-
 
 
 .modal-box button:hover {
 
-    background: #0f172a;
+    background:5#5c5b5b;
 
 }
-
-
 
 
 
@@ -831,169 +587,72 @@ body {
    RESPONSIVE
 ========================= */
 
-
 @media(max-width:1000px){
 
-
     .knowledgecenter-primary-grid,
+    .knowledgecenter-main-grid{
 
-    .knowledgecenter-main-grid {
-
-        grid-template-columns: 1fr;
-
-    }
-
-
-    .knowledgecenter-main-header {
-
-        flex-direction: column;
+        grid-template-columns:1fr;
 
     }
 
 
-    .knowledgecenter-header-actions {
+    .knowledgecenter-main-header{
 
-        width: 100%;
+        flex-direction:column;
 
     }
-
 
 }
-
-
 
 
 
 @media(max-width:600px){
 
+    .knowledgecenter-app-container{
 
-    .knowledgecenter-app-container {
-
-        padding: 20px;
-
-    }
-
-
-
-    .knowledgecenter-search {
-
-        flex-direction: column;
-
-        align-items: stretch;
+        padding:20px;
 
     }
 
 
+    .knowledgecenter-search{
 
-    .knowledgecenter-search input,
+        flex-direction:column;
 
-    .knowledgecenter-search select {
-
-        width: 100%;
-
-    }
-
-
-
-    .knowledgecenter-header-title {
-
-        font-size: 25px;
+        align-items:stretch;
 
     }
 
 
+    .knowledgecenter-header-title{
 
-    .knowledgecenter-header-actions {
-
-        flex-direction: column;
+        font-size:25px;
 
     }
 
+
+    .knowledgecenter-header-actions{
+
+        flex-direction:column;
+        width:100%;
+
+    }
 
 
     .knowledgecenter-btn-outline,
+    .knowledgecenter-btn-primary{
 
-    .knowledgecenter-btn-primary {
-
-        width: 100%;
-
-        justify-content: center;
+        width:100%;
+        justify-content:center;
 
     }
 
 
+    .modal-box{
 
-    .modal-box {
-
-        width: 90%;
-
-    }
-
-
-
-    .knowledgecenter-table {
-
-        min-width: 650px;
+        width:90%;
 
     }
 
 }
-
-
-
-
-
-/* =========================
-   SMOOTH UI EFFECTS
-========================= */
-
-
-.knowledgecenter-card,
-
-.knowledgecenter-stats-card,
-
-.knowledgecenter-support-card,
-
-.knowledgecenter-table-section {
-
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-}
-
-
-
-.knowledgecenter-stats-card:hover,
-
-.knowledgecenter-support-card:hover {
-
-    transform: translateY(-3px);
-
-}
-
-
-
-
-
-/* =========================
-   BRAND COLORS REFERENCE
-========================= */
-
-
-/*
-
-Primary Orange:
-#d85f06
-
-Dark Navy:
-#0f172a
-
-Grey:
-#5c5b5b
-
-Soft Beige:
-#e5c19b
-
-Background:
-#f8f9fa
-
-*/

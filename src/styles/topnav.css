@@ -39,7 +39,7 @@
 
 .nav-links a {
 
-  color: #5c5b5b;
+  color:var(--black);
 
   text-decoration: none;
 
