@@ -46,6 +46,7 @@ function BottomNav() {
     {
       name: "Wellness",
       icon: <FaHeart />,
+      path: "/wellness",
     },
     {
       name: "Help Desk",
