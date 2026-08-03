@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Home from "./pages/Homepage";
 import Calendar from "./pages/Calendar";
+import Wellness from "./pages/Wellness";
 import NewsCirculus from "./pages/NewsCirculus";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
@@ -38,6 +39,8 @@ function App() {
             <Route path="/about" element={<About />} />
 
             <Route path="/profile" element={<Profile />} />
+
+            <Route path="/wellness" element={<Wellness />} />
 
             <Route path="/calendar" element={<Calendar />} />
 
