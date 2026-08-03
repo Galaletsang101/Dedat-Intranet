@@ -1,5 +1,6 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
 import {
@@ -62,37 +63,45 @@ Your central hub for NCDEDAT departmental services and professional resources.
 
 
 const QuickActions = () => {
+  const navigate = useNavigate();
 
+  const handleAction = (item) => {
+    if (item.path) {
+      navigate(item.path);
+      return;
+    }
 
-const actions=[
+    if (item.mailto) {
+      window.location.href = `mailto:${item.mailto}`;
+    }
+  };
 
-{
-title:"Apply for Leave",
-desc:"Track and request time off",
-icon:<HiCalendar/>
-},
-
-{
-title:"Submit Forms",
-desc:"Claims, travel & procurement",
-icon:<HiDocumentText/>
-},
-
-{
-title:"HR Templates",
-desc:"Letters, logs & checklists",
-icon:<HiTemplate/>
-},
-
-{
-title:"Contact HR",
-desc:"Support & inquiries",
-icon:<HiUserGroup/>
-
-
-}
-
-];
+  const actions = [
+    {
+      title: "Apply for Leave",
+      desc: "Track and request time off",
+      icon: <HiCalendar />,
+      mailto: "hr@dedat.gov.za?subject=Leave%20Request",
+    },
+    {
+      title: "Submit Forms",
+      desc: "Claims, travel & procurement",
+      icon: <HiDocumentText />,
+      path: "/knowledge-center",
+    },
+    {
+      title: "HR Templates",
+      desc: "Letters, logs & checklists",
+      icon: <HiTemplate />,
+      path: "/knowledge-center",
+    },
+    {
+      title: "Contact HR",
+      desc: "Support & inquiries",
+      icon: <HiUserGroup />,
+      mailto: "hr@dedat.gov.za?subject=HR%20Support",
+    },
+  ];
 
 
 
@@ -106,36 +115,20 @@ return (
 actions.map((item,index)=>(
 
 
-<div 
-className="dashboard-action-card"
-key={index}
+<button
+  type="button"
+  className="dashboard-action-card"
+  key={index}
+  onClick={() => handleAction(item)}
 >
 
+  <div>
+    <h3>{item.title}</h3>
+    <p>{item.desc}</p>
+  </div>
 
-<div>
-
-<h3>
-{item.title}
-</h3>
-
-
-<p>
-{item.desc}
-</p>
-
-
-</div>
-
-
-
-<div className="dashboard-action-icon">
-
-{item.icon}
-
-</div>
-
-
-</div>
+  <div className="dashboard-action-icon">{item.icon}</div>
+</button>
 
 
 ))
@@ -162,9 +155,9 @@ key={index}
 
 
 const HRServices = () => {
+  const navigate = useNavigate();
 
-
-const services=[
+  const services = [
 
 {
 title:"Leave Management",
@@ -259,8 +252,11 @@ key={index}
 
 
 
-<div className="dashboard-service-card more">
-
+<button
+  type="button"
+  className="dashboard-service-card more"
+  onClick={() => navigate("/policies")}
+>
 
 <HiPlus/>
 
@@ -269,7 +265,7 @@ More Services
 </h4>
 
 
-</div>
+</button>
 
 
 </div>
@@ -417,8 +413,9 @@ key={index}
 ===================================== */
 
 const EmployeeNotices = () => {
+  const [showArchive, setShowArchive] = useState(false);
 
-const notices = [
+  const notices = [
 
 {
 tag:"Acting Appointment",
@@ -440,8 +437,22 @@ desc:"Thursday, 14:00 at Main Hall."
 
 ];
 
+  const archiveNotices = [
+    {
+      tag: "Archived",
+      title: "Policy Update: Leave Guidelines",
+      desc: "Please review the revised leave procedures published last month.",
+    },
+    {
+      tag: "Archived",
+      title: "HR Workshop Reminder",
+      desc: "Attendance is required for the quarterly wellness and compliance workshop.",
+    },
+  ];
 
-return (
+  const visibleNotices = showArchive ? [...notices, ...archiveNotices] : notices;
+
+  return (
 
 <section className="dashboard-notices">
 
@@ -457,7 +468,7 @@ Employee Notices
 
 
 {
-notices.map((item,index)=>(
+visibleNotices.map((item,index)=>(
 
 <div 
 className="dashboard-notice"
@@ -489,9 +500,9 @@ key={index}
 
 
 
-<button>
+<button type="button" onClick={() => setShowArchive((prev) => !prev)}>
 
-See Archive
+{showArchive ? "Hide Archive" : "See Archive"}
 
 </button>
 
