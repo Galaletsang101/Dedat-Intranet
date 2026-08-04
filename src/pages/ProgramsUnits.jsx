@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/programs.css";
 
@@ -9,8 +9,12 @@ const ProgramsUnits = () => {
 const navigate = useNavigate();
 
 
+const [showContact, setShowContact] = useState(false);
+
+
 
 const units = [
+
 
 {
 icon:"M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8",
@@ -21,6 +25,7 @@ title:"Administration",
 description:"Ensuring strategic leadership, sound financial management, and corporate support services for the department.",
 tags:["128 Docs","3 Notices"]
 },
+
 
 
 {
@@ -34,6 +39,7 @@ tags:["84 Docs","Updated"]
 },
 
 
+
 {
 icon:"M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z",
 iconBg:"bg-green",
@@ -43,6 +49,7 @@ title:"Trade & Sector Development",
 description:"Enhancing trade competitiveness and developing key economic sectors including mining, energy, and agriculture.",
 tags:["15 Regions","5 New"]
 },
+
 
 
 {
@@ -56,6 +63,7 @@ tags:["Compliance","45 Forms"]
 },
 
 
+
 {
 icon:"M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z",
 iconBg:"bg-orange",
@@ -65,6 +73,7 @@ title:"Economic Planning",
 description:"Providing economic intelligence, research, and strategic planning to inform provincial policy decisions.",
 tags:["Data Sets","Quarterly Reports"]
 },
+
 
 
 {
@@ -78,67 +87,6 @@ tags:["Tourism Routes","Media Kit"]
 }
 
 ];
-
-
-
-
-
-const exportDirectory = ()=>{
-
-
-const file = new Blob(
-
-[JSON.stringify(units,null,2)],
-
-{
-type:"application/json"
-}
-
-);
-
-
-
-const url = URL.createObjectURL(file);
-
-
-
-const link = document.createElement("a");
-
-
-link.href = url;
-
-
-link.download = "Programmes_Directory.json";
-
-
-document.body.appendChild(link);
-
-
-link.click();
-
-
-document.body.removeChild(link);
-
-
-URL.revokeObjectURL(url);
-
-
-};
-
-
-
-
-
-const resetUnits = ()=>{
-
-window.location.reload();
-
-};
-
-
-
-
-
 return (
 
 <section className="programmes-section">
@@ -173,46 +121,8 @@ Access departmental resources, specialized toolkits, and collaboration workspace
 
 
 
-
-
-<div className="action-buttons">
-
-
-<button
-
-className="btn btn-outline"
-
-onClick={resetUnits}
-
->
-
-Reset Units
-
-</button>
-
-
-
-
-
-<button
-
-className="btn btn-primary"
-
-onClick={exportDirectory}
-
->
-
-Export Directory
-
-</button>
-
-
-
 </div>
 
-
-
-</div>
 
 
 
@@ -223,6 +133,7 @@ Export Directory
 
 
 {
+
 units.map((unit)=>(
 
 
@@ -234,6 +145,8 @@ key={unit.title}
 
 navigate={navigate}
 
+setShowContact={setShowContact}
+
 />
 
 
@@ -243,10 +156,19 @@ navigate={navigate}
 
 
 </div>
+
+
+
+
+
+
+
 <div className="bottom-section">
 
 
+
 <div className="knowledge-portal">
+
 
 
 <h2 className="portal-title">
@@ -257,18 +179,27 @@ Departmental Knowledge Portal
 
 
 
+
+
 <div className="stats-grid">
 
 
+
+
+
 <div className="stat-card">
 
 <p>
+
 Total Assets
+
 </p>
 
 
 <h2>
+
 {units.length * 238}
+
 </h2>
 
 
@@ -278,25 +209,39 @@ Total Assets
 
 
 
+
+
 <div className="stat-card">
 
+
 <p>
+
 Active Units
+
 </p>
 
 
 <h2>
+
 
 {
+
 units.filter(
+
 (unit)=>unit.status==="Active Unit"
+
 ).length
+
 }
+
 
 </h2>
 
 
 </div>
+
+
+
 
 
 
@@ -304,13 +249,18 @@ units.filter(
 
 <div className="stat-card">
 
+
 <p>
+
 Knowledge Shares
+
 </p>
 
 
 <h2>
+
 {units.length * 52}
+
 </h2>
 
 
@@ -318,10 +268,15 @@ Knowledge Shares
 
 
 
+
+
+
 </div>
 
 
+
 </div>
+
 
 
 
@@ -331,6 +286,7 @@ Knowledge Shares
 
 
 <div className="support-card">
+
 
 
 <h2>
@@ -353,6 +309,7 @@ Contact IT Support unit for portal assistance.
 
 
 
+
 <button
 
 type="button"
@@ -367,12 +324,147 @@ Get Help Now
 
 
 
+
+
+</div>
+
+
+
+
+
 </div>
 
 
 
 
+
+
+
+
+{
+
+showContact && (
+
+
+<div className="contact-overlay">
+
+
+
+<div className="contact-popup">
+
+
+
+
+
+<button
+
+className="close-popup"
+
+onClick={()=>setShowContact(false)}
+
+>
+
+×
+
+</button>
+
+
+
+
+
+
+
+<h2>
+
+Contact Support
+
+</h2>
+
+
+
+
+
+
+
+<p>
+
+Need assistance with this programme workspace?
+Contact the relevant departmental unit.
+
+</p>
+
+
+
+
+
+
+
+
+<div className="contact-details">
+
+
+<p>
+
+📧 Email: support@nc-dedat.gov.za
+
+</p>
+
+
+
+<p>
+
+☎ Phone: +27 53 839 4000
+
+</p>
+
+
+
+
+<p>
+
+🏢 Office: Northern Cape Department of Economic Development and Tourism
+
+</p>
+
+
+
 </div>
+
+
+
+
+
+
+
+<button
+
+className="workspace-btn"
+
+onClick={()=>setShowContact(false)}
+
+>
+
+Close
+
+</button>
+
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+)
+
+
+}
+
+
 
 
 
@@ -381,19 +473,11 @@ Get Help Now
 
 </section>
 
+
 );
 
 
 };
-
-
-
-
-
-
-
-
-
 function UnitCard({
 
 icon,
@@ -403,7 +487,8 @@ statusType,
 title,
 description,
 tags,
-navigate
+navigate,
+setShowContact
 
 }){
 
@@ -421,7 +506,11 @@ return (
 
 
 
+
+
 <div className={`unit-icon ${iconBg}`}>
+
+
 
 
 
@@ -439,6 +528,8 @@ viewBox="0 0 24 24"
 
 
 
+
+
 <path
 
 d={icon}
@@ -453,11 +544,16 @@ strokeWidth="2"
 
 
 
+
+
 </svg>
 
 
 
+
+
 </div>
+
 
 
 
@@ -470,6 +566,7 @@ strokeWidth="2"
 {status}
 
 </span>
+
 
 
 
@@ -498,6 +595,7 @@ strokeWidth="2"
 
 
 
+
 <p className="unit-description">
 
 {description}
@@ -515,9 +613,12 @@ strokeWidth="2"
 <div className="unit-tags">
 
 
+
 {
 
+
 tags.map((tag)=>(
+
 
 
 <span
@@ -528,7 +629,9 @@ className="unit-tag"
 
 >
 
+
 {tag}
+
 
 </span>
 
@@ -538,6 +641,7 @@ className="unit-tag"
 
 
 }
+
 
 
 
@@ -557,6 +661,8 @@ className="unit-tag"
 
 
 
+
+
 <button
 
 type="button"
@@ -569,7 +675,9 @@ onClick={()=>
 navigate(
 
 `/programmes/${title
+
 .toLowerCase()
+
 .replace(/\s+/g,"-")}`
 
 )
@@ -582,6 +690,8 @@ navigate(
 Enter Workspace
 
 </button>
+
+
 
 
 
@@ -609,13 +719,15 @@ Policies
 
 
 
+
+
 <button
 
 type="button"
 
 className="secondary-btn"
 
-onClick={()=>navigate("/contacts")}
+onClick={()=>setShowContact(true)}
 
 >
 
@@ -627,7 +739,10 @@ Contacts
 
 
 
+
+
 </div>
+
 
 
 
@@ -642,6 +757,8 @@ Contacts
 
 
 }
+
+
 
 
 
