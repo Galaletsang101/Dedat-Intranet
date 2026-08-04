@@ -1,3 +1,5 @@
+import { Navigate } from "react-router-dom";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./layout/Layout";
@@ -24,7 +26,7 @@ import Policies from "./pages/Policies";
 
 function App() {
   return (
-    <BrowserRouter>
+  <BrowserRouter basename="/Dedat-Intranet">
       <Routes>
         {/* Authentication Routes */}
         {AuthRoutes()}
@@ -32,6 +34,8 @@ function App() {
         {/* Main Intranet Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          
             <Route path="/home" element={<Home />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
