@@ -85,41 +85,11 @@ const NewsPage = () => {
 
   return (
     <div className="news-page">
-      {/* Top Navigation */}
-      <Navbar className="news-topbar" expand="lg">
-        <Navbar.Brand className="brand-text">
-          <FaNewspaper className="me-2" style={{ color: '#d85f06' }} />
-          NCDEDAT News and Circulars
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto align-items-center gap-3">
-            <div className="position-relative d-none d-lg-block">
-              <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style={{ fontSize: '0.875rem' }} />
-              <input 
-                type="text" 
-                className="form-control form-control-sm rounded-pill ps-5" 
-                placeholder="Search news and archives..." 
-                style={{ width: '220px', background: '#f8f9fa', border: 'none' }}
-              />
-            </div>
-            <FaBell className="text-secondary" style={{ fontSize: '1.25rem', cursor: 'pointer' }} />
-            <FaUserCircle className="text-secondary" style={{ fontSize: '1.5rem', cursor: 'pointer' }} />
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+    
 
       <Container fluid className="px-4 py-4">
         <div className="news-container">
 
-          {/* Emergency Banner */}
-          <div className="alert alert-danger d-flex justify-content-between align-items-center mb-3" style={{ borderRadius: '0.5rem' }}>
-            <div className="d-flex align-items-center gap-2">
-              <span className="text-danger">⚠️</span>
-              <span>SYSTEM MAINTENANCE: Internal database services will be offline this Saturday from 08:00 to 14:00.</span>
-            </div>
-            <button className="btn-close" aria-label="Close"></button>
-          </div>
 
           <Row className="g-4">
             {/* Main Content - 8 Columns */}

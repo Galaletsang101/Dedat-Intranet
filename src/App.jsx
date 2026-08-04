@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./layout/Layout";
 
@@ -24,7 +26,7 @@ import Policies from "./pages/Policies";
 
 function App() {
   return (
-    <BrowserRouter>
+  <HashRouter>
       <Routes>
         {/* Authentication Routes */}
         {AuthRoutes()}
@@ -32,6 +34,8 @@ function App() {
         {/* Main Intranet Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          
             <Route path="/home" element={<Home />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
@@ -58,7 +62,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
