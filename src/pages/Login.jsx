@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 
 import AuthLayout from "../layout/AuthLayout";
@@ -191,19 +191,18 @@ function Login() {
         <div className="auth-links">
 
 
-          <a href="/forgot-password">
-            Forgot Password?
-          </a>
-
+        <Link to="/forgot-password">
+  Forgot Password?
+</Link>
 
 
           <p>
 
             Don't have an account?
 
-            <a href="/signup">
-              Sign Up
-            </a>
+            <Link to="/signup">
+  Sign Up
+</Link>
 
           </p>
 
