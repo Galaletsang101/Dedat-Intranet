@@ -10,6 +10,8 @@
 
   background-color: var(--white);
 
+  
+
 }
 
 
@@ -37,11 +39,12 @@
 
 .nav-links a {
 
-  color: var(--black);
+  color:var(--black);
 
   text-decoration: none;
 
   font-weight: 500;
+  
 
 }
 

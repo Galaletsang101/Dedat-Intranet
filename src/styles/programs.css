@@ -17,7 +17,7 @@
     margin:auto;
     padding:32px;
     background:#f8f9fa;
-    color:#0f172a;
+    color:#d85f06;
 
 }
 
@@ -54,7 +54,7 @@
 
     font-size:32px;
     font-weight:700;
-    color:#0f172a;
+    color:#d85f06;
     margin-bottom:12px;
 
 }
@@ -344,7 +344,7 @@
 
 
     flex:1;
-    background:#0f172a;
+    background:#5c5b5b;
     color:white;
     padding:10px;
     border:none;
@@ -477,7 +477,8 @@
 .support-card {
 
 
-    background:#0f172a;
+    background:#5c5b5b;
+
     color:white;
     padding:30px;
     border-radius:16px;
@@ -580,6 +581,7 @@
 .unit-card-actions {
 
     flex-direction:column;
+    
 
 }
 

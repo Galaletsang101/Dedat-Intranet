@@ -1,5 +1,5 @@
-import React from 'react';
-import '../styles/About.css';
+import React from "react";
+import "../styles/About.css";
 
 
 
@@ -10,11 +10,10 @@ const About = () => {
         <img
           alt="Northern Cape Landscape"
           className="hero-bg"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1sJtxBxMkiHHIY7z5tuCof2AB4MQ5BfO-xY5HrUyI-t8xHBMSWWuBjGkcj0gJ6GUroLmhYJA4E88VSptlzTstv0YKODv7mECLbVHxrpLAmX07cs41i75liMTQeZM_jbzBx3Usg2eBrNDInXw4KqyckoYpJ_12-zpWLSSFjXP5lgMZyDpUIB4ERSmLnfFpIdSLZ5nsVq1wy60v6iyRsUjsFRQTFTGHIGhh-q-HQR5we9x1DBLBYxbmcg"
-        />
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1sJtxBxMkiHHIY7z5tuCof2AB4MQ5BfO-xY5HrUyI-t8xHBMSWWuBjGkcj0gJ6GUroLmhYJA4E88VSptlzTstv0YKODv7mECLbVHxrpLAmX07cs41i75liMTQeZM_jbzBx3Usg2eBrNDInXw4KqyckoYpJ_12-zpWLSSFjXP5lgMZyDpUIB4ERSmLnfFpIdSLZ5nsVq1wy60v6iyRsUjsFRQTFTGHIGhh-q-HQR5we9x1DBLBYxbmcg"/>
         <div className="hero-overlay"></div>
         <div className="hero-content container">
-          <h1 className="hero-title">About DeDat</h1>
+          <h1 className="hero-title">About DEDaT</h1>
           <p className="hero-subtitle">
             Driving Economic Growth and Sustainable Tourism in the Northern Cape.
           </p>
@@ -311,7 +310,6 @@ const About = () => {
           </div>
         </div>
       </section>
-
       <section className="timeline-section" id="history-timeline">
         <div className="container timeline-container">
           <div className="timeline">

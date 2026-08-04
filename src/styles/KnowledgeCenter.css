@@ -1,116 +1,115 @@
-
 /* =========================
    GLOBAL RESET
 ========================= */
 
 * {
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 
 body {
-
-    font-family:'Inter', Arial, sans-serif;
-    background:#f8f9fa;
-    color:#0f172a;
-
+    font-family: 'Inter', Arial, sans-serif;
+    background: #f8f9fa;
+    color: #5c5b5b;
 }
-
 
 
 /* =========================
    MAIN CONTAINER
 ========================= */
 
-
-.knowledge-app-container {
-
-    max-width:1280px;
-    margin:auto;
-    padding:32px;
-
+.knowledgecenter-app-container {
+    max-width: 1280px;
+    margin: auto;
+    padding: 32px;
 }
-
 
 
 /* =========================
    HEADER
 ========================= */
 
+.knowledgecenter-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 40px;
+}
 
-.knowledge-main-header {
 
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:30px;
-    margin-bottom:40px;
+.knowledgecenter-header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #d85f06;
+}
+
+
+.knowledgecenter-header-subtitle {
+    margin-top: 10px;
+    max-width: 620px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+
+.knowledgecenter-header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.knowledgecenter-btn-outline,
+.knowledgecenter-btn-primary {
+
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .3s ease;
 
 }
 
 
+.knowledgecenter-btn-outline {
 
-.knowledge-header-title {
-
-    font-size:32px;
-    font-weight:700;
-
-}
-
-
-
-.knowledge-header-subtitle {
-
-    margin-top:10px;
-    max-width:620px;
-    color:#5c5b5b;
-    line-height:1.6;
+    background: white;
+    border: 1px solid #5c5b5b;
+    color: #5c5b5b;
 
 }
 
 
+.knowledgecenter-btn-outline:hover {
 
-.knowledge-header-actions {
-
-    display:flex;
-    gap:15px;
+    background: #f1f5f9;
 
 }
 
 
+.knowledgecenter-btn-primary {
 
-.knowledge-btn-outline,
-.knowledge-btn-primary {
-
-
-    padding:12px 22px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    border:none;
-
-}
-
-
-
-.knowledge-btn-outline {
-
-    background:white;
-    border:1px solid #e5c19b;
-
-}
-
-
-
-.knowledge-btn-primary {
-
-    background:#d85f06;
+    background: #d85f06;
     color:white;
 
 }
 
+
+.knowledgecenter-btn-primary:hover {
+
+    background:#b94f05;
+
+}
 
 
 
@@ -118,8 +117,7 @@ body {
    PRIMARY CARDS
 ========================= */
 
-
-.knowledge-primary-grid {
+.knowledgecenter-primary-grid {
 
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -129,27 +127,32 @@ body {
 }
 
 
-
-.knowledge-card {
-
+.knowledgecenter-card {
 
     background:white;
     padding:28px;
     border-radius:16px;
     border:1px solid #e5c19b;
+    transition:.3s ease;
 
 }
 
 
+.knowledgecenter-card:hover {
 
-.knowledge-card-icon {
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
+}
+
+
+.knowledgecenter-card-icon {
 
     width:50px;
     height:50px;
     display:flex;
-    align-items:center;
     justify-content:center;
+    align-items:center;
     border-radius:12px;
     margin-bottom:20px;
     font-size:22px;
@@ -158,8 +161,7 @@ body {
 
 
 
-
-.knowledge-navy {
+.knowledgecenter-navy {
 
     background:#0f172a;
     color:white;
@@ -167,8 +169,7 @@ body {
 }
 
 
-
-.knowledge-green {
+.knowledgecenter-green {
 
     background:#dcfce7;
     color:#16a34a;
@@ -176,8 +177,7 @@ body {
 }
 
 
-
-.knowledge-orange {
+.knowledgecenter-orange {
 
     background:#fff0e6;
     color:#d85f06;
@@ -186,105 +186,65 @@ body {
 
 
 
-.knowledge-card h3 {
+.knowledgecenter-card h3 {
 
-    font-size:20px;
+    color:#d85f06;
     margin-bottom:10px;
 
 }
 
 
+.knowledgecenter-card p {
 
-.knowledge-card p {
-
-    color:#5c5b5b;
+    color:#64748b;
     margin-bottom:18px;
 
 }
 
 
 
-.knowledge-card a {
+/* =========================
+   LINK BUTTON
+========================= */
 
+.knowledgecenter-link-btn {
 
-    text-decoration:none;
+    background:none;
+    border:none;
     color:#d85f06;
     font-weight:700;
+    cursor:pointer;
+    padding:0;
+    font-size:15px;
 
 }
 
 
+.knowledgecenter-link-btn:hover {
+
+    text-decoration:underline;
+    color:#b94f05;
+
+}
+
+
+
+/* Scoped navigation */
+
+.knowledgecenter-app-container .nav a {
+
+    color:black;
+
+}
 
 
 
 /* =========================
-   UTILITY CARDS
+   MAIN GRID
 ========================= */
 
 
-.knowledge-utility-grid {
-
-
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-    margin-bottom:40px;
-
-}
-
-
-
-.knowledge-utility-card {
-
-
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    border:1px solid #e5c19b;
-
-}
-
-
-
-.knowledge-utility-icon {
-
-
-    font-size:25px;
-    color:#5c5b5b;
-    margin-bottom:15px;
-
-}
-
-
-
-.knowledge-utility-card h4 {
-
-
-    margin-bottom:8px;
-
-}
-
-
-
-.knowledge-utility-card p {
-
-
-    color:#5c5b5b;
-    font-size:14px;
-
-}
-
-
-
-
-
-/* =========================
-   MAIN CONTENT
-========================= */
-
-
-.knowledge-main-grid {
-
+.knowledgecenter-main-grid {
 
     display:grid;
     grid-template-columns:2fr 1fr;
@@ -294,36 +254,85 @@ body {
 
 
 
-
-
 /* =========================
-   DOCUMENT TABLE
+   DOCUMENT SECTION
 ========================= */
 
-
-.knowledge-table-section {
-
+.knowledgecenter-table-section {
 
     background:white;
-    border-radius:16px;
     padding:25px;
+    border-radius:16px;
     border:1px solid #e5c19b;
+    overflow-x:auto;
 
 }
 
 
+.knowledgecenter-table-section h2 {
 
-.knowledge-table-section h2 {
-
-
+    color:#d85f06;
     margin-bottom:20px;
 
 }
 
 
 
-.knowledge-table {
+/* =========================
+   SEARCH
+========================= */
 
+.knowledgecenter-search {
+
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:25px;
+
+}
+
+
+.knowledgecenter-search svg {
+
+    color:#d85f06;
+
+}
+
+
+.knowledgecenter-search input,
+.knowledgecenter-search select {
+
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
+
+}
+
+
+.knowledgecenter-search input {
+
+    flex:1;
+
+}
+
+
+
+.knowledgecenter-search input:focus,
+.knowledgecenter-search select:focus {
+
+    border-color:#d85f06;
+    box-shadow:0 0 0 3px rgba(216,95,6,.15);
+
+}
+
+
+
+/* =========================
+   TABLE
+========================= */
+
+.knowledgecenter-table {
 
     width:100%;
     border-collapse:collapse;
@@ -331,21 +340,17 @@ body {
 }
 
 
-
-.knowledge-table th {
-
+.knowledgecenter-table th {
 
     background:#f8f9fa;
     padding:15px;
     text-align:left;
-    color:#5c5b5b;
+    color:#64748b;
 
 }
 
 
-
-.knowledge-table td {
-
+.knowledgecenter-table td {
 
     padding:15px;
     border-top:1px solid #e5c19b;
@@ -353,9 +358,14 @@ body {
 }
 
 
+.knowledgecenter-table tr:hover {
 
-.knowledge-document-name {
+    background:#fffaf5;
 
+}
+
+
+.knowledgecenter-document-name {
 
     display:flex;
     align-items:center;
@@ -365,9 +375,7 @@ body {
 }
 
 
-
-.knowledge-document-name svg {
-
+.knowledgecenter-document-name svg {
 
     color:#d85f06;
 
@@ -375,14 +383,11 @@ body {
 
 
 
-
 /* =========================
    BADGES
 ========================= */
 
-
-.knowledge-badge {
-
+.knowledgecenter-badge {
 
     background:#e5c19b;
     color:#5c5b5b;
@@ -393,9 +398,7 @@ body {
 }
 
 
-
-.knowledge-status {
-
+.knowledgecenter-status {
 
     color:#16a34a;
     font-weight:600;
@@ -404,14 +407,35 @@ body {
 
 
 
-
 /* =========================
-   RIGHT SIDE
+   DOWNLOAD
 ========================= */
 
+.download-btn {
 
-.knowledge-right-column {
+    background:#d85f06;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:8px;
+    cursor:pointer;
 
+}
+
+
+.download-btn:hover {
+
+    background:#b94f05;
+
+}
+
+
+
+/* =========================
+   RIGHT COLUMN
+========================= */
+
+.knowledgecenter-right-column {
 
     display:flex;
     flex-direction:column;
@@ -421,11 +445,9 @@ body {
 
 
 
+.knowledgecenter-stats-card {
 
-.knowledge-stats-card {
-
-
-    background:#0f172a;
+    background:#5c5b5b;
     color:white;
     padding:30px;
     border-radius:16px;
@@ -433,9 +455,7 @@ body {
 }
 
 
-
-.knowledge-stats {
-
+.knowledgecenter-stats {
 
     display:flex;
     justify-content:space-between;
@@ -444,18 +464,14 @@ body {
 }
 
 
-
-.knowledge-stats strong {
-
+.knowledgecenter-stats strong {
 
     font-size:35px;
 
 }
 
 
-
-.knowledge-stats p {
-
+.knowledgecenter-stats p {
 
     color:#e5c19b;
 
@@ -463,14 +479,7 @@ body {
 
 
 
-
-/* =========================
-   SUPPORT CARD
-========================= */
-
-
-.knowledge-support-card {
-
+.knowledgecenter-support-card {
 
     background:#d85f06;
     color:white;
@@ -480,18 +489,7 @@ body {
 }
 
 
-
-.knowledge-support-card p {
-
-
-    margin-top:10px;
-
-}
-
-
-
-.knowledge-support-btn {
-
+.knowledgecenter-support-btn {
 
     margin-top:20px;
     padding:12px 20px;
@@ -505,6 +503,83 @@ body {
 }
 
 
+.knowledgecenter-support-btn:hover {
+
+    background:#f4f4f4;
+
+}
+
+
+
+/* =========================
+   MODALS
+========================= */
+
+.modal {
+
+    position:fixed;
+    inset:0;
+    background:#5b5c5c;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+
+}
+
+
+
+.modal-box {
+
+    background:white;
+    width:400px;
+    padding:30px;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+
+}
+
+
+
+.modal-box h2 {
+
+    color:#d85f06;
+
+}
+
+
+
+.modal-box input,
+.modal-box textarea {
+
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-family:inherit;
+
+}
+
+
+
+.modal-box button {
+
+    padding:12px;
+    background:#d85f06;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+
+}
+
+
+.modal-box button:hover {
+
+    background:5#5c5b5b;
+
+}
 
 
 
@@ -512,66 +587,72 @@ body {
    RESPONSIVE
 ========================= */
 
-
 @media(max-width:1000px){
 
+    .knowledgecenter-primary-grid,
+    .knowledgecenter-main-grid{
 
-.knowledge-primary-grid,
-.knowledge-utility-grid,
-.knowledge-main-grid {
+        grid-template-columns:1fr;
 
-
-    grid-template-columns:1fr;
-
-}
+    }
 
 
+    .knowledgecenter-main-header{
 
-.knowledge-main-header {
+        flex-direction:column;
 
-
-    flex-direction:column;
+    }
 
 }
-
-
-.knowledge-header-actions {
-
-
-    width:100%;
-
-}
-
-
-}
-
 
 
 
 @media(max-width:600px){
 
+    .knowledgecenter-app-container{
 
-.knowledge-app-container {
+        padding:20px;
 
-    padding:20px;
-
-}
-
+    }
 
 
-.knowledge-table {
+    .knowledgecenter-search{
 
-    font-size:13px;
+        flex-direction:column;
 
-}
+        align-items:stretch;
+
+    }
 
 
+    .knowledgecenter-header-title{
 
-.knowledge-header-title {
+        font-size:25px;
 
-    font-size:25px;
+    }
 
-}
 
+    .knowledgecenter-header-actions{
+
+        flex-direction:column;
+        width:100%;
+
+    }
+
+
+    .knowledgecenter-btn-outline,
+    .knowledgecenter-btn-primary{
+
+        width:100%;
+        justify-content:center;
+
+    }
+
+
+    .modal-box{
+
+        width:90%;
+
+    }
 
 }
