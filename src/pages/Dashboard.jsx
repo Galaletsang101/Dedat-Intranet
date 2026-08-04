@@ -64,6 +64,7 @@ const hrServices = [
 const wellnessResources = [
   { title: "FAMSA Partnership", desc: "Confidential counseling & support.", icon: <HiHeart /> },
   { title: "Health Circulars", desc: "Stay updated on health protocols.", icon: <HiDocumentText /> },
+  { title: "First Aid", desc: "Emergency support and basic first aid guidance.", icon: <HiHeart /> },
 ];
 
 const notices = [
@@ -139,10 +140,10 @@ function Dashboard() {
   const handleSuggestionSubmit = (event) => {
     event.preventDefault();
     if (!suggestion.trim()) {
-      setSuggestionMessage("Please enter a suggestion before sending.");
+      setSuggestionMessage("Please enter an anonymous suggestion before sending.");
       return;
     }
-    setSuggestionMessage("Your suggestion has been sent to HR for review.");
+    setSuggestionMessage("Your anonymous suggestion has been sent to HR for review.");
     setSuggestion("");
     setShowSuggestionForm(false);
   };
@@ -150,10 +151,10 @@ function Dashboard() {
   const handleGrievanceSubmit = (event) => {
     event.preventDefault();
     if (!grievance.trim()) {
-      setGrievanceMessage("Please describe your concern before sending.");
+      setGrievanceMessage("Please describe your concern before sending anonymously.");
       return;
     }
-    setGrievanceMessage("Your complaint has been sent to the HR ethics team.");
+    setGrievanceMessage("Your anonymous complaint has been sent to the HR ethics team.");
     setGrievance("");
     setShowGrievanceForm(false);
   };
@@ -380,38 +381,38 @@ function Dashboard() {
 
         <div className="dashboard-stack">
           <section className="dashboard-card dashboard-card-widget">
-            <h3>Suggestion Box</h3>
-            <p>Have an idea to improve our workplace? We would love to hear it.</p>
+            <h3>Anonymous Suggestion Box</h3>
+            <p>Share an idea to improve our workplace anonymously.</p>
             {!showSuggestionForm ? (
-              <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Suggestion</button>
+              <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Anonymous Suggestion</button>
             ) : (
               <form className="dashboard-form" onSubmit={handleSuggestionSubmit}>
                 <textarea
                   value={suggestion}
                   onChange={(event) => setSuggestion(event.target.value)}
-                  placeholder="Type your suggestion here..."
+                  placeholder="Share your anonymous suggestion here..."
                   rows="4"
                 />
-                <button type="submit" className="dashboard-outline-button">Send Suggestion</button>
+                <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
               </form>
             )}
             {suggestionMessage ? <p className="dashboard-form-message">{suggestionMessage}</p> : null}
           </section>
 
           <section className="dashboard-card dashboard-card-widget">
-            <h3>Grievance Box</h3>
-            <p>Submit formal complaints or report issues securely.</p>
+            <h3>Anonymous Grievance Box</h3>
+            <p>Submit a formal complaint or report an issue anonymously.</p>
             {!showGrievanceForm ? (
-              <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File a Complaint</button>
+              <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File an Anonymous Complaint</button>
             ) : (
               <form className="dashboard-form" onSubmit={handleGrievanceSubmit}>
                 <textarea
                   value={grievance}
                   onChange={(event) => setGrievance(event.target.value)}
-                  placeholder="Describe your concern here..."
+                  placeholder="Describe your concern anonymously here..."
                   rows="4"
                 />
-                <button type="submit" className="dashboard-outline-button">Send Complaint</button>
+                <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
               </form>
             )}
             {grievanceMessage ? <p className="dashboard-form-message">{grievanceMessage}</p> : null}
