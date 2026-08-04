@@ -92,16 +92,19 @@ const loadVideos = async () => {
 
         <div className="hero-content">
 
-          <h1>
-            Find your balance,
-            <span> anytime, anywhere.</span>
-          </h1>
+        
+  <h1>
+  <span style={{ color: "black" }}>
+    Find your balance,
+  </span>
+  <span> anytime, anywhere.</span>
+</h1>
 
-          <p>
-            Welcome to your dedicated Employee Health and Wellness
-            space where you can discover wellness resources,
-            webinars and support whenever you need them.
-          </p>
+<p style={{ color: "black" }}>
+  Welcome to your dedicated Employee Health and Wellness
+  space where you can discover wellness resources,
+  webinars and support whenever you need them.
+</p>
 
         </div>
 
