@@ -1,108 +1,164 @@
 /* =========================
+   IMPORT FONT
+========================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+/* =========================
+   ROOT COLORS
+========================= */
+
+:root {
+
+    --salamander: #d85f06;
+
+    --buff: #e5c19b;
+
+    --gravel: #5c5b5b;
+
+    --white: #ffffff;
+
+    --light-grey: #f5f5f5;
+
+}
+
+
+
+/* =========================
    GLOBAL RESET
 ========================= */
 
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
 }
 
 
 body {
-    font-family: 'Inter', Arial, sans-serif;
-    background: #f8f9fa;
-    color: #5c5b5b;
+
+    font-family:'Inter', Arial, sans-serif;
+    background:var(--light-grey);
+    color:var(--gravel);
+
 }
+
 
 
 /* =========================
    MAIN CONTAINER
 ========================= */
 
+
 .knowledgecenter-app-container {
-    max-width: 1280px;
-    margin: auto;
-    padding: 32px;
+
+    max-width:1280px;
+    margin:auto;
+    padding:32px;
+
 }
+
 
 
 /* =========================
    HEADER
 ========================= */
 
+
 .knowledgecenter-main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 30px;
-    margin-bottom: 40px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:30px;
+    margin-bottom:40px;
+
 }
+
 
 
 .knowledgecenter-header-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #d85f06;
+
+    font-size:32px;
+    font-weight:700;
+    color:var(--salamander);
+
 }
+
 
 
 .knowledgecenter-header-subtitle {
-    margin-top: 10px;
-    max-width: 620px;
-    color: #64748b;
-    line-height: 1.6;
+
+    margin-top:10px;
+    max-width:620px;
+    color:#64748b;
+    line-height:1.6;
+
 }
+
 
 
 .knowledgecenter-header-actions {
-    display: flex;
-    gap: 15px;
+
+    display:flex;
+    gap:15px;
+
 }
+
 
 
 /* =========================
    BUTTONS
 ========================= */
 
+
 .knowledgecenter-btn-outline,
 .knowledgecenter-btn-primary {
 
-    padding: 12px 22px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all .3s ease;
+    padding:12px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    border:none;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.3s ease;
 
 }
+
 
 
 .knowledgecenter-btn-outline {
 
-    background: white;
-    border: 1px solid #5c5b5b;
-    color: #5c5b5b;
+    background:var(--white);
+    border:1px solid var(--gravel);
+    color:var(--gravel);
 
 }
+
 
 
 .knowledgecenter-btn-outline:hover {
 
-    background: #f1f5f9;
+    background:var(--light-grey);
 
 }
+
 
 
 .knowledgecenter-btn-primary {
 
-    background: #d85f06;
-    color:white;
+    background:var(--salamander);
+    color:var(--white);
 
 }
+
 
 
 .knowledgecenter-btn-primary:hover {
@@ -117,6 +173,7 @@ body {
    PRIMARY CARDS
 ========================= */
 
+
 .knowledgecenter-primary-grid {
 
     display:grid;
@@ -127,15 +184,17 @@ body {
 }
 
 
+
 .knowledgecenter-card {
 
-    background:white;
+    background:var(--white);
     padding:28px;
     border-radius:16px;
-    border:1px solid #e5c19b;
+    border:1px solid var(--buff);
     transition:.3s ease;
 
 }
+
 
 
 .knowledgecenter-card:hover {
@@ -144,6 +203,7 @@ body {
     box-shadow:0 10px 25px rgba(0,0,0,.08);
 
 }
+
 
 
 .knowledgecenter-card-icon {
@@ -164,9 +224,10 @@ body {
 .knowledgecenter-navy {
 
     background:#0f172a;
-    color:white;
+    color:var(--white);
 
 }
+
 
 
 .knowledgecenter-green {
@@ -177,10 +238,11 @@ body {
 }
 
 
+
 .knowledgecenter-orange {
 
     background:#fff0e6;
-    color:#d85f06;
+    color:var(--salamander);
 
 }
 
@@ -188,10 +250,11 @@ body {
 
 .knowledgecenter-card h3 {
 
-    color:#d85f06;
+    color:var(--salamander);
     margin-bottom:10px;
 
 }
+
 
 
 .knowledgecenter-card p {
@@ -207,17 +270,19 @@ body {
    LINK BUTTON
 ========================= */
 
+
 .knowledgecenter-link-btn {
 
     background:none;
     border:none;
-    color:#d85f06;
+    color:var(--salamander);
     font-weight:700;
     cursor:pointer;
     padding:0;
     font-size:15px;
 
 }
+
 
 
 .knowledgecenter-link-btn:hover {
@@ -231,9 +296,10 @@ body {
 
 /* Scoped navigation */
 
+
 .knowledgecenter-app-container .nav a {
 
-    color:black;
+    color:var(--gravel);
 
 }
 
@@ -251,27 +317,26 @@ body {
     gap:30px;
 
 }
-
-
-
 /* =========================
    DOCUMENT SECTION
 ========================= */
 
+
 .knowledgecenter-table-section {
 
-    background:white;
+    background:var(--white);
     padding:25px;
     border-radius:16px;
-    border:1px solid #e5c19b;
+    border:1px solid var(--buff);
     overflow-x:auto;
 
 }
 
 
+
 .knowledgecenter-table-section h2 {
 
-    color:#d85f06;
+    color:var(--salamander);
     margin-bottom:20px;
 
 }
@@ -281,6 +346,7 @@ body {
 /* =========================
    SEARCH
 ========================= */
+
 
 .knowledgecenter-search {
 
@@ -292,11 +358,13 @@ body {
 }
 
 
+
 .knowledgecenter-search svg {
 
-    color:#d85f06;
+    color:var(--salamander);
 
 }
+
 
 
 .knowledgecenter-search input,
@@ -310,6 +378,7 @@ body {
 }
 
 
+
 .knowledgecenter-search input {
 
     flex:1;
@@ -321,7 +390,7 @@ body {
 .knowledgecenter-search input:focus,
 .knowledgecenter-search select:focus {
 
-    border-color:#d85f06;
+    border-color:var(--salamander);
     box-shadow:0 0 0 3px rgba(216,95,6,.15);
 
 }
@@ -332,6 +401,7 @@ body {
    TABLE
 ========================= */
 
+
 .knowledgecenter-table {
 
     width:100%;
@@ -340,9 +410,10 @@ body {
 }
 
 
+
 .knowledgecenter-table th {
 
-    background:#f8f9fa;
+    background:var(--light-grey);
     padding:15px;
     text-align:left;
     color:#64748b;
@@ -350,12 +421,14 @@ body {
 }
 
 
+
 .knowledgecenter-table td {
 
     padding:15px;
-    border-top:1px solid #e5c19b;
+    border-top:1px solid var(--buff);
 
 }
+
 
 
 .knowledgecenter-table tr:hover {
@@ -363,6 +436,12 @@ body {
     background:#fffaf5;
 
 }
+
+
+
+/* =========================
+   DOCUMENT NAME
+========================= */
 
 
 .knowledgecenter-document-name {
@@ -375,9 +454,10 @@ body {
 }
 
 
+
 .knowledgecenter-document-name svg {
 
-    color:#d85f06;
+    color:var(--salamander);
 
 }
 
@@ -387,15 +467,17 @@ body {
    BADGES
 ========================= */
 
+
 .knowledgecenter-badge {
 
-    background:#e5c19b;
-    color:#5c5b5b;
+    background:var(--buff);
+    color:var(--gravel);
     padding:5px 12px;
     border-radius:20px;
     font-size:12px;
 
 }
+
 
 
 .knowledgecenter-status {
@@ -408,19 +490,21 @@ body {
 
 
 /* =========================
-   DOWNLOAD
+   DOWNLOAD BUTTON
 ========================= */
+
 
 .download-btn {
 
-    background:#d85f06;
-    color:white;
+    background:var(--salamander);
+    color:var(--white);
     border:none;
     padding:8px 15px;
     border-radius:8px;
     cursor:pointer;
 
 }
+
 
 
 .download-btn:hover {
@@ -435,6 +519,7 @@ body {
    RIGHT COLUMN
 ========================= */
 
+
 .knowledgecenter-right-column {
 
     display:flex;
@@ -445,14 +530,29 @@ body {
 
 
 
+/* =========================
+   STATS CARD
+========================= */
+
+
 .knowledgecenter-stats-card {
 
-    background:#5c5b5b;
-    color:white;
+    background:var(--gravel);
+    color:var(--white);
     padding:30px;
     border-radius:16px;
 
 }
+
+
+
+.knowledgecenter-stats-card h3 {
+
+    color:var(--white);
+    margin-bottom:10px;
+
+}
+
 
 
 .knowledgecenter-stats {
@@ -464,29 +564,54 @@ body {
 }
 
 
+
 .knowledgecenter-stats strong {
 
     font-size:35px;
+    color:var(--white);
 
 }
+
 
 
 .knowledgecenter-stats p {
 
-    color:#e5c19b;
+    color:var(--white);
+    font-size:14px;
+    margin-top:8px;
 
 }
-
+/* =========================
+   SUPPORT CARD
+========================= */
 
 
 .knowledgecenter-support-card {
 
-    background:#d85f06;
-    color:white;
+    background:var(--salamander);
+    color:var(--white);
     padding:30px;
     border-radius:16px;
 
 }
+
+
+
+.knowledgecenter-support-card h3 {
+
+    color:var(--white);
+
+}
+
+
+
+.knowledgecenter-support-card p {
+
+    color:var(--white);
+    line-height:1.6;
+
+}
+
 
 
 .knowledgecenter-support-btn {
@@ -496,16 +621,17 @@ body {
     border:none;
     border-radius:8px;
     cursor:pointer;
-    background:white;
-    color:#d85f06;
+    background:var(--white);
+    color:var(--salamander);
     font-weight:700;
 
 }
 
 
+
 .knowledgecenter-support-btn:hover {
 
-    background:#f4f4f4;
+    background:var(--light-grey);
 
 }
 
@@ -515,11 +641,12 @@ body {
    MODALS
 ========================= */
 
+
 .modal {
 
     position:fixed;
     inset:0;
-    background:#5b5c5c;
+    background:rgba(92,91,91,.85);
     display:flex;
     justify-content:center;
     align-items:center;
@@ -531,7 +658,7 @@ body {
 
 .modal-box {
 
-    background:white;
+    background:var(--white);
     width:400px;
     padding:30px;
     border-radius:16px;
@@ -545,7 +672,7 @@ body {
 
 .modal-box h2 {
 
-    color:#d85f06;
+    color:var(--salamander);
 
 }
 
@@ -566,8 +693,8 @@ body {
 .modal-box button {
 
     padding:12px;
-    background:#d85f06;
-    color:white;
+    background:var(--salamander);
+    color:var(--white);
     border:none;
     border-radius:8px;
     cursor:pointer;
@@ -575,9 +702,10 @@ body {
 }
 
 
+
 .modal-box button:hover {
 
-    background:5#5c5b5b;
+    background:var(--gravel);
 
 }
 
@@ -587,21 +715,25 @@ body {
    RESPONSIVE
 ========================= */
 
+
 @media(max-width:1000px){
 
+
     .knowledgecenter-primary-grid,
-    .knowledgecenter-main-grid{
+    .knowledgecenter-main-grid {
 
         grid-template-columns:1fr;
 
     }
 
 
-    .knowledgecenter-main-header{
+
+    .knowledgecenter-main-header {
 
         flex-direction:column;
 
     }
+
 
 }
 
@@ -609,30 +741,33 @@ body {
 
 @media(max-width:600px){
 
-    .knowledgecenter-app-container{
+
+    .knowledgecenter-app-container {
 
         padding:20px;
 
     }
 
 
-    .knowledgecenter-search{
+
+    .knowledgecenter-search {
 
         flex-direction:column;
-
         align-items:stretch;
 
     }
 
 
-    .knowledgecenter-header-title{
+
+    .knowledgecenter-header-title {
 
         font-size:25px;
 
     }
 
 
-    .knowledgecenter-header-actions{
+
+    .knowledgecenter-header-actions {
 
         flex-direction:column;
         width:100%;
@@ -640,8 +775,9 @@ body {
     }
 
 
+
     .knowledgecenter-btn-outline,
-    .knowledgecenter-btn-primary{
+    .knowledgecenter-btn-primary {
 
         width:100%;
         justify-content:center;
@@ -649,10 +785,12 @@ body {
     }
 
 
-    .modal-box{
+
+    .modal-box {
 
         width:90%;
 
     }
+
 
 }

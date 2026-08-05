@@ -1,65 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "../styles/dashboard.css";
-import {
-  HiCalendar,
-  HiDocumentText,
-  HiTemplate,
-  HiUserGroup,
-  HiOfficeBuilding,
-  HiChartBar,
-  HiCreditCard,
-  HiUsers,
-  HiShieldCheck,
-  HiPlus,
-  HiHeart,
-  HiBell,
-  HiStar,
-  HiBookOpen,
-  HiVideoCamera,
-  HiDesktopComputer,
-  HiNewspaper,
-  HiClock,
-} from "react-icons/hi";
 
-const quickActions = [
-  {
-    title: "Apply for Leave",
-    desc: "Track and request time off",
-    icon: <HiCalendar />,
-    accent: "light",
-    action: "mailto:hr@dedat.gov.za?subject=Leave%20Request",
-  },
-  {
-    title: "Submit Forms",
-    desc: "Claims, travel & procurement",
-    icon: <HiDocumentText />,
-    accent: "light",
-    action: "/knowledge-center",
-  },
-  {
-    title: "HR Templates",
-    desc: "Letters, logs & checklists",
-    icon: <HiTemplate />,
-    accent: "light",
-    action: "/knowledge-center",
-  },
-  {
-    title: "Contact HR",
-    desc: "Support & inquiries",
-    icon: <HiUserGroup />,
-    accent: "secondary",
-    action: "mailto:hr@dedat.gov.za?subject=HR%20Support",
-  },
-];
 
-const hrServices = [
-  { title: "Leave Management", desc: "View balances and historical applications.", icon: <HiCalendar /> },
-  { title: "PMDS", desc: "Performance management and assessments.", icon: <HiChartBar /> },
-  { title: "Payroll Links", desc: "Access e-payslips and tax certificates.", icon: <HiCreditCard /> },
-  { title: "Labour Relations", desc: "Policies, grievance forms, and support.", icon: <HiUsers /> },
-  { title: "Ethics Management", desc: "Disclosure of interest and code of conduct.", icon: <HiShieldCheck /> },
-];
+import React from 'react';
+import '../styles/dashboard.css';
 
 const wellnessResources = [
   { title: "FAMSA Partnership", desc: "Confidential counseling & support.", icon: <HiHeart /> },
