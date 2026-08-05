@@ -140,7 +140,11 @@ function Signup() {
         <div className="auth-links">
           <p>
             Already have an account?
-            <a href="/">Login</a>
+           <div className="auth-links">
+    <Link to="/">
+        Back to Login
+    </Link>
+</div>
           </p>
         </div>
       </AuthCard>
