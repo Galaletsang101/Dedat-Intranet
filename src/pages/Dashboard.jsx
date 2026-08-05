@@ -28,28 +28,28 @@ const quickActions = [
     desc: "Track and request time off",
     icon: <HiCalendar />,
     accent: "light",
-    action: "mailto:hr@dedat.gov.za?subject=Leave%20Request",
+    
   },
   {
     title: "Submit Forms",
     desc: "Claims, travel & procurement",
     icon: <HiDocumentText />,
     accent: "light",
-    action: "/knowledge-center",
+   
   },
   {
     title: "HR Templates",
     desc: "Letters, logs & checklists",
     icon: <HiTemplate />,
     accent: "light",
-    action: "/knowledge-center",
+    
   },
   {
     title: "Contact HR",
     desc: "Support & inquiries",
     icon: <HiUserGroup />,
     accent: "secondary",
-    action: "mailto:hr@dedat.gov.za?subject=HR%20Support",
+    
   },
 ];
 
