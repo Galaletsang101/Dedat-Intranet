@@ -8,6 +8,7 @@
   --dashboard-secondary: #d85f06;
   --dashboard-accent: #0f766e;
   --dashboard-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --salamander: #d85f06;
 }
 
 .dashboard-page {
@@ -257,6 +258,7 @@
   font-weight: 600;
   color: var(--dashboard-primary);
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .dashboard-archive-item {
@@ -499,7 +501,7 @@
   color: #1d4ed8;
 }
 
-/* Anonymous Boxes - Single Class */
+/* Anonymous Boxes */
 .dashboard-card-anonymous {
   padding: 1.2rem;
   border-radius: 22px;
@@ -508,12 +510,38 @@
   box-shadow: var(--dashboard-shadow);
   height: fit-content;
   align-self: start;
+  position: relative;
 }
 
-.dashboard-card-anonymous h3 {
-  margin: 0 0 0.5rem 0;
+.dashboard-anonymous-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-anonymous-header h3 {
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+.dashboard-close-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--dashboard-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.dashboard-close-button:hover {
+  color: #dc3545;
+  background: #fde8ea;
+  transform: scale(1.1);
 }
 
 .dashboard-card-anonymous p {
@@ -525,6 +553,21 @@
 .dashboard-card-anonymous .dashboard-outline-button {
   width: 100%;
   padding: 0.65rem 1rem;
+  border: 2px solid var(--dashboard-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dashboard-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.dashboard-card-anonymous .dashboard-outline-button:hover {
+  background: var(--salamander);
+  color: white;
+  border-color: var(--salamander);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(216, 95, 6, 0.3);
 }
 
 .dashboard-card-anonymous .dashboard-form {
@@ -536,22 +579,49 @@
 
 .dashboard-card-anonymous .dashboard-form textarea {
   width: 100%;
-  border: 1px solid var(--dashboard-border);
+  border: 2px solid var(--dashboard-border);
   border-radius: 12px;
   padding: 0.8rem 0.9rem;
   font: inherit;
   resize: vertical;
   min-height: 100px;
+  transition: border-color 0.3s ease;
+}
+
+.dashboard-card-anonymous .dashboard-form textarea:focus {
+  outline: none;
+  border-color: var(--salamander);
 }
 
 .dashboard-card-anonymous .dashboard-form .dashboard-outline-button {
   width: 100%;
+  padding: 0.65rem 1rem;
+  border: 2px solid var(--dashboard-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dashboard-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.dashboard-card-anonymous .dashboard-form .dashboard-outline-button:hover {
+  background: var(--salamander);
+  color: white;
+  border-color: var(--salamander);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(216, 95, 6, 0.3);
 }
 
 .dashboard-card-anonymous .dashboard-form-message {
   margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
   font-weight: 600;
-  color: var(--dashboard-accent);
+  text-align: center;
+  background: #f0fdf4;
+  color: var(--salamander);
+  border: 1px solid #dcfce7;
 }
 
 @media (max-width: 1100px) {

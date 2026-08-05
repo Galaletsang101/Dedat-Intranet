@@ -385,7 +385,22 @@ function Dashboard() {
       {/* ROW 5: Anonymous Boxes (Left & Right) */}
       <div className="dashboard-grid dashboard-grid-equal">
         <section className="dashboard-card dashboard-card-anonymous">
-          <h3>Anonymous Suggestion Box</h3>
+          <div className="dashboard-anonymous-header">
+            <h3>Anonymous Suggestion Box</h3>
+            {showSuggestionForm && (
+              <button 
+                type="button" 
+                className="dashboard-close-button"
+                onClick={() => {
+                  setShowSuggestionForm(false);
+                  setSuggestion("");
+                  setSuggestionMessage("");
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <p>Share an idea to improve our workplace anonymously.</p>
           {!showSuggestionForm ? (
             <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Anonymous Suggestion</button>
@@ -404,7 +419,22 @@ function Dashboard() {
         </section>
 
         <section className="dashboard-card dashboard-card-anonymous">
-          <h3>Anonymous Grievance Box</h3>
+          <div className="dashboard-anonymous-header">
+            <h3>Anonymous Grievance Box</h3>
+            {showGrievanceForm && (
+              <button 
+                type="button" 
+                className="dashboard-close-button"
+                onClick={() => {
+                  setShowGrievanceForm(false);
+                  setGrievance("");
+                  setGrievanceMessage("");
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <p>Submit a formal complaint or report an issue anonymously.</p>
           {!showGrievanceForm ? (
             <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File an Anonymous Complaint</button>
