@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import AuthLayout from "../layout/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import AuthButton from "../components/auth/AuthButton";
@@ -140,7 +140,11 @@ function Signup() {
         <div className="auth-links">
           <p>
             Already have an account?
-            <a href="/">Login</a>
+           <div className="auth-links">
+    <Link to="/">
+        Back to Login
+    </Link>
+</div>
           </p>
         </div>
       </AuthCard>

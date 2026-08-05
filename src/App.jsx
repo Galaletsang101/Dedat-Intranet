@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./layout/Layout";
 
@@ -26,7 +26,7 @@ import Policies from "./pages/Policies";
 
 function App() {
   return (
-  <BrowserRouter basename="/Dedat-Intranet">
+  <HashRouter>
       <Routes>
         {/* Authentication Routes */}
         {AuthRoutes()}
@@ -62,7 +62,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { Link } from "react-router-dom";
 import AuthLayout from "../layout/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import AuthInput from "../components/auth/AuthInput";
@@ -131,13 +131,11 @@ function ForgotPassword(){
 
 
 
-                <div className="auth-links">
-
-                    <a href="/">
-                        Back to Login
-                    </a>
-
-                </div>
+               <div className="auth-links">
+    <Link to="/">
+        Back to Login
+    </Link>
+</div>
 
 
             </AuthCard>
