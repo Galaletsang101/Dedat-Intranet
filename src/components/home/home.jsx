@@ -162,7 +162,11 @@ const Homepage = () => {
   const [emergencyVisible, setEmergencyVisible] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const [showUpdates, setShowUpdates] = useState(true);
+const [showUpdates, setShowUpdates] = useState(() => {
+  const seenUpdates = localStorage.getItem("dedat_updates_seen");
+
+  return !seenUpdates;
+});
   // Quick access items
   const quickAccessItems = [
     { icon: FaHeadset, label: "IT Support" },
@@ -275,7 +279,10 @@ const Homepage = () => {
   <Modal.Footer>
 <Button
   className="updates-btn"
-  onClick={() => setShowUpdates(false)}
+  onClick={() => {
+    localStorage.setItem("dedat_updates_seen", "true");
+    setShowUpdates(false);
+  }}
 >
   Continue to Intranet
 </Button>
