@@ -196,6 +196,7 @@ function Dashboard() {
         ))}
       </section>
 
+      {/* ROW 1: HR Services & Payroll (Left) | Employee Notices (Right) */}
       <div className="dashboard-grid">
         <section className="dashboard-card dashboard-card-large">
           <div className="dashboard-card-header">
@@ -203,7 +204,6 @@ function Dashboard() {
               <HiOfficeBuilding className="dashboard-icon-accent" />
               <h2>HR Services & Payroll</h2>
             </div>
-            <button type="button" className="dashboard-link-button">View All</button>
           </div>
 
           <div className="dashboard-service-grid">
@@ -214,7 +214,6 @@ function Dashboard() {
                 <p>{item.desc}</p>
               </div>
             ))}
-           
           </div>
         </section>
 
@@ -246,33 +245,11 @@ function Dashboard() {
               {showArchive ? "Hide Archive" : "See Archive"}
             </button>
           </section>
-
-          <section className="dashboard-card dashboard-card-spotlight">
-            <div className="dashboard-spotlight-banner">
-              <div className="dashboard-spotlight-badge">
-                <HiStar />
-                Staff Spotlight
-              </div>
-            </div>
-            <div className="dashboard-spotlight-body">
-              <img
-                src="https://randomuser.me/api/portraits/women/44.jpg"
-                alt="Sarah Johnson"
-                className="dashboard-avatar"
-              />
-              <h3>Sarah Johnson</h3>
-              <p className="dashboard-spotlight-role">Excellence in Service Delivery</p>
-              <blockquote>“Sarah consistently goes above and beyond to support the SMME development project.”</blockquote>
-              <div className="dashboard-tags">
-                <span>Long Service</span>
-                <span>Innovation Award</span>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
 
-      <div className="dashboard-grid dashboard-grid-bottom">
+      {/* ROW 2: Wellness Center (Left) | Staff Spotlight (Right) */}
+      <div className="dashboard-grid">
         <section className="dashboard-card dashboard-card-wellness">
           <div className="dashboard-card-header">
             <div className="dashboard-title-group">
@@ -296,56 +273,32 @@ function Dashboard() {
           </div>
         </section>
 
-        <section className="dashboard-card dashboard-card-learning">
-          <div className="dashboard-card-header">
-            <div className="dashboard-title-group">
-              <HiBookOpen className="dashboard-icon-accent" />
-              <h2>Learning Centre</h2>
+        <section className="dashboard-card dashboard-card-spotlight">
+          <div className="dashboard-spotlight-banner">
+            <div className="dashboard-spotlight-badge">
+              <HiStar />
+              Staff Spotlight
             </div>
           </div>
-          <div className="dashboard-resource-list">
-            {learningResources.map((item, index) => (
-              <div key={index} className="dashboard-resource-item dashboard-learning-item">
-                <div className="dashboard-resource-icon">{item.icon}</div>
-                <div>
-                  <h4>{item.title}</h4>
-                  <p>{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="dashboard-progress-card">
-            <h4>My Progress</h4>
-            <div className="dashboard-progress-bar">
-              <div></div>
+          <div className="dashboard-spotlight-body">
+            <img
+              src="https://randomuser.me/api/portraits/women/44.jpg"
+              alt="Sarah Johnson"
+              className="dashboard-avatar"
+            />
+            <h3>Sarah Johnson</h3>
+            <p className="dashboard-spotlight-role">Excellence in Service Delivery</p>
+            <blockquote>“Sarah consistently goes above and beyond to support the SMME development project.”</blockquote>
+            <div className="dashboard-tags">
+              <span>Long Service</span>
+              <span>Innovation Award</span>
             </div>
-            <p>75% of Digital Literacy complete</p>
           </div>
         </section>
       </div>
 
-      <section className="dashboard-card dashboard-card-news">
-        <div className="dashboard-card-header">
-          <div className="dashboard-title-group">
-            <HiNewspaper className="dashboard-icon-accent" />
-            <h2>Internal Communications</h2>
-          </div>
-        </div>
-        <div className="dashboard-news-grid">
-          {communications.map((item, index) => (
-            <article key={index} className="dashboard-news-card">
-              <span>{item.tag}</span>
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
-              <small>
-                <HiClock /> {item.time}
-              </small>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <div className="dashboard-grid dashboard-grid-bottom">
+      {/* ROW 3: Department Notices (Left) | Learning Centre (Right) */}
+      <div className="dashboard-grid">
         <section className="dashboard-card dashboard-card-department">
           <div className="dashboard-card-header">
             <div className="dashboard-title-group">
@@ -379,45 +332,95 @@ function Dashboard() {
           </div>
         </section>
 
-        <div className="dashboard-stack">
-          <section className="dashboard-card dashboard-card-widget">
-            <h3>Anonymous Suggestion Box</h3>
-            <p>Share an idea to improve our workplace anonymously.</p>
-            {!showSuggestionForm ? (
-              <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Anonymous Suggestion</button>
-            ) : (
-              <form className="dashboard-form" onSubmit={handleSuggestionSubmit}>
-                <textarea
-                  value={suggestion}
-                  onChange={(event) => setSuggestion(event.target.value)}
-                  placeholder="Share your anonymous suggestion here..."
-                  rows="4"
-                />
-                <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
-              </form>
-            )}
-            {suggestionMessage ? <p className="dashboard-form-message">{suggestionMessage}</p> : null}
-          </section>
+        <section className="dashboard-card dashboard-card-learning">
+          <div className="dashboard-card-header">
+            <div className="dashboard-title-group">
+              <HiBookOpen className="dashboard-icon-accent" />
+              <h2>Learning Centre</h2>
+            </div>
+          </div>
+          <div className="dashboard-resource-list">
+            {learningResources.map((item, index) => (
+              <div key={index} className="dashboard-resource-item dashboard-learning-item">
+                <div className="dashboard-resource-icon">{item.icon}</div>
+                <div>
+                  <h4>{item.title}</h4>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="dashboard-progress-card">
+            <h4>My Progress</h4>
+            <div className="dashboard-progress-bar">
+              <div></div>
+            </div>
+            <p>75% of Digital Literacy complete</p>
+          </div>
+        </section>
+      </div>
 
-          <section className="dashboard-card dashboard-card-widget">
-            <h3>Anonymous Grievance Box</h3>
-            <p>Submit a formal complaint or report an issue anonymously.</p>
-            {!showGrievanceForm ? (
-              <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File an Anonymous Complaint</button>
-            ) : (
-              <form className="dashboard-form" onSubmit={handleGrievanceSubmit}>
-                <textarea
-                  value={grievance}
-                  onChange={(event) => setGrievance(event.target.value)}
-                  placeholder="Describe your concern anonymously here..."
-                  rows="4"
-                />
-                <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
-              </form>
-            )}
-            {grievanceMessage ? <p className="dashboard-form-message">{grievanceMessage}</p> : null}
-          </section>
+      {/* ROW 4: Internal Communications (Full Width) */}
+      <section className="dashboard-card dashboard-card-news">
+        <div className="dashboard-card-header">
+          <div className="dashboard-title-group">
+            <HiNewspaper className="dashboard-icon-accent" />
+            <h2>Internal Communications</h2>
+          </div>
         </div>
+        <div className="dashboard-news-grid">
+          {communications.map((item, index) => (
+            <article key={index} className="dashboard-news-card">
+              <span>{item.tag}</span>
+              <h3>{item.title}</h3>
+              <p>{item.desc}</p>
+              <small>
+                <HiClock /> {item.time}
+              </small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ROW 5: Anonymous Boxes (Left & Right) */}
+      <div className="dashboard-grid dashboard-grid-equal">
+        <section className="dashboard-card dashboard-card-anonymous">
+          <h3>Anonymous Suggestion Box</h3>
+          <p>Share an idea to improve our workplace anonymously.</p>
+          {!showSuggestionForm ? (
+            <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Anonymous Suggestion</button>
+          ) : (
+            <form className="dashboard-form" onSubmit={handleSuggestionSubmit}>
+              <textarea
+                value={suggestion}
+                onChange={(event) => setSuggestion(event.target.value)}
+                placeholder="Share your anonymous suggestion here..."
+                rows="4"
+              />
+              <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
+            </form>
+          )}
+          {suggestionMessage ? <p className="dashboard-form-message">{suggestionMessage}</p> : null}
+        </section>
+
+        <section className="dashboard-card dashboard-card-anonymous">
+          <h3>Anonymous Grievance Box</h3>
+          <p>Submit a formal complaint or report an issue anonymously.</p>
+          {!showGrievanceForm ? (
+            <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File an Anonymous Complaint</button>
+          ) : (
+            <form className="dashboard-form" onSubmit={handleGrievanceSubmit}>
+              <textarea
+                value={grievance}
+                onChange={(event) => setGrievance(event.target.value)}
+                placeholder="Describe your concern anonymously here..."
+                rows="4"
+              />
+              <button type="submit" className="dashboard-outline-button">Send Anonymously</button>
+            </form>
+          )}
+          {grievanceMessage ? <p className="dashboard-form-message">{grievanceMessage}</p> : null}
+        </section>
       </div>
     </div>
   );

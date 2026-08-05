@@ -21,16 +21,6 @@
   margin-bottom: 2rem;
 }
 
-.dashboard-eyebrow {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dashboard-secondary);
-}
-
 .dashboard-hero h1 {
   font-size: 2rem;
   font-weight: 800;
@@ -121,6 +111,11 @@
   margin-bottom: 1.25rem;
 }
 
+.dashboard-grid.dashboard-grid-equal {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 2rem;
+}
+
 .dashboard-stack {
   display: flex;
   flex-direction: column;
@@ -131,8 +126,27 @@
   background: var(--dashboard-card);
   border: 1px solid var(--dashboard-border);
   border-radius: 22px;
-  padding: 1.2rem;
+  padding: 0.8rem;
   box-shadow: var(--dashboard-shadow);
+  height: fit-content;
+  align-self: start;
+}
+
+.dashboard-card-wellness {
+  margin-top: 0;
+  height: fit-content;
+}
+
+.dashboard-card-spotlight {
+  height: fit-content;
+}
+
+.dashboard-card-department {
+  height: fit-content;
+}
+
+.dashboard-card-learning {
+  height: fit-content;
 }
 
 .dashboard-card-header {
@@ -158,12 +172,6 @@
 .dashboard-icon-accent {
   font-size: 1.2rem;
   color: var(--dashboard-secondary);
-}
-
-.dashboard-card-header a {
-  color: var(--dashboard-primary);
-  font-weight: 600;
-  text-decoration: none;
 }
 
 .dashboard-service-grid {
@@ -195,16 +203,6 @@
   color: var(--dashboard-secondary);
 }
 
-.dashboard-service-more {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: var(--dashboard-muted);
-  background: #f4f6f8;
-}
-
 .dashboard-notice-list,
 .dashboard-resource-list,
 .dashboard-department-list {
@@ -218,6 +216,10 @@
 .dashboard-department-item {
   border-left: 3px solid var(--dashboard-secondary);
   padding-left: 0.8rem;
+}
+
+.dashboard-card-notices {
+  width: 100%;
 }
 
 .dashboard-notice-tag {
@@ -497,14 +499,59 @@
   color: #1d4ed8;
 }
 
-.dashboard-card-widget h3 {
-  margin-bottom: 0.45rem;
-  color: var(--black);
+/* Anonymous Boxes - Single Class */
+.dashboard-card-anonymous {
+  padding: 1.2rem;
+  border-radius: 22px;
+  background: var(--dashboard-card);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--dashboard-shadow);
+  height: fit-content;
+  align-self: start;
 }
 
-.dashboard-card-widget p {
-  margin: 0;
+.dashboard-card-anonymous h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.dashboard-card-anonymous p {
+  margin: 0 0 1rem 0;
   color: var(--dashboard-muted);
+  font-size: 0.95rem;
+}
+
+.dashboard-card-anonymous .dashboard-outline-button {
+  width: 100%;
+  padding: 0.65rem 1rem;
+}
+
+.dashboard-card-anonymous .dashboard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dashboard-card-anonymous .dashboard-form textarea {
+  width: 100%;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.dashboard-card-anonymous .dashboard-form .dashboard-outline-button {
+  width: 100%;
+}
+
+.dashboard-card-anonymous .dashboard-form-message {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  color: var(--dashboard-accent);
 }
 
 @media (max-width: 1100px) {
