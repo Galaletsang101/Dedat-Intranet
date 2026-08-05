@@ -1,0 +1,177 @@
+/* ==============================
+   What's New Modal
+   ============================== */
+
+
+/* Modal Dialog */
+
+.updates-modal {
+    max-width: 600px;
+}
+
+
+/* Actual Popup */
+
+.updates-modal .modal-content {
+    border-radius: 18px;
+    border: none;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    animation: popupAnimation 0.3s ease;
+}
+
+/* Custom modal backdrop */
+
+.updates-backdrop {
+    background-color: black !important;
+    opacity: 0.35 !important;
+}
+
+/* Header */
+
+.updates-modal .modal-header {
+    background: #d85f06;
+    color: white;
+    border-bottom: none;
+    padding: 20px 25px;
+}
+
+
+.updates-modal .modal-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+
+.updates-modal .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+
+/* Body */
+
+.updates-modal .modal-body {
+    padding: 25px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+
+/* Update Cards */
+
+.update-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    border-left: 5px solid #d85f06;
+    transition: 0.3s ease;
+}
+
+
+.update-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Icons */
+
+.update-icon {
+    width: 45px;
+    height: 45px;
+    background: #e5c19b;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d85f06;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+
+/* Text */
+
+.update-content h6 {
+    margin-bottom: 5px;
+    color: #5c5b5b;
+    font-weight: 700;
+}
+
+
+.update-type {
+    font-size: 12px;
+    color: #d85f06;
+    font-weight: 600;
+}
+
+
+.update-description {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+
+/* Footer */
+
+.updates-modal .modal-footer {
+    background: white;
+    border-top: none;
+    padding: 20px 25px;
+}
+
+
+/* Button */
+
+.updates-btn {
+    background: #d85f06 !important;
+    border: none !important;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+}
+
+
+.updates-btn:hover {
+    background: #b94f05 !important;
+}
+/* ==============================
+   Modal Layering
+   ============================== */
+
+.modal {
+    z-index: 1055 !important;
+}
+
+
+.modal-backdrop {
+    z-index: 1040 !important;
+    background-color: black !important;
+    opacity: 0.35 !important;
+}
+
+
+.modal-backdrop.show {
+    opacity: 0.35 !important;
+}
+
+
+/* Animation */
+
+@keyframes popupAnimation {
+
+    from {
+        transform: scale(0.95);
+    }
+
+    to {
+        transform: scale(1);
+    }
+
+}

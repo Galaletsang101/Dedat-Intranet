@@ -1,8 +1,9 @@
 // src/pages/Homepage.jsx
 import React, { useState } from 'react';
+import { createPortal } from "react-dom";
 import { 
   Container, Row, Col, Nav, Navbar, Carousel, Button, 
-  Badge
+  Badge, Modal
 } from 'react-bootstrap';
 import { 
   FaSearch, 
@@ -28,6 +29,7 @@ import {
   FaExclamationTriangle
 } from 'react-icons/fa';
 import '../../styles/homepage.css';
+import '../../styles/updatesModal.css';
 
 // ============================================================
 // PROFESSIONAL CAROUSEL IMAGES (Unsplash - High Quality)
@@ -121,10 +123,50 @@ const expiringDocuments = [
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
+const latestUpdates = [
+  {
+    id: 1,
+    icon: FaNewspaper,
+    title: "New Department News",
+    description: "New Industrial Hub project announcement has been published.",
+    type: "News"
+  },
+  {
+    id: 2,
+    icon: FaCalendarAlt,
+    title: "Upcoming Calendar Event",
+    description: "Quarterly Performance Review scheduled for 26 October.",
+    type: "Calendar"
+  },
+  {
+    id: 3,
+    icon: FaFileAlt,
+    title: "New HR Circular Available",
+    description: "Updated Information Security Guidelines have been uploaded.",
+    type: "Circular"
+  },
+  {
+    id: 4,
+    icon: FaUserCircle,
+    title: "Appointment Update",
+    description: "New acting appointments have been announced.",
+    type: "HR"
+  }
+];
+
+
+
+
+
 const Homepage = () => {
   const [emergencyVisible, setEmergencyVisible] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+const [showUpdates, setShowUpdates] = useState(() => {
+  const seenUpdates = localStorage.getItem("dedat_updates_seen");
+
+  return !seenUpdates;
+});
   // Quick access items
   const quickAccessItems = [
     { icon: FaHeadset, label: "IT Support" },
@@ -151,7 +193,6 @@ const Homepage = () => {
   return (
     <div className="homepage">
 
-      
 
       {/* Emergency Notices Bar
       
@@ -173,6 +214,82 @@ const Homepage = () => {
       
 
       <Container fluid className="px-4 py-4">
+
+        
+<Modal
+  show={showUpdates}
+  onHide={() => setShowUpdates(false)}
+  centered
+  backdropClassName="updates-backdrop"
+  backdrop="static"
+  keyboard={false}
+  dialogClassName="updates-modal"
+>
+  <Modal.Header closeButton>
+    <Modal.Title>
+       What's New on DeDAaT Intranet
+    </Modal.Title>
+  </Modal.Header>
+
+  <Modal.Body>
+
+    <p>
+      Here are the latest updates available on the website:
+    </p>
+{latestUpdates.map((update) => {
+
+  const Icon = update.icon;
+
+  return (
+
+    <div 
+      key={update.id}
+      className="update-card"
+    >
+
+      <div className="update-icon">
+        <Icon />
+      </div>
+
+
+      <div className="update-content">
+
+        <h6>
+          {update.title}
+        </h6>
+
+        <div className="update-type">
+          {update.type}
+        </div>
+
+        <div className="update-description">
+          {update.description}
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+
+})}
+
+  </Modal.Body>
+
+  <Modal.Footer>
+<Button
+  className="updates-btn"
+  onClick={() => {
+    localStorage.setItem("dedat_updates_seen", "true");
+    setShowUpdates(false);
+  }}
+>
+  Continue to Intranet
+</Button>
+
+  </Modal.Footer>
+
+</Modal>
         <div className="homepage-container">
 
           {/* Hero Carousel */}
@@ -395,6 +512,7 @@ const Homepage = () => {
 
       
     </div>
+    
   );
 };
 
