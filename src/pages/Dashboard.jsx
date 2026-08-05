@@ -1,7 +1,65 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/dashboard.css";
+import {
+  HiCalendar,
+  HiDocumentText,
+  HiTemplate,
+  HiUserGroup,
+  HiOfficeBuilding,
+  HiChartBar,
+  HiCreditCard,
+  HiUsers,
+  HiShieldCheck,
+  HiPlus,
+  HiHeart,
+  HiBell,
+  HiStar,
+  HiBookOpen,
+  HiVideoCamera,
+  HiDesktopComputer,
+  HiNewspaper,
+  HiClock,
+} from "react-icons/hi";
 
+const quickActions = [
+  {
+    title: "Apply for Leave",
+    desc: "Track and request time off",
+    icon: <HiCalendar />,
+    accent: "light",
+    action: "mailto:hr@dedat.gov.za?subject=Leave%20Request",
+  },
+  {
+    title: "Submit Forms",
+    desc: "Claims, travel & procurement",
+    icon: <HiDocumentText />,
+    accent: "light",
+    action: "/knowledge-center",
+  },
+  {
+    title: "HR Templates",
+    desc: "Letters, logs & checklists",
+    icon: <HiTemplate />,
+    accent: "light",
+    action: "/knowledge-center",
+  },
+  {
+    title: "Contact HR",
+    desc: "Support & inquiries",
+    icon: <HiUserGroup />,
+    accent: "secondary",
+    action: "mailto:hr@dedat.gov.za?subject=HR%20Support",
+  },
+];
 
-import React from 'react';
-import '../styles/dashboard.css';
+const hrServices = [
+  { title: "Leave Management", desc: "View balances and historical applications.", icon: <HiCalendar /> },
+  { title: "PMDS", desc: "Performance management and assessments.", icon: <HiChartBar /> },
+  { title: "Payroll Links", desc: "Access e-payslips and tax certificates.", icon: <HiCreditCard /> },
+  { title: "Labour Relations", desc: "Policies, grievance forms, and support.", icon: <HiUsers /> },
+  { title: "Ethics Management", desc: "Disclosure of interest and code of conduct.", icon: <HiShieldCheck /> },
+];
 
 const wellnessResources = [
   { title: "FAMSA Partnership", desc: "Confidential counseling & support.", icon: <HiHeart /> },
@@ -327,7 +385,22 @@ function Dashboard() {
       {/* ROW 5: Anonymous Boxes (Left & Right) */}
       <div className="dashboard-grid dashboard-grid-equal">
         <section className="dashboard-card dashboard-card-anonymous">
-          <h3>Anonymous Suggestion Box</h3>
+          <div className="dashboard-anonymous-header">
+            <h3>Anonymous Suggestion Box</h3>
+            {showSuggestionForm && (
+              <button 
+                type="button" 
+                className="dashboard-close-button"
+                onClick={() => {
+                  setShowSuggestionForm(false);
+                  setSuggestion("");
+                  setSuggestionMessage("");
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <p>Share an idea to improve our workplace anonymously.</p>
           {!showSuggestionForm ? (
             <button type="button" className="dashboard-outline-button" onClick={() => setShowSuggestionForm(true)}>Submit Anonymous Suggestion</button>
@@ -346,7 +419,22 @@ function Dashboard() {
         </section>
 
         <section className="dashboard-card dashboard-card-anonymous">
-          <h3>Anonymous Grievance Box</h3>
+          <div className="dashboard-anonymous-header">
+            <h3>Anonymous Grievance Box</h3>
+            {showGrievanceForm && (
+              <button 
+                type="button" 
+                className="dashboard-close-button"
+                onClick={() => {
+                  setShowGrievanceForm(false);
+                  setGrievance("");
+                  setGrievanceMessage("");
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <p>Submit a formal complaint or report an issue anonymously.</p>
           {!showGrievanceForm ? (
             <button type="button" className="dashboard-outline-button" onClick={() => setShowGrievanceForm(true)}>File an Anonymous Complaint</button>
