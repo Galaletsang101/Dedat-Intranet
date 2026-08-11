@@ -1,4 +1,12 @@
+/* ==========================================
+   DEDAT Top Navigation
+========================================== */
+
 .topnav {
+
+  height: var(--navbar-height);
+
+  width: 100%;
 
   display: flex;
 
@@ -6,11 +14,19 @@
 
   justify-content: space-between;
 
-  padding: 7px 20px;
+  padding: 0 30px;
 
-  background-color: var(--white);
+  background: var(--surface);
 
-  
+  border-bottom: 1px solid var(--border-light);
+
+  box-shadow: var(--shadow-sm);
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
 
 }
 
@@ -19,18 +35,22 @@
 
 .logo img {
 
-  width: 150px;
+  height: 55px;
 
-  height: 50px;
+  width: auto;
+
+  object-fit: contain;
 
 }
 
 
-/* Navigation */
+/* Navigation Links */
 
 .nav-links {
 
   display: flex;
+
+  align-items: center;
 
   gap: 25px;
 
@@ -39,30 +59,56 @@
 
 .nav-links a {
 
-  color: #0C1334;
+  color: var(--secondary);
 
-  text-decoration: none;
+  font-size: var(--font-sm);
 
-  font-weight: 500;
-  
+  font-weight: var(--fw-medium);
+
+  padding: 8px 0;
+
+  position: relative;
 
 }
 
+
+/* Active Link */
+
+.nav-links a.active {
+
+  color: var(--primary);
+
+}
+
+
+/* Hover */
 
 .nav-links a:hover {
 
-  color: var(--salamander);
+  color: var(--primary);
 
 }
 
 
-/* Active page */
+/* Active underline */
 
-.nav-links .active {
+.nav-links a.active::after {
 
-  border-bottom: 3px solid var(--salamander);
+  content: "";
 
-  padding-bottom: 5px;
+  position: absolute;
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 3px;
+
+  background: var(--primary);
+
+  border-radius: 10px;
 
 }
 
@@ -75,184 +121,126 @@
 
   align-items: center;
 
-  gap: 10px;
-
-  color: var(--gravel);
-
-  padding: 8px 15px;
-
-  border-radius: 12px;
+  gap: 12px;
 
   cursor: pointer;
 
-}
-
-
-.profile-icon {
-
-  font-size: 32px;
+  position: relative;
 
 }
 
+
+/* Avatar */
+
+.topnav-avatar {
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 50%;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-weight: var(--fw-semibold);
+
+}
+
+
+/* Profile Text */
 
 .profile-details {
 
-  display: flex;
+  display:flex;
 
-  flex-direction: column;
+  flex-direction:column;
 
 }
 
 
 .profile-details span {
 
-  font-size: 12px;
+  font-weight: var(--fw-semibold);
+
+  font-size: var(--font-sm);
+
+  color: var(--text-primary);
 
 }
 
 
-.dropdown-icon {
+.profile-details small {
 
-  font-size: 12px;
+  color: var(--text-muted);
 
-}
-
-.topnav-avatar {
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:50%;
-
-    background:#d85f06;
-
-    color:white;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-    text-transform:uppercase;
+  font-size: var(--font-xs);
 
 }
 
-.profile {
 
-    position: relative;
-
-    cursor: pointer;
-
-}
+/* Profile Dropdown */
 
 .profile-menu {
 
-    position: absolute;
+  position:absolute;
 
-    right: 0;
+  top:55px;
 
-    top: 55px;
+  right:0;
 
-    width: 160px;
+  width:180px;
 
-    background: white;
+  background:white;
 
-    border-radius: 10px;
+  border-radius:var(--radius-md);
 
-    padding: 10px;
+  box-shadow:var(--shadow-md);
 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  padding:10px;
 
-    z-index: 1000;
+  border:1px solid var(--border-light);
 
 }
+
 
 .profile-menu button {
 
-    width: 100%;
+  width:100%;
 
-    padding: 10px;
+  padding:10px;
 
-    border: none;
+  text-align:left;
 
-    background: transparent;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    font-family: inherit;
+  border-radius:8px;
 
 }
+
 
 .profile-menu button:hover {
 
-    background: #e5c19b;
+  background:var(--primary-extra-light);
 
-    border-radius: 6px;
+  color:var(--primary);
 
 }
 
-/* ===========================
-   HAMBURGER MENU
-=========================== */
 
+/* Hamburger */
 
 .hamburger {
 
-    display:none;
+  display:none;
 
-    background:none;
+  font-size:24px;
 
-    border:none;
-
-    font-size:26px;
-
-    color:var(--gravel);
-
-    cursor:pointer;
+  color:var(--primary);
 
 }
-
-
-/* Mobile links */
-
-.mobile-top-links{
-
-    display:none;
-
-}
-
-
-
-/* ===========================
-   TABLET
-=========================== */
-
-
-@media(max-width:992px){
-
-
-    .topnav {
-
-        padding:10px 15px;
-
-    }
-
-
-    .nav-links {
-
-        gap:15px;
-
-    }
-
-
-}
-
-

@@ -1,0 +1,86 @@
+/* ==========================================
+   Tables
+========================================== */
+
+.table-custom {
+  width: 100%;
+  background: var(--surface);
+
+  border-radius: var(--radius-lg);
+
+  overflow: hidden;
+
+  border: 1px solid var(--border-light);
+
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* Table Header */
+
+.table-custom thead {
+  background: var(--primary);
+  color: var(--text-white);
+}
+
+
+.table-custom th {
+
+  padding: 1rem;
+
+  text-align: left;
+
+  font-weight: var(--fw-semibold);
+
+  font-size: var(--font-sm);
+
+}
+
+
+/* Table Body */
+
+.table-custom td {
+
+  padding: 1rem;
+
+  color: var(--text-secondary);
+
+  border-bottom: 1px solid var(--border-light);
+
+}
+
+
+/* Hover Effect */
+
+.table-custom tbody tr {
+
+  transition: var(--transition);
+
+}
+
+
+.table-custom tbody tr:hover {
+
+  background: var(--primary-extra-light);
+
+}
+
+
+/* Remove last border */
+
+.table-custom tbody tr:last-child td {
+
+  border-bottom: none;
+
+}
+
+
+/* Responsive wrapper */
+
+.table-responsive-custom {
+
+  width: 100%;
+
+  overflow-x: auto;
+
+}

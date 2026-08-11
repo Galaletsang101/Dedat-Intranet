@@ -1,16 +1,51 @@
-/* ===========================
-   MOBILE MENU LAYER
-=========================== */
+/* ==========================================
+   DEDAT Layout
+========================================== */
 
 
-@media(max-width:768px){
+/* Main Application Wrapper */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 
-    body{
+/* Main Content Area */
 
-        overflow-x:hidden;
+.main-content {
+  flex: 1;
+  padding: 30px;
+  background: var(--background);
+}
 
-    }
+
+/* Content Container */
+
+.content-wrapper {
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
 
 
+/* Page Spacing */
+
+.page-content {
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+
+/* Navigation Offset */
+
+.with-navbar {
+  padding-top: var(--navbar-height);
+}
+
+
+/* Footer spacing */
+
+.footer-space {
+  margin-top: auto;
 }

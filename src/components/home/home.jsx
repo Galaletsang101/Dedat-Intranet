@@ -323,10 +323,10 @@ const [showUpdates, setShowUpdates] = useState(() => {
 
               {/* Quick Access Portal */}
               <section className="mb-4">
-                <h4 className="d-flex align-items-center gap-2 mb-3" style={{ color: '#5c5b5b' }}>
-                  <FaTh style={{ color: '#d85f06' }} />
-                  Quick Access Portal
-                </h4>
+              <h4 className="section-title mb-3">
+  <FaTh className="section-icon" />
+  Quick Access Portal
+</h4>
                 <Row className="g-3">
                   {quickAccessItems.map((item, index) => (
                     <Col xs={6} sm={4} md={3} key={index}>
@@ -344,11 +344,11 @@ const [showUpdates, setShowUpdates] = useState(() => {
               {/* Latest Departmental News */}
               <section className="mb-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h4 className="d-flex align-items-center gap-2" style={{ color: '#5c5b5b' }}>
-                    <FaNewspaper style={{ color: '#d85f06' }} />
-                    Latest Departmental News
-                  </h4>
-                  <Button variant="link" className="text-decoration-none" style={{ color: '#d85f06', fontWeight: 600 }}>
+                <h4 className="section-title">
+  <FaNewspaper className="section-icon" />
+  Latest Departmental News
+</h4>
+                  <Button variant="link" className="text-decoration-none section-action">
                     Explore Archive <FaArrowRight className="ms-1" />
                   </Button>
                 </div>
@@ -375,12 +375,16 @@ const [showUpdates, setShowUpdates] = useState(() => {
               <section>
                 <div className="calendar-widget">
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 style={{ color: '#5c5b5b', fontWeight: 600 }}>Departmental Calendar</h5>
+                    <h5 className="section-title">
+  Departmental Calendar
+</h5>
                     <div className="d-flex align-items-center gap-2">
                       <Button variant="link" className="p-0 text-secondary">
                         <FaChevronLeft />
                       </Button>
-                      <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>October 2024</span>
+                      <span className="calendar-month">
+  October 2024
+</span>
                       <Button variant="link" className="p-0 text-secondary">
                         <FaChevronRight />
                       </Button>
@@ -397,7 +401,13 @@ const [showUpdates, setShowUpdates] = useState(() => {
                           <div>
                             <div className="event-title">{event.title}</div>
                             <div className="event-time">{event.time}</div>
-                            <div className="mt-1 d-flex align-items-center gap-1" style={{ fontSize: '0.6rem', fontWeight: 700, color: event.expiry.includes('EXPIRES') ? '#dc3545' : '#5c5b5b' }}>
+                            <div 
+className={
+  event.expiry.includes('EXPIRES') 
+  ? "event-expiry urgent" 
+  : "event-expiry"
+}
+>
                               <FaClock style={{ fontSize: '0.6rem' }} />
                               {event.expiry}
                             </div>
@@ -479,9 +489,12 @@ const [showUpdates, setShowUpdates] = useState(() => {
                       <div className="circular-date">{circular.time}</div>
                     </div>
                   ))}
-                  <Button variant="link" className="w-100 mt-2 text-decoration-none" style={{ color: '#d85f06', fontWeight: 600 }}>
-                    View All
-                  </Button>
+                 <Button 
+variant="link" 
+className="w-100 mt-2 text-decoration-none section-action"
+>
+  View All
+</Button>
                 </div>
               </section>
 
