@@ -73,15 +73,26 @@ const NewsPage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
 
   const getCategoryColor = (category) => {
-    const colors = {
-      'Training': '#198038',
-      'Campaign': '#d85f06',
-      'News': '#0a58ca',
-      'Circulars': '#6a1b9a',
-      'Events': '#d97706'
-    };
-    return colors[category] || '#6c757d';
-  };
+    switch (category) {
+        case 'Training':
+            return 'var(--success)';
+
+        case 'Campaign':
+            return 'var(--primary)';
+
+        case 'News':
+            return 'var(--info)';
+
+        case 'Circulars':
+            return 'var(--secondary)';
+
+        case 'Events':
+            return 'var(--accent)';
+
+        default:
+            return 'var(--secondary-light)';
+    }
+};
 
   return (
     <div className="news-page">
@@ -150,8 +161,8 @@ const NewsPage = () => {
               {/* Circulars Section */}
               <div className="bg-light p-4 rounded-3 mb-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="d-flex align-items-center gap-2" style={{ color: '#5c5b5b' }}>
-                    <FaGavel style={{ color: '#d85f06' }} /> Official Circulars & Gazettes
+                  <h5 className="d-flex align-items-center gap-2" >
+                    <FaGavel /> Official Circulars & Gazettes
                   </h5>
                   <div className="position-relative">
                     <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-2 text-secondary" style={{ fontSize: '0.75rem' }} />
@@ -162,8 +173,8 @@ const NewsPage = () => {
                   {circulars.map(circ => (
                     <div key={circ.id} className="circular-item">
                       <div className="d-flex align-items-center gap-3">
-                        <div className="d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px', background: 'rgba(220,53,69,0.08)', borderRadius: '0.5rem' }}>
-                          <FaFileAlt style={{ color: '#dc3545' }} />
+                        <div className="d-flex align-items-center justify-content-center">
+                          <FaFileAlt  />
                         </div>
                         <div>
                           <h6 className="circular-title">{circ.title}</h6>
@@ -181,18 +192,18 @@ const NewsPage = () => {
 
               {/* Newsletter Archive */}
               <div>
-                <h5 className="mb-3" style={{ color: '#5c5b5b' }}>Digital Newsletters</h5>
+                <h5 className="mb-3" >Digital Newsletters</h5>
                 <Row className="g-3">
                   {newsletters.map(item => (
-                    <Col xs-6 md-3 key={item.id}>
+                    <Col xs={6} md={3} key={item.id}>
                       <div className="newsletter-item">
                         <div className="newsletter-cover">
                           <img src={item.image} alt={item.title} />
                           <div className="hover-overlay">
-                            <FaEye style={{ color: '#ffffff', fontSize: '2rem' }} />
+                            <FaEye/>
                           </div>
                         </div>
-                        <p className="text-center small fw-semibold mt-2" style={{ color: '#d85f06' }}>{item.title}</p>
+                        <p className="text-center small fw-semibold mt-2">{item.title}</p>
                       </div>
                     </Col>
                   ))}
@@ -211,12 +222,12 @@ const NewsPage = () => {
                     className="executive-image"
                   />
                   <div className="executive-body">
-                    <Badge className="mb-2" style={{ background: '#e5c19b', color: '#5c5b5b' }}>MEC'S CORNER</Badge>
+                    <Badge className="mb-2">MEC'S CORNER</Badge>
                     <blockquote className="executive-quote">
                       "Our collective efforts in digitizing the workplace are a testament to our commitment to efficiency and transparency for the people of Northern Cape."
                     </blockquote>
                     <div className="d-flex align-items-center gap-2">
-                      <div style={{ width: '32px', height: '3px', background: '#e5c19b' }}></div>
+                      <div ></div>
                       <span className="fw-semibold">Hon. Abraham Vosloo</span>
                     </div>
                   </div>
@@ -226,36 +237,36 @@ const NewsPage = () => {
                 <div className="sidebar-widget">
                   <h6 className="widget-title d-flex justify-content-between align-items-center">
                     Upcoming Highlights
-                    <FaCalendarAlt style={{ color: '#6c757d' }} />
+                    <FaCalendarAlt  />
                   </h6>
                   <div className="space-y-3">
                     <div className="d-flex gap-3">
                       <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold" style={{ color: '#d85f06' }}>JAN</span>
-                        <span className="fw-bold" style={{ color: '#5c5b5b' }}>22</span>
+                        <span className="small fw-bold" >JAN</span>
+                        <span className="fw-bold">22</span>
                       </div>
                       <div>
-                        <h6 className="fw-semibold" style={{ color: '#5c5b5b' }}>Departmental Town Hall</h6>
+                        <h6 className="fw-semibold" >Departmental Town Hall</h6>
                         <p className="small text-muted">09:00 AM • Main Atrium</p>
                       </div>
                     </div>
                     <div className="d-flex gap-3">
                       <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold" style={{ color: '#d85f06' }}>JAN</span>
-                        <span className="fw-bold" style={{ color: '#5c5b5b' }}>25</span>
+                        <span className="small fw-bold" >JAN</span>
+                        <span className="fw-bold" >25</span>
                       </div>
                       <div>
-                        <h6 className="fw-semibold" style={{ color: '#5c5b5b' }}>Project Management Circle</h6>
+                        <h6 className="fw-semibold">Project Management Circle</h6>
                         <p className="small text-muted">02:00 PM • Virtual (Teams)</p>
                       </div>
                     </div>
                     <div className="d-flex gap-3">
                       <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold" style={{ color: '#d85f06' }}>FEB</span>
-                        <span className="fw-bold" style={{ color: '#5c5b5b' }}>05</span>
+                        <span className="small fw-bold">FEB</span>
+                        <span className="fw-bold">05</span>
                       </div>
                       <div>
-                        <h6 className="fw-semibold" style={{ color: '#5c5b5b' }}>Regional Stakeholder Summit</h6>
+                        <h6 className="fw-semibold" >Regional Stakeholder Summit</h6>
                         <p className="small text-muted">10:00 AM • Kimberley ICC</p>
                       </div>
                     </div>
@@ -267,25 +278,25 @@ const NewsPage = () => {
                 <div className="sidebar-widget">
                   <h6 className="widget-title">Active Training Sessions</h6>
                   <div className="space-y-2">
-                    <div className="d-flex justify-content-between align-items-center p-2" style={{ background: 'rgba(0,25,6,0.05)', borderRadius: '0.5rem' }}>
-                      <span className="fw-semibold" style={{ color: '#198038' }}>Data Ethics 101</span>
-                      <Badge style={{ background: '#001906', color: '#ffffff', fontSize: '0.55rem' }}>In Progress</Badge>
+                    <div className="d-flex justify-content-between align-items-center p-2" >
+                      <span className="fw-semibold" >Data Ethics 101</span>
+                      <Badge >In Progress</Badge>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center p-2" style={{ background: '#f8f9fa', borderRadius: '0.5rem' }}>
-                      <span style={{ color: '#6c757d' }}>Advanced Excel for HR</span>
-                      <Badge style={{ background: '#6c757d', color: '#ffffff', fontSize: '0.55rem' }}>Starting Soon</Badge>
+                    <div className="d-flex justify-content-between align-items-center p-2" >
+                      <span>Advanced Excel for HR</span>
+                      <Badge>Starting Soon</Badge>
                     </div>
                   </div>
                 </div>
 
                 {/* Featured Campaign */}
-                <div className="position-relative rounded-3 overflow-hidden" style={{ aspectRatio: '16/9', cursor: 'pointer' }}>
+                <div className="position-relative rounded-3 overflow-hidden">
                   <img 
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeORVV7ETsPlTyEXotjnt_0WofPtW3skpp7msQVgX77B9yCK2StEU58K0CjYaWRUQWE6YpXhqDzuvlGXnlBfOpvyhzEUp-Y1Sbry1jMP6YtKUtQ-xN93HCOSRIsuy20eF1ILQfDiTy7EJ2PeIaDAzuY5zTrW9cC5p89KfjbNlnZLQNSkkKAVtPScD8JN-bWUgjo1neGJ5tRDZNjMvXqgC5vx4h0jVyHW_oJXsw-VVqXaRhCuYWoc767Ro4kF18bsv97Yv_RIcljcw" 
                     alt="Wellness Month" 
                     className="w-100 h-100 object-fit-cover"
                   />
-                  <div className="position-absolute inset-0 d-flex flex-column justify-content-end p-3" style={{ background: 'rgba(144,77,0,0.6)' }}>
+                  <div className="position-absolute inset-0 d-flex flex-column justify-content-end p-3" >
                     <h6 className="text-white fw-bold">Wellness Month 2024</h6>
                     <p className="text-white-50 small">Prioritizing your mental health in the workplace.</p>
                   </div>

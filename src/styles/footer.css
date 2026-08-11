@@ -3,249 +3,256 @@
 ========================================== */
 
 .footer {
-
   background: var(--secondary);
-
   color: white;
-
   padding: 40px 30px 20px;
-
 }
 
 
-/* Footer Container */
+/* ==========================================
+   Footer Container
+========================================== */
 
 .footer-container {
-
   max-width: var(--container-width);
+  margin: 0 auto;
 
-  margin:0 auto;
-
-  display:grid;
-
+  display: grid;
   grid-template-columns: repeat(5, 1fr);
-
-  gap:30px;
-
+  gap: 30px;
 }
 
 
-/* Columns */
+/* ==========================================
+   Columns
+========================================== */
 
 .footer-column {
-
-  display:flex;
-
-  flex-direction:column;
-
+  display: flex;
+  flex-direction: column;
 }
 
 
-/* Headings */
+/* ==========================================
+   Headings
+========================================== */
 
 .footer-heading {
-
-  color:white;
-
-  font-size:18px;
-
-  font-weight:var(--fw-semibold);
-
-  margin-bottom:15px;
-
-  position:relative;
-
+  color: white;
+  font-size: 18px;
+  font-weight: var(--fw-semibold);
+  margin-bottom: 15px;
+  position: relative;
 }
-
 
 .footer-heading::after {
-
-  content:"";
-
-  display:block;
-
-  width:35px;
-
-  height:3px;
-
-  background:var(--primary);
-
-  margin-top:8px;
-
+  content: "";
+  display: block;
+  width: 35px;
+  height: 3px;
+  background: var(--primary);
+  margin-top: 8px;
 }
 
 
-/* Text */
+/* ==========================================
+   Text
+========================================== */
 
 .footer p {
-
-  color:#eeeeee;
-
-  font-size:14px;
-
-  line-height:1.6;
-
+  color: #eeeeee;
+  font-size: 14px;
+  line-height: 1.6;
 }
-
 
 .footer strong {
-
-  color:white;
-
+  color: white;
 }
 
 
-/* Links */
+/* ==========================================
+   Footer Links
+========================================== */
 
 .footer-links {
+  margin: 0;
+  padding: 0;
 
-  padding:0;
-
+  list-style: none !important;
+  list-style-type: none !important;
 }
-
 
 .footer-links li {
+  list-style: none !important;
+  list-style-type: none !important;
 
-  margin-bottom:8px;
-
+  margin: 0 0 8px 0;
+  padding: 0;
 }
 
+.footer-links li::before {
+  content: none !important;
+  display: none !important;
+}
 
 .footer-links a {
+  display: inline-block;
 
-  color:#eeeeee;
+  color: #eeeeee;
+  font-size: 14px;
 
-  font-size:14px;
+  text-decoration: none;
 
+  transition: var(--transition);
 }
-
 
 .footer-links a:hover {
-
-  color:var(--accent);
-
+  color: var(--accent);
 }
 
 
-/* Logo */
+/* ==========================================
+   Extra protection against list dots
+========================================== */
+
+.footer ul,
+.footer ol {
+  list-style: none !important;
+  list-style-type: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+.footer li {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+
+/* ==========================================
+   Logo
+========================================== */
 
 .footer-logo {
-
-  width:130px;
-
-  height:auto;
-
-  margin-bottom:15px;
-
+  width: 130px;
+  height: auto;
+  margin-bottom: 15px;
 }
 
+
+/* ==========================================
+   Brand Tagline
+========================================== */
 
 .brand-tagline {
-
-  color:var(--accent) !important;
-
-  font-weight:var(--fw-semibold);
-
+  color: var(--accent) !important;
+  font-weight: var(--fw-semibold);
 }
 
 
-/* Divider */
+/* ==========================================
+   Divider
+========================================== */
 
 .footer-divider {
-
-  height:1px;
-
-  background:rgba(255,255,255,.2);
-
-  margin:30px 0 20px;
-
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 30px 0 20px;
 }
 
 
-/* Bottom Section */
+/* ==========================================
+   Bottom Section
+========================================== */
 
 .footer-bottom {
+  max-width: var(--container-width);
+  margin: auto;
 
-  max-width:var(--container-width);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  margin:auto;
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  gap:20px;
-
+  gap: 20px;
 }
-
 
 .footer-bottom p {
-
-  margin:0;
-
-  font-size:13px;
-
+  margin: 0;
+  font-size: 13px;
 }
 
+
+/* ==========================================
+   Bottom Links
+========================================== */
 
 .bottom-links {
+  display: flex;
+  gap: 20px;
 
-  display:flex;
+  margin: 0;
+  padding: 0;
 
-  gap:20px;
-
+  list-style: none !important;
 }
 
+.bottom-links li {
+  list-style: none !important;
+  list-style-type: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+.bottom-links li::before {
+  content: none !important;
+  display: none !important;
+}
 
 .bottom-links a {
+  color: white;
+  font-size: 13px;
+  text-decoration: none;
 
-  color:white;
-
-  font-size:13px;
-
+  transition: var(--transition);
 }
-
 
 .bottom-links a:hover {
-
-  color:var(--accent);
-
+  color: var(--accent);
 }
 
 
+/* ==========================================
+   Laptop Screens
+========================================== */
 
-/* Laptop screens */
-
-@media(max-width:1200px){
-
-.footer-container{
-
-grid-template-columns:repeat(3,1fr);
-
-}
-
+@media (max-width: 1200px) {
+  .footer-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 
-/* Smaller screens */
+/* ==========================================
+   Smaller Screens
+========================================== */
 
-@media(max-width:768px){
+@media (max-width: 768px) {
+  .footer {
+    padding: 35px 20px 20px;
+  }
 
-.footer-container{
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
 
-grid-template-columns:1fr;
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
 
-}
-
-
-.footer-bottom{
-
-flex-direction:column;
-
-text-align:center;
-
-}
-
+  .bottom-links {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }

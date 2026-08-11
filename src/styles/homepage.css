@@ -132,17 +132,7 @@
   justify-content: space-between;
 }
 
-.emergency-banner .close-btn {
-  background: none;
-  border: none;
-  color: #ffffff;
-  opacity: 0.7;
-  cursor: pointer;
-}
 
-.emergency-banner .close-btn:hover {
-  opacity: 1;
-}
 
 /* ----- Hero Carousel ----- */
 .hero-carousel {

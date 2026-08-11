@@ -336,7 +336,7 @@ const loadVideos = async () => {
           >
 
             <button
-              className="close-btn"
+              className="close-btn2"
               onClick={closeVideo}
             >
               ✕

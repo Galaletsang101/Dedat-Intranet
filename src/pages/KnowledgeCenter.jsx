@@ -280,9 +280,8 @@ const KnowledgeCenter = () => {
 
       {showUpload && (
 
-        <div className="modal">
-
-          <div className="modal-box">
+      <div className="knowledgecenter-modal">
+    <div className="knowledgecenter-modal-box">
 
             <h2>Upload Resource</h2>
 

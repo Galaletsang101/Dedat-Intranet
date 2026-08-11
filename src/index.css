@@ -1,206 +1,453 @@
-/* ==========================================
-   DEDAT Intranet - Global Styles
-========================================== */
+/* ==========================
+   AUTH LAYOUT
+========================== */
 
-/* ---------- Reset ---------- */
-
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.auth-layout {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* ---------- HTML ---------- */
 
-html {
-  scroll-behavior: smooth;
+/* ==========================
+   LEFT
+========================== */
+
+.auth-left {
+    flex: 1;
+
+    background: var(--primary);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 60px;
 }
 
-/* ---------- Body ---------- */
 
-body {
-  font-family: var(--font-family);
-  background-color: var(--background);
-  color: var(--text-primary);
-  font-size: var(--font-md);
-  line-height: 1.6;
-  font-weight: var(--fw-normal);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ==========================
+   RIGHT
+========================== */
+
+.auth-right {
+    flex: 1;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: var(--background);
+
+    padding: 50px;
 }
 
-/* ---------- Root ---------- */
 
-#root {
-  min-height: 100vh;
+/* ==========================
+   BRANDING
+========================== */
+
+.branding {
+    text-align: center;
+
+    color: var(--text-white);
+
+    max-width: 400px;
 }
 
-/* ---------- Typography ---------- */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text-primary);
-  font-weight: var(--fw-bold);
-  margin-bottom: 0.75rem;
-  line-height: 1.2;
+.auth-logo {
+    width: 300px;
+
+    height: auto;
+
+    margin-bottom: 30px;
 }
 
-h1 {
-  font-size: var(--font-3xl);
+
+.branding h1 {
+    margin-bottom: 15px;
+
+    font-size: 40px;
+
+    color: var(--text-white);
 }
 
-h2 {
-  font-size: var(--font-2xl);
+
+.branding p {
+    line-height: 1.7;
+
+    color: var(--text-white);
+
+    opacity: 0.9;
 }
 
-h3 {
-  font-size: var(--font-xl);
+
+/* ==========================
+   CARD
+========================== */
+
+.auth-card {
+    width: 100%;
+
+    max-width: 500px;
+
+    background: var(--background);
+
+    border-radius: 16px;
+
+    padding: 40px;
+
+    border: 1px solid var(--border);
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-h4 {
-  font-size: var(--font-lg);
+
+/* ==========================
+   HEADER
+========================== */
+
+.form-header {
+    text-align: center;
+
+    margin-bottom: 30px;
 }
 
-h5 {
-  font-size: var(--font-md);
+
+.form-header h1 {
+    margin-bottom: 8px;
+
+    color: var(--primary);
 }
 
-h6 {
-  font-size: var(--font-sm);
+
+.form-header p {
+    color: var(--text-secondary);
 }
 
-p {
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
+
+/* ==========================
+   INPUTS
+========================== */
+
+.input-group {
+    display: flex;
+
+    flex-direction: column;
+
+    margin-bottom: 18px;
 }
 
-/* ---------- Links ---------- */
 
-a {
-  text-decoration: none;
-  color: inherit;
-  transition: var(--transition);
+.input-group label {
+    margin-bottom: 8px;
+
+    font-weight: var(--fw-medium);
+
+    color: var(--text-primary);
 }
 
-/* ---------- Images ---------- */
 
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+.input-group input {
+    padding: 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    font-size: var(--font-md);
+
+    color: var(--text-primary);
+
+    background: var(--background);
+
+    transition: var(--transition);
 }
 
-/* ---------- Lists ---------- */
 
-ul,
-ol {
-  list-style: none;
+.input-group input:focus {
+    outline: none;
+
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 3px rgba(216, 95, 6, 0.15);
 }
 
-/* ---------- Buttons ---------- */
 
-button {
-  font: inherit;
-  cursor: pointer;
-  border: none;
-  background: none;
+/* ==========================
+   INPUT WITH ICON
+========================== */
+
+.input-icon {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 0 14px;
+
+    transition: var(--transition);
 }
 
-/* ---------- Form Elements ---------- */
 
-input,
-textarea,
-select {
-  font: inherit;
+.input-icon:focus-within {
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 3px rgba(216, 95, 6, 0.15);
 }
 
-/* ---------- Tables ---------- */
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.input-icon svg {
+    color: var(--primary);
+
+    flex-shrink: 0;
 }
 
-/* ---------- Horizontal Rule ---------- */
 
-hr {
-  border: 0;
-  border-top: 1px solid var(--border);
+.input-icon input {
+    border: none;
+
+    flex: 1;
+
+    padding: 14px 0;
+
+    color: var(--text-primary);
+
+    background: transparent;
 }
 
-/* ---------- Text Selection ---------- */
 
-::selection {
-  background: var(--primary);
-  color: var(--text-white);
+.input-icon input:focus {
+    outline: none;
+
+    box-shadow: none;
 }
 
-/* ---------- Scrollbar ---------- */
 
-::-webkit-scrollbar {
-  width: 10px;
+/* ==========================
+   BUTTON
+========================== */
+
+.primary-button {
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--primary);
+
+    color: var(--text-white);
+
+    font-size: var(--font-md);
+
+    font-weight: var(--fw-bold);
+
+    cursor: pointer;
+
+    transition: var(--transition);
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+
+.primary-button:hover {
+    background: var(--primary-hover);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--secondary-light);
-  border-radius: 20px;
+
+/* ==========================
+   ERROR MESSAGE
+========================== */
+
+.error-message {
+    color: #dc2626;
+
+    font-size: var(--font-sm);
+
+    margin-bottom: 15px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+
+/* ==========================
+   SUCCESS MESSAGE
+========================== */
+
+.success-message {
+    color: #16a34a;
+
+    font-size: var(--font-sm);
+
+    margin-bottom: 15px;
 }
 
-/* ==========================================
-   Layout
-========================================== */
 
-/* Main page container */
-.page-container {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media (max-width: 1200px) {
+
+    .auth-left,
+    .auth-right {
+        padding: 40px;
+    }
+
+    .auth-card {
+        max-width: 450px;
+    }
+
+    .branding h1 {
+        font-size: 34px;
+    }
+
+    .auth-logo {
+        width: 260px;
+    }
 }
 
-/* Page section */
-.section {
-  margin-bottom: 2rem;
+
+/* ==========================
+   RESPONSIVE - 900px
+========================== */
+
+@media (max-width: 900px) {
+
+    .auth-layout {
+        flex-direction: column;
+    }
+
+    .auth-left,
+    .auth-right {
+        width: 100%;
+
+        padding: 40px 30px;
+    }
+
+    .auth-left {
+        min-height: 300px;
+    }
+
+    .branding {
+        max-width: 500px;
+    }
+
+    .branding h1 {
+        font-size: 32px;
+    }
+
+    .auth-card {
+        max-width: 100%;
+    }
 }
 
-/* Page header */
-.page-header {
-  margin-bottom: 2rem;
-}
 
-.page-title {
-  color: var(--text-primary);
-  font-size: 2rem;
-  font-weight: var(--fw-bold);
-  margin-bottom: 0.5rem;
-}
+/* ==========================
+   RESPONSIVE - 768px
+========================== */
 
-.page-subtitle {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  font-weight: var(--fw-normal);
-}
-
-/* Responsive spacing */
 @media (max-width: 768px) {
-  .page-container {
-    padding: 1rem;
-  }
 
-  .page-title {
-    font-size: 1.75rem;
-  }
+    .auth-left,
+    .auth-right {
+        padding: 30px 20px;
+    }
+
+    .auth-card {
+        padding: 30px 25px;
+    }
+
+    .auth-logo {
+        width: 220px;
+    }
+
+    .branding h1 {
+        font-size: 28px;
+    }
+
+    .branding p {
+        font-size: 15px;
+    }
+
+    .form-header h1 {
+        font-size: 28px;
+    }
+
+    .input-group input {
+        font-size: 15px;
+    }
+
+    .primary-button {
+        font-size: 15px;
+    }
+}
+
+
+/* ==========================
+   RESPONSIVE - 480px
+========================== */
+
+@media (max-width: 480px) {
+
+    .auth-left,
+    .auth-right {
+        padding: 20px 15px;
+    }
+
+    .auth-card {
+        padding: 24px 18px;
+
+        border-radius: 12px;
+    }
+
+    .auth-logo {
+        width: 180px;
+    }
+
+    .branding h1 {
+        font-size: 24px;
+    }
+
+    .branding p {
+        font-size: 14px;
+
+        line-height: 1.6;
+    }
+
+    .form-header h1 {
+        font-size: 24px;
+    }
+
+    .form-header p {
+        font-size: 14px;
+    }
+
+    .input-group input {
+        padding: 12px;
+
+        font-size: 14px;
+    }
+
+    .input-icon {
+        padding: 0 12px;
+    }
+
+    .input-icon input {
+        padding: 12px 0;
+    }
+
+    .primary-button {
+        padding: 12px;
+
+        font-size: 14px;
+    }
 }
