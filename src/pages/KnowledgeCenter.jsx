@@ -107,9 +107,7 @@ const KnowledgeCenter = () => {
         </div>
 
         <div className="knowledgecenter-header-actions">
-          <button className="knowledgecenter-btn-outline">
-            <FaDownload /> My Downloads
-          </button>
+         
 
           <button
             className="knowledgecenter-btn-primary"

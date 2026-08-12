@@ -31,10 +31,10 @@
 
 .programmes-section .page-title {
     margin: 0 0 var(--space-sm);
-    color: var(--text-primary);
-    font-size: var(--font-3xl);
+    color: var(--primary);
+    font-size: var(--font-2xl);
     font-weight: var(--fw-bold);
-    line-height: 1.2;
+    /* line-height: 1.2; */
 }
 
 .page-description {

@@ -141,7 +141,7 @@ const latestUpdates = [
   {
     id: 3,
     icon: FaFileAlt,
-    title: "New HR Circular Available",
+    title: "New HR Circulus Available",
     description: "Updated Information Security Guidelines have been uploaded.",
     type: "Circular"
   },
@@ -383,7 +383,7 @@ const [showUpdates, setShowUpdates] = useState(() => {
                         <FaChevronLeft />
                       </Button>
                       <span className="calendar-month">
-  October 2024
+  October 2026
 </span>
                       <Button variant="link" className="p-0 text-secondary">
                         <FaChevronRight />
@@ -473,7 +473,7 @@ className={
               <section className="mb-4">
                 <div className="bg-white p-3 rounded-3 border">
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 style={{ color: '#5c5b5b', fontWeight: 600 }}>Circulars</h5>
+                    <h5 style={{ color: '#5c5b5b', fontWeight: 600 }}>Circulus</h5>
                     <FaClock style={{ color: '#6c757d' }} />
                   </div>
                   {circulars.map((circular) => (
