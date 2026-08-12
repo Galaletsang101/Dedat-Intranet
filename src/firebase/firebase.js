@@ -3,7 +3,6 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_BASE_apiKey,
   authDomain: import.meta.env.VITE_BASE_authDomain,
@@ -13,7 +12,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_BASE_appId,
   measurementId: import.meta.env.VITE_BASE_measurementId
 };
-
 
 const app = initializeApp(firebaseConfig);
 
