@@ -107,9 +107,7 @@ const KnowledgeCenter = () => {
         </div>
 
         <div className="knowledgecenter-header-actions">
-          <button className="knowledgecenter-btn-outline">
-            <FaDownload /> My Downloads
-          </button>
+         
 
           <button
             className="knowledgecenter-btn-primary"
@@ -280,9 +278,8 @@ const KnowledgeCenter = () => {
 
       {showUpload && (
 
-        <div className="modal">
-
-          <div className="modal-box">
+      <div className="knowledgecenter-modal">
+    <div className="knowledgecenter-modal-box">
 
             <h2>Upload Resource</h2>
 

@@ -24,24 +24,31 @@ function Layout() {
 
 
   return (
-    <>
+    <div className="app-layout">
+
       <TopNav 
-  toggleMenu={toggleMenu}
-  menuOpen={menuOpen}
-/>
+        toggleMenu={toggleMenu}
+        menuOpen={menuOpen}
+      />
+
+      <BottomNav 
+        menuOpen={menuOpen}
+        closeMenu={closeMenu}
+      />
 
 
-<BottomNav 
-  menuOpen={menuOpen}
-  closeMenu={closeMenu}
-/>
+      <main className="main-content">
 
-      <main>
-        <Outlet />
+        <div className="content-wrapper">
+          <Outlet />
+        </div>
+
       </main>
 
+
       <Footer />
-    </>
+
+    </div>
   );
 
 }

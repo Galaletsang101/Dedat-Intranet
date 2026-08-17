@@ -1,598 +1,513 @@
-/* =========================
-   IMPORT FONT
-========================= */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+/* ==========================================
+   DEDAT - PROGRAMMES & UNITS
+   Uses global variables from variables.css
+========================================== */
 
 
-/* =========================
-   MAIN SECTION
-========================= */
+/* ==========================================
+   PAGE
+========================================== */
 
 .programmes-section {
-
-    font-family:'Inter', sans-serif;
-    max-width:1280px;
-    margin:auto;
-    padding:32px;
-    background:#f8f9fa;
-    color:#d85f06;
-
+    width: 100%;
+    min-height: 100vh;
+    padding: var(--space-2xl) var(--space-xl);
+    background: var(--background);
 }
 
 
-
-
-
-/* =========================
+/* ==========================================
    HEADER
-========================= */
-
+========================================== */
 
 .header-controls {
-
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:30px;
-    margin-bottom:40px;
-
+    max-width: var(--container-width);
+    margin: 0 auto var(--space-2xl);
 }
-
-
 
 .header-content {
-
-    flex:1;
-
+    max-width: 850px;
 }
 
-
-
-.page-title {
-
-    font-size:32px;
-    font-weight:700;
-    color:#d85f06;
-    margin-bottom:12px;
-
+.programmes-section .page-title {
+    margin: 0 0 var(--space-sm);
+    color: var(--primary);
+    font-size: var(--font-2xl);
+    font-weight: var(--fw-bold);
+    /* line-height: 1.2; */
 }
-
-
 
 .page-description {
-
-    max-width:650px;
-    color:#5c5b5b;
-    line-height:1.6;
-
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-lg);
+    line-height: 1.6;
 }
 
 
-
-.action-buttons {
-
-    display:flex;
-    gap:15px;
-
-}
-
-
-
-
-.btn {
-
-    padding:12px 20px;
-    border-radius:8px;
-    font-weight:600;
-    cursor:pointer;
-    border:none;
-
-}
-
-
-
-.btn-outline {
-
-    background:white;
-    border:1px solid #e5c19b;
-    color:#5c5b5b;
-
-}
-
-
-
-.btn-primary {
-
-    background:#d85f06;
-    color:white;
-
-}
-
-
-
-
-
-/* =========================
-   UNITS GRID
-========================= */
-
+/* ==========================================
+   UNITS
+========================================== */
 
 .units-grid {
-
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:24px;
-    margin-bottom:40px;
-
+    max-width: var(--container-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
 }
 
 
-
-
-
-/* =========================
+/* ==========================================
    UNIT CARD
-========================= */
-
+========================================== */
 
 .unit-card {
-
-    background:white;
-    border:1px solid #e5c19b;
-    border-radius:16px;
-    padding:25px;
-    transition:0.3s;
-
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: var(--space-lg);
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
 }
-
-
 
 .unit-card:hover {
-
-    transform:translateY(-3px);
-
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
 }
 
 
+/* ==========================================
+   UNIT HEADER
+========================================== */
 
 .unit-header {
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
 }
-
-
-
-
-
-/* ICONS */
 
 .unit-icon {
-
-    width:50px;
-    height:50px;
-    border-radius:12px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
 }
-
-
 
 .icon-large {
-
-    width:28px;
-    height:28px;
-
+    width: 26px;
+    height: 26px;
 }
 
 
+/* ==========================================
+   DEDAT ICON BACKGROUNDS
+========================================== */
 
-.unit-icon.bg-blue {
+.bg-blue {
+    background: var(--primary-light);
+    color: var(--primary);
+}
 
-    background:#e5c19b;
-    color:#5c5b5b;
+.bg-orange {
+    background: var(--accent-light);
+    color: var(--primary);
+}
 
+.bg-green {
+    background: rgba(25, 135, 84, 0.10);
+    color: var(--success);
 }
 
 
-
-.unit-icon.bg-orange {
-
-    background:#fff0e6;
-    color:#d85f06;
-
-}
-
-
-
-.unit-icon.bg-green {
-
-    background:#dcfce7;
-    color:#16a34a;
-
-}
-
-
-
-
-
-/* =========================
-   STATUS
-========================= */
-
+/* ==========================================
+   STATUS BADGES
+========================================== */
 
 .status-badge {
-
-    padding:6px 12px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:700;
-
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: var(--radius-round);
+    font-size: var(--font-xs);
+    font-weight: var(--fw-semibold);
+    white-space: nowrap;
 }
-
-
 
 .status-badge.green {
-
-    background:#dcfce7;
-    color:#166534;
-
+    background: rgba(25, 135, 84, 0.10);
+    color: var(--success);
 }
-
-
 
 .status-badge.gray {
-
-    background:#e5c19b;
-    color:#5c5b5b;
-
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
 }
-
-
 
 .status-badge.red {
-
-    background:#fee2e2;
-    color:#dc2626;
-
+    background: rgba(220, 53, 69, 0.10);
+    color: var(--danger);
 }
 
 
-
-
-
-/* =========================
-   CONTENT
-========================= */
-
+/* ==========================================
+   UNIT CONTENT
+========================================== */
 
 .unit-title {
-
-    font-size:20px;
-    font-weight:700;
-    margin-bottom:10px;
-
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+    font-size: var(--font-xl);
+    font-weight: var(--fw-semibold);
 }
-
-
 
 .unit-description {
-
-    color:#5c5b5b;
-    line-height:1.6;
-    margin-bottom:20px;
-
+    margin-bottom: var(--space-lg);
+    color: var(--text-secondary);
+    font-size: var(--font-md);
+    line-height: 1.6;
 }
 
 
-
-
-
-/* =========================
+/* ==========================================
    TAGS
-========================= */
-
+========================================== */
 
 .unit-tags {
-
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:25px;
-
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
 }
-
-
 
 .unit-tag {
-
-    background:#f1f5f9;
-    color:#5c5b5b;
-    padding:6px 12px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:600;
-
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-xs);
+    font-weight: var(--fw-medium);
 }
 
 
-
-
-
-/* =========================
-   ACTION BUTTONS
-========================= */
-
+/* ==========================================
+   CARD ACTIONS
+========================================== */
 
 .unit-card-actions {
-
-    display:flex;
-    gap:10px;
-
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-light);
 }
 
 
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.workspace-btn,
+.secondary-btn {
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-sm);
+    font-weight: var(--fw-semibold);
+    transition: var(--transition);
+}
+
+
+/* Primary button */
 
 .workspace-btn {
-
-
-    flex:1;
-    background:#5c5b5b;
-    color:white;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    font-weight:700;
-    cursor:pointer;
-
+    background: var(--primary);
+    color: var(--text-white);
 }
-
-
 
 .workspace-btn:hover {
-
-    background:#d85f06;
-
+    background: var(--primary-hover);
+    color: var(--text-white);
+    transform: translateY(-1px);
 }
 
 
+/* Secondary button */
 
 .secondary-btn {
+    background: var(--surface);
+    color: var(--secondary);
+    border: 1px solid var(--border);
+}
 
-
-    flex:1;
-    background:white;
-    border:1px solid #e5c19b;
-    color:#5c5b5b;
-    padding:10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-
+.secondary-btn:hover {
+    background: var(--primary-extra-light);
+    color: var(--primary);
+    border-color: var(--primary);
 }
 
 
-
-
-
-/* =========================
+/* ==========================================
    BOTTOM SECTION
-========================= */
-
+========================================== */
 
 .bottom-section {
-
-
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:30px;
-
+    max-width: var(--container-width);
+    margin: var(--space-2xl) auto 0;
+    display: flex;
+    gap: var(--space-lg);
+    align-items: stretch;
 }
 
 
-
-
-
-/* KNOWLEDGE PORTAL */
-
+/* ==========================================
+   KNOWLEDGE PORTAL
+========================================== */
 
 .knowledge-portal {
-
-
-    background:white;
-    border:1px solid #e5c19b;
-    border-radius:16px;
-    padding:30px;
-
+    flex: 2;
+    padding: var(--space-xl);
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
-
-
 
 .portal-title {
-
-
-    font-size:22px;
-    font-weight:700;
-    margin-bottom:25px;
-
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+    font-size: var(--font-xl);
+    font-weight: var(--fw-semibold);
 }
 
 
-
+/* ==========================================
+   STATISTICS
+========================================== */
 
 .stats-grid {
-
-
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
 }
-
-
-
 
 .stat-card {
-
-
-    background:#f8f9fa;
-    padding:20px;
-    border-radius:12px;
-    border:1px solid #e5c19b;
-
+    padding: var(--space-md);
+    background: var(--surface-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
 }
-
-
 
 .stat-card p {
-
-    color:#5c5b5b;
-
+    margin-bottom: var(--space-xs);
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
 }
-
-
 
 .stat-card h2 {
-
-    margin-top:8px;
-
+    margin: 0;
+    color: var(--primary);
+    font-size: var(--font-2xl);
+    font-weight: var(--fw-bold);
 }
 
 
-
-
-
-/* =========================
-   SUPPORT
-========================= */
-
+/* ==========================================
+   SUPPORT CARD
+========================================== */
 
 .support-card {
-
-
-    background:#5c5b5b;
-
-    color:white;
-    padding:30px;
-    border-radius:16px;
-
+    flex: 1;
+    padding: var(--space-xl);
+    background: var(--secondary);
+    color: var(--text-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
-
-
 
 .support-card h2 {
-
-    margin-bottom:10px;
-
+    margin-bottom: var(--space-sm);
+    color: var(--text-white);
+    font-size: var(--font-xl);
 }
-
-
 
 .support-card p {
-
-    color:#e5c19b;
-    margin-bottom:20px;
-
+    margin-bottom: var(--space-lg);
+    color: rgba(255, 255, 255, 0.82);
 }
-
-
 
 .support-card button {
+    padding: 10px 16px;
+    background: var(--primary);
+    color: var(--text-white);
+    border-radius: var(--radius-sm);
+    font-weight: var(--fw-semibold);
+    transition: var(--transition);
+}
 
-
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    background:#d85f06;
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-
+.support-card button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
 
+/* ==========================================
+   CONTACT POPUP
+========================================== */
+
+.contact-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--space-lg);
+
+    background: rgba(34, 34, 34, 0.55);
+}
+
+.contact-popup {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+
+    padding: var(--space-xl);
+
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.contact-popup h2 {
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.contact-popup > p {
+    margin-bottom: var(--space-lg);
+    color: var(--text-secondary);
+}
+
+.contact-details {
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+
+    background: var(--surface-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+}
+
+.contact-details p {
+    margin-bottom: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+}
+
+.contact-details p:last-child {
+    margin-bottom: 0;
+}
 
 
+/* ==========================================
+   CLOSE BUTTON
+========================================== */
 
-/* =========================
+.close-popup {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-secondary);
+    font-size: 24px;
+    border-radius: var(--radius-round);
+
+    transition: var(--transition);
+}
+
+.close-popup:hover {
+    background: var(--primary-extra-light);
+    color: var(--primary);
+}
+
+
+/* ==========================================
+   POPUP BUTTON
+========================================== */
+
+.contact-popup .workspace-btn {
+    width: 100%;
+}
+
+
+/* ==========================================
    RESPONSIVE
-========================= */
+========================================== */
 
+@media (max-width: 1100px) {
 
-@media(max-width:1024px){
+    .units-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-
-.units-grid {
-
-    grid-template-columns:repeat(2,1fr);
-
-}
-
-
-
-.bottom-section {
-
-    grid-template-columns:1fr;
+    .bottom-section {
+        flex-direction: column;
+    }
 
 }
 
 
-}
+@media (max-width: 768px) {
 
+    .programmes-section {
+        padding: var(--space-xl) var(--space-md);
+    }
 
+    .programmes-section .page-title {
+        font-size: var(--font-2xl);
+    }
 
+    .page-description {
+        font-size: var(--font-md);
+    }
 
-@media(max-width:768px){
+    .units-grid {
+        grid-template-columns: 1fr;
+    }
 
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 
-.header-controls {
+    .unit-card-actions {
+        flex-direction: column;
+    }
 
-    flex-direction:column;
-    align-items:flex-start;
-
-}
-
-
-
-.units-grid {
-
-    grid-template-columns:1fr;
-
-}
-
-
-
-.action-buttons {
-
-    width:100%;
-
-}
-
-
-
-.unit-card-actions {
-
-    flex-direction:column;
-    
-
-}
-
-
-
-.stats-grid {
-
-    grid-template-columns:1fr;
-
-}
-
-
+    .unit-card-actions button {
+        width: 100%;
+    }
 
 }

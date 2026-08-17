@@ -423,7 +423,7 @@ p {
     position: relative;
 }
 
-.close-btn {
+.close-btn2 {
     position: absolute;
     top: 18px;
     right: 18px;
@@ -435,7 +435,7 @@ p {
     font-size: 20px;
 }
 
-.close-btn:hover {
+.close-btn2:hover {
     background: #b84f05;
     transform: rotate(90deg);
 }
