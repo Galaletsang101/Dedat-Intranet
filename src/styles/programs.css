@@ -32,15 +32,15 @@
 .programmes-section .page-title {
     margin: 0 0 var(--space-sm);
     color: var(--primary);
-    font-size: var(--font-2xl);
-    font-weight: var(--fw-bold);
-    /* line-height: 1.2; */
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .page-description {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--font-lg);
+    font-size: 16px;
     line-height: 1.6;
 }
 
@@ -138,8 +138,8 @@
     align-items: center;
     padding: 5px 10px;
     border-radius: var(--radius-round);
-    font-size: var(--font-xs);
-    font-weight: var(--fw-semibold);
+    font-size: 11px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
@@ -167,15 +167,15 @@
 .unit-title {
     margin-bottom: var(--space-sm);
     color: var(--text-primary);
-    font-size: var(--font-xl);
-    font-weight: var(--fw-semibold);
+    font-size: 17px;
+    font-weight: 700;
 }
 
 .unit-description {
     margin-bottom: var(--space-lg);
     color: var(--text-secondary);
-    font-size: var(--font-md);
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 
@@ -198,8 +198,8 @@
     color: var(--text-secondary);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-sm);
-    font-size: var(--font-xs);
-    font-weight: var(--fw-medium);
+    font-size: 11px;
+    font-weight: 600;
 }
 
 
@@ -209,11 +209,25 @@
 
 .unit-card-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
     margin-top: auto;
     padding-top: var(--space-md);
     border-top: 1px solid var(--border-light);
+}
+
+
+/* ==========================================
+   SECONDARY ACTIONS
+   POLICIES + CONTACTS
+========================================== */
+
+.secondary-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
 }
 
 
@@ -226,13 +240,28 @@
     min-height: 38px;
     padding: 8px 14px;
     border-radius: var(--radius-sm);
-    font-size: var(--font-sm);
-    font-weight: var(--fw-semibold);
+    font-size: 14px;
+    font-weight: 600;
     transition: var(--transition);
 }
 
 
-/* Primary button */
+/* ==========================================
+   ENTER WORKSPACE BUTTON
+   FULL WIDTH ON TOP
+========================================== */
+
+.workspace-main-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* ==========================================
+   PRIMARY BUTTON
+========================================== */
 
 .workspace-btn {
     background: var(--primary);
@@ -246,9 +275,12 @@
 }
 
 
-/* Secondary button */
+/* ==========================================
+   SECONDARY BUTTONS
+========================================== */
 
 .secondary-btn {
+    width: 100%;
     background: var(--surface);
     color: var(--secondary);
     border: 1px solid var(--border);
@@ -290,8 +322,8 @@
 .portal-title {
     margin-bottom: var(--space-lg);
     color: var(--text-primary);
-    font-size: var(--font-xl);
-    font-weight: var(--fw-semibold);
+    font-size: 21px;
+    font-weight: 700;
 }
 
 
@@ -315,14 +347,14 @@
 .stat-card p {
     margin-bottom: var(--space-xs);
     color: var(--text-secondary);
-    font-size: var(--font-sm);
+    font-size: 13px;
 }
 
 .stat-card h2 {
     margin: 0;
     color: var(--primary);
-    font-size: var(--font-2xl);
-    font-weight: var(--fw-bold);
+    font-size: 32px;
+    font-weight: 700;
 }
 
 
@@ -342,12 +374,15 @@
 .support-card h2 {
     margin-bottom: var(--space-sm);
     color: var(--text-white);
-    font-size: var(--font-xl);
+    font-size: 21px;
+    font-weight: 700;
 }
 
 .support-card p {
     margin-bottom: var(--space-lg);
     color: rgba(255, 255, 255, 0.82);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .support-card button {
@@ -355,7 +390,8 @@
     background: var(--primary);
     color: var(--text-white);
     border-radius: var(--radius-sm);
-    font-weight: var(--fw-semibold);
+    font-size: 14px;
+    font-weight: 600;
     transition: var(--transition);
 }
 
@@ -398,11 +434,15 @@
 .contact-popup h2 {
     margin-bottom: var(--space-sm);
     color: var(--text-primary);
+    font-size: 21px;
+    font-weight: 700;
 }
 
 .contact-popup > p {
     margin-bottom: var(--space-lg);
     color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .contact-details {
@@ -417,7 +457,7 @@
 .contact-details p {
     margin-bottom: var(--space-sm);
     color: var(--text-secondary);
-    font-size: var(--font-sm);
+    font-size: 13px;
 }
 
 .contact-details p:last-child {
@@ -476,7 +516,6 @@
     .bottom-section {
         flex-direction: column;
     }
-
 }
 
 
@@ -487,11 +526,11 @@
     }
 
     .programmes-section .page-title {
-        font-size: var(--font-2xl);
+        font-size: 26px;
     }
 
     .page-description {
-        font-size: var(--font-md);
+        font-size: 14px;
     }
 
     .units-grid {
@@ -506,8 +545,15 @@
         flex-direction: column;
     }
 
-    .unit-card-actions button {
+    .workspace-main-btn {
         width: 100%;
     }
 
+    .secondary-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .secondary-actions .secondary-btn {
+        width: 100%;
+    }
 }
