@@ -9,7 +9,7 @@ export default function FAQ() {
       <section className="faq-section">
         <h2>General & Mandate</h2>
         <details>
-          <summary>What is DEDAT’s primary mission?</summary>
+          <summary>What is DEDaT’s primary mission?</summary>
           <p>We drive provincial economic growth and job creation by supporting tourism, green energy, and small businesses.</p>
         </details>
         <details>
@@ -21,7 +21,7 @@ export default function FAQ() {
       <section className="faq-section">
         <h2>Youth & Internship Programs</h2>
         <details>
-          <summary>What is the DEDAT Youth Stipend Funding Program?</summary>
+          <summary>What is the DEDaT Youth Stipend Funding Program?</summary>
           <p>We fund stipends for unemployed youth placed at host companies to provide them with workplace experience.</p>
         </details>
         <details>

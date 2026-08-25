@@ -87,7 +87,7 @@ function Login() {
 
 
           <p>
-            Sign in to access the DeDAaT Internal Website
+            Sign in to access the DEDaT Internal Website
           </p>
 
         </div>

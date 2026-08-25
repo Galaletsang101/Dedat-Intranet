@@ -94,13 +94,13 @@ const loadVideos = async () => {
 
         
   <h1>
-  <span style={{ color: "black" }}>
+  <span style={{ color: "#5C5B5B" }}>
     Find your balance,
   </span>
   <span> anytime, anywhere.</span>
 </h1>
 
-<p style={{ color: "black" }}>
+<p style={{ color: "#666666" }}>
   Welcome to your dedicated Employee Health and Wellness
   space where you can discover wellness resources,
   webinars and support whenever you need them.
@@ -118,7 +118,9 @@ const loadVideos = async () => {
 
         <div className="contact-card hover-shadow transition">
 
-          <h2>Lyra Contact Details</h2>
+          <h2 style={{ color: "#5C5B5B" }}>
+            Lyra Contact Details
+          </h2>
 
           <div className="contact-item">
 
@@ -130,7 +132,9 @@ const loadVideos = async () => {
 
               <small>Phone Support</small>
 
-              <h3>1-800-LYRA-HELP</h3>
+              <h3 style={{ color: "#5C5B5B" }}>
+                1-800-LYRA-HELP
+              </h3>
 
             </div>
 
@@ -146,7 +150,9 @@ const loadVideos = async () => {
 
               <small>Email</small>
 
-              <h3>support@lyrahealth.com</h3>
+              <h3 style={{ color: "#5C5B5B" }}>
+                support@lyrahealth.com
+              </h3>
 
             </div>
 
@@ -186,10 +192,12 @@ const loadVideos = async () => {
 
           <div>
 
-            <h2>Webinar Library</h2>
+            <h2 style={{ color: "#5C5B5B" }}>
+              Webinar Library
+            </h2>
 
-            <p>
-              Browse all employee wellness webinars.
+            <p style= {{color: "#666666"}}
+>              Browse all employee wellness webinars.
             </p>
 
           </div>

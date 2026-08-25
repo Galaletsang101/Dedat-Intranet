@@ -176,7 +176,7 @@ function Dashboard() {
     <div className="dashboard-page">
       <section className="dashboard-hero">
         <h1>Welcome back, Thabo</h1>
-        <p>Your central hub for NCDEDAT departmental services and professional resources.</p>
+        <p>Your central hub for DEDaT departmental services and professional resources.</p>
       </section>
 
       <section className="dashboard-quick-actions">
