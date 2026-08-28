@@ -1,168 +1,623 @@
-/* Simple styles for Policies page */
+/* =========================================================
+   DEDAT POLICIES PAGE
+========================================================= */
 
-/* Desktop-first layout */
 .policies-page {
-  padding: 28px;
-  max-width: 980px;
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
+  padding: 28px;
+  box-sizing: border-box;
   font-family: Inter, Arial, sans-serif;
 }
 
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.policies-page > .list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.policies-page > .list-header h3 {
+  margin: 0 0 6px;
+  color: #5c5b5b;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.policies-description {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.policies-page .muted {
+  color: #8b8b8b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
 .policies-search {
-  margin-bottom: 16px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .policies-search input {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 12px;
+  height: 48px;
+  padding: 0 16px;
+  box-sizing: border-box;
   border: 1px solid #f0e9e6;
+  border-radius: 10px;
   background: #fff;
+  color: #5c5b5b;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.policies-search input::placeholder {
+  color: #999;
+}
+
+.policies-search input:focus {
+  border-color: #d96723;
+  box-shadow: 0 0 0 3px rgba(217, 103, 35, 0.1);
+}
+
+
+/* =========================================================
+   FILTER SECTION
+========================================================= */
+
+.policies-filter-section {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    auto;
+  gap: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+  background: #faf9f8;
+  border: 1px solid #eee5e1;
+  border-radius: 12px;
   box-sizing: border-box;
 }
 
-.policies-filters {
+
+/* =========================================================
+   FILTER GROUP
+========================================================= */
+
+.filter-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.chip {
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid #f0e6e3;
+.filter-group label {
+  color: #5c5b5b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filter-group select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e3d9d4;
+  border-radius: 8px;
   background: #fff;
-  color: #8a6b4b;
+  color: #5c5b5b;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
   cursor: pointer;
-  font-weight: 600;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
 }
 
-.chip.active {
+.filter-group select:focus {
+  border-color: #d96723;
+}
+
+.filter-group select:disabled {
+  background: #f1efee;
+  color: #999;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   CLEAR FILTERS BUTTON
+========================================================= */
+
+.clear-filters {
+  height: 42px;
+  padding: 0 16px;
+  border: 1px solid #d96723;
+  border-radius: 8px;
+  background: #fff;
+  color: #d96723;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  margin-top: 26px;
+}
+
+.clear-filters:hover {
   background: #d96723;
   color: #fff;
-  border-color: transparent;
 }
 
-.policies-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
 
-.policies-list .list-header {
-  grid-column: 1 / -1;
+/* =========================================================
+   RESULTS HEADER
+========================================================= */
+
+.policies-results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-}
-
-.policies-list .muted {
   color: #8b8b8b;
   font-size: 13px;
 }
+
+.policies-results-header strong {
+  color: #5c5b5b;
+}
+
+
+/* =========================================================
+   DOCUMENT LIST
+========================================================= */
+
+.policies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+
+/* =========================================================
+   DOCUMENT CARD
+========================================================= */
 
 .doc-card {
   display: flex;
   gap: 16px;
   align-items: flex-start;
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid #f1e0da;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  min-height: 150px;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   DOCUMENT CARD HOVER
+========================================================= */
+
+.doc-card:hover {
+  border-color: #d85f06;
+}
+
+
+/* =========================================================
+   PDF ICON
+========================================================= */
+
+.doc-left {
+  flex-shrink: 0;
 }
 
 .doc-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
   background: #fff6f0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #d96522;
+  font-size: 11px;
   font-weight: 800;
   border: 1px solid #f2dcd2;
   flex-shrink: 0;
 }
 
+
+/* =========================================================
+   DOCUMENT BODY
+========================================================= */
+
 .doc-body {
   flex: 1;
+  min-width: 0;
 }
 
 .doc-title {
-  font-weight: 700;
-  color: #2f2f2f;
+  color: #5c5b5b;
   font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 5px;
 }
 
+
+/* =========================================================
+   PROGRAMME / SUB-PROGRAMME
+========================================================= */
+
 .doc-unit {
-  display: inline-block;
-  margin-top: 6px;
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  color: #a24d1e;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.separator {
+  margin: 0 6px;
+  color: #999;
+}
+
+
+/* =========================================================
+   DOCUMENT META
+========================================================= */
+
+.doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+  color: #8b8b8b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.doc-meta span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.document-type {
   padding: 3px 8px;
   border-radius: 999px;
   background: #fef2e8;
   color: #a24d1e;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.doc-meta {
-  font-size: 13px;
-  color: #8b8b8b;
-  margin-top: 6px;
-}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
 
 .doc-summary {
-  margin-top: 8px;
+  margin-top: 9px;
   color: #5d5d5d;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
+
+/* =========================================================
+   APPROVAL STATUS
+========================================================= */
+
+.doc-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  color: #5d5d5d;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4d9f65;
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   DOCUMENT ACTIONS
+========================================================= */
+
 .doc-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
+
+.doc-actions button {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
 
 .view {
   background: transparent;
   border: 1px solid #d96723;
   color: #8b4a22;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
 }
+
+.view:hover {
+  background: #d96723;
+  color: #fff;
+}
+
+
+/* =========================================================
+   DOWNLOAD BUTTON
+========================================================= */
 
 .download {
   background: #d96723;
   color: #fff;
-  padding: 9px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+  border: 1px solid #d96723;
 }
 
+.download:hover {
+  background: #bd5518;
+  border-color: #bd5518;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
 .empty-state {
-  grid-column: 1 / -1;
-  padding: 20px;
+  width: 100%;
+  padding: 55px 20px;
+  box-sizing: border-box;
   border-radius: 12px;
   background: #fff7f2;
+  border: 1px solid #f1e0da;
   color: #7f4e2f;
   text-align: center;
 }
 
-/* Single-column fallback for smaller screens */
+.empty-icon {
+  width: 55px;
+  height: 55px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff6f0;
+  border: 1px solid #f2dcd2;
+  color: #d96522;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.empty-state h3 {
+  margin: 0 0 7px;
+  color: #5c5b5b;
+  font-size: 17px;
+}
+
+.empty-state p {
+  margin: 0 0 18px;
+  color: #888;
+  font-size: 13px;
+}
+
+.clear-empty-button {
+  height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #d96723;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clear-empty-button:hover {
+  background: #bd5518;
+}
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.policies-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 10px 0;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+.pagination-button,
+.pagination-number {
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border: 1px solid #e5ddd8;
+  border-radius: 8px;
+  background: #fff;
+  color: #5c5b5b;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled),
+.pagination-number:hover {
+  border-color: #d85f06;
+  color: #d85f06;
+}
+
+.pagination-number.active {
+  background: var(--primary, #d85f06);
+  border-color: var(--primary, #d85f06);
+  color: #fff;
+}
+
+.pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
 @media (max-width: 900px) {
-  .policies-list {
-    grid-template-columns: 1fr;
+  .policies-page {
+    padding: 22px;
   }
 
-  .policies-page {
-    padding: 18px;
+  .policies-filter-section {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .clear-filters {
+    width: 100%;
   }
 }
 
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+  .policies-page {
+    padding: 16px;
+  }
+
+  .policies-page > .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .policies-page > .list-header h3 {
+    font-size: 21px;
+  }
+
+  .policies-filter-section {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .doc-card {
+    flex-wrap: wrap;
+    padding: 15px;
+  }
+
+  .doc-body {
+    flex: 1;
+    min-width: calc(100% - 75px);
+  }
+
+  .doc-actions {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .doc-actions button {
+    flex: 1;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 430px) {
+  .policies-page {
+    padding: 12px;
+  }
+
+  .doc-left {
+    display: none;
+  }
+
+  .doc-body {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .doc-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .doc-actions button {
+    width: 100%;
+  }
+
+  .doc-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

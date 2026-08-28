@@ -68,7 +68,7 @@ function TopNav({ toggleMenu, menuOpen }) {
 
         <NavLink to="/calendar">Calendar</NavLink>
 
-        <NavLink to="/news-circulus">News and Circulus</NavLink>
+        <NavLink to="/news-circulus">News and Circulars</NavLink>
 
         <NavLink to="/programs-units">Programs and Units</NavLink>
 

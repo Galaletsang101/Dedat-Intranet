@@ -240,7 +240,6 @@
 
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
-    overflow-x: auto;
 }
 
 .knowledgecenter-table-section h2 {
@@ -309,16 +308,48 @@
    TABLE
    ========================================================= */
 
+.knowledgecenter-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+}
+
 .knowledgecenter-table {
     width: 100%;
+
+    min-width: 680px;
+
+    table-layout: fixed;
 
     border-collapse: collapse;
 
     font-size: 0.875rem;
 }
 
+.knowledgecenter-column-name {
+    width: 40%;
+}
+
+.knowledgecenter-column-category {
+    width: 12%;
+}
+
+.knowledgecenter-column-programme {
+    width: 18%;
+}
+
+.knowledgecenter-column-version,
+.knowledgecenter-column-date {
+    width: 8%;
+}
+
+.knowledgecenter-column-action {
+    width: 14%;
+}
+
 .knowledgecenter-table th {
-    padding: 0.85rem;
+    padding: 0.7rem 0.6rem;
 
     background: #f8f9fa;
 
@@ -329,15 +360,15 @@
 
     text-align: left;
 
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 2px solid #dee2e6;
 }
 
 .knowledgecenter-table td {
-    padding: 0.9rem 0.85rem;
+    padding: 0.7rem 0.6rem;
 
     color: var(--gravel);
 
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #e9ecef;
 
     vertical-align: middle;
 }
@@ -350,19 +381,29 @@
     background: #fafafa;
 }
 
+.knowledgecenter-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
 
 /* =========================================================
    DOCUMENT NAME
    ========================================================= */
 
 .knowledgecenter-document-name {
+    font-weight: 600;
+}
+
+.knowledgecenter-document-name-content {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    min-width: 0;
+}
 
-    font-weight: 600;
-
-    white-space: nowrap;
+.knowledgecenter-document-name-content span,
+.knowledgecenter-table td {
+    overflow-wrap: anywhere;
 }
 
 .knowledgecenter-document-name svg {

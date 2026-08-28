@@ -82,7 +82,7 @@ function Footer() {
         {/* Column 5: Brand & Logo */}
         <div className="footer-column brand-column">
           <img src={logo} alt="NCDEDAT Logo" className="footer-logo" />
-          <p className="brand-tagline">Digital Workplace</p>
+         
           {/* Optionally add social media if needed – keep minimal */}
           {/* <div className="social-media-links"> ... </div> */}
         </div>
@@ -98,13 +98,13 @@ function Footer() {
         <div className="bottom-links">
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms of Use</Link>
-          <a href="https://www.northern-cape.gov.za" target="_blank" rel="noopener noreferrer">
-            Official Website
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-export default Footer;
+          <a href="https://www.northern-cape.gov.za" target="_blank" rel="noopener noreferrer"> 
+            Official Website 
+          </a> 
+        </div> 
+      </div> 
+    </footer> 
+  ); 
+} 
+ 
+export default Footer;   

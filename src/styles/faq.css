@@ -11,6 +11,7 @@
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.75rem;
+  color: #5C5B5B;
 }
 
 .faq-section {
@@ -24,6 +25,8 @@
 .faq-section h2 {
   margin: 0 0 12px 0;
   font-size: 1.05rem;
+  color: #D85F06;
+
 }
 
 details {
@@ -38,6 +41,8 @@ summary {
   cursor: pointer;
   font-weight: 600;
   list-style: none;
+  color: #666666;
+
 }
 
 details[open] {
