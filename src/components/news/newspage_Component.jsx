@@ -1,5 +1,6 @@
 // src/components/news/NewsPage.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { 
   Container, Row, Col, Nav, Navbar, Button, Badge, 
   Form, InputGroup 
@@ -13,37 +14,16 @@ import {
 import { MdEmail, MdVerified } from 'react-icons/md';
 import './NewsPage.css';
 
-// Mock Data
-const newsItems = [
-  {
-    id: 1,
-    title: "Strategic Economic Outlook 2024: Growth Initiatives for the Northern Cape",
-    excerpt: "The Department outlines key economic growth strategies focusing on infrastructure development, renewable energy, and job creation for the coming year.",
-    category: "News",
-    date: "Jan 15, 2024",
-    readTime: "8 min read",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCWvOet0BgwXESd_oMHhwhlXbd4kS8zeFRVvlKKbskAKlxImlIjVnp60jsNur76tz7D33OKgX_shxGWeSzc1-XMu3tH3O3qcGBePLzA6uiFOsyHnxFqT6MCFKIWG6HJ-wq_SKB5l-rTaag0s8MZTxBaLPPhgB3Amlmc503XgXDiZzyF_aGCxUPaCATe2tqhUTVFHl9WTzZpeks-IMGvsEGzsskE_rEAh40cy3VHV0WI8LWDbiTBCceKc5v2pxlxQ20-6ZfzUb0W2wU",
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: "Quarterly Digital Literacy Workshops: Enrollment Now Open",
-    excerpt: "Enhance your digital proficiency with our upcoming series of internal workshops focused on advanced productivity tools.",
-    category: "Training",
-    date: "Jan 14, 2024",
-    readTime: "4 min read",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC2bv2ELQygbrGIHfbb4OZuSxkVQwfTXJekOHeECbdvRM46QaRCDBJ8kiBFk68A9lw5GcvSYeLJ4kVy0keI0nlHE-6A1BPQZEHyhub92ZnA1PjucxRRbfiNx9eZlRceLiZv5jbvnfaywD9dRiKnk4t7lzzZIRG6QarCfaHjxdDm9GDbqCi3o9XDow8OE7hVdP1WZydNIS7RGr3hTRinMxuuCY5VVO_THlhhrl7WGczBZZlTU6-HJNobZBU9Un40f5-S7gLGEGb2bOY"
-  },
-  {
-    id: 3,
-    title: "Sustainable Tourism Launch: Reimagining the Diamond Fields",
-    excerpt: "The Department officially unveils its 2024 Tourism Strategy focused on community-led heritage conservation.",
-    category: "Campaign",
-    date: "Jan 12, 2024",
-    readTime: "5 min read",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAo3vzdfrvfwq93-tCqPzJFkSrjNpdWybHgglEHEsb_eqVxYRAd9FnQc8KP7lgN7o4ekbaWH5s4tY0qXFJQQajhDBm3ZY7wLA8ylm0MSlqtbws703aYn0W2-6sg1A6751wmmHfk_m3zws-Y2B71L6lpqI1Y-gX1KWUNFY9g5bhV5Rpiprwsdo8jsk1AX1I_A3rE3XyT5_3prDC67ipfmpn_kXYvaMyafkJEvHBAhhlw4XUYn5XlfXq0CqF9VHh72-lco9Wv7FYR8R0"
-  }
+
+
+const newsletters = [
+  { id: 1, title: "January 2024", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyMWt37Gw_Su-ShdDe9vBf7Iu31UwOYcMA8QhzTII18AWfSBtOgFe5dqERJd5NhgUhmv2d7JAmBRsA8ls_2HfPxIiEwkdds2zUGW6PBN7lEmRf6k0KOj2--r_KAxW4sagLttyU4RbOooSMPOCCRQDyVmLhhrKwwtzBnovp5RlV19ygLAGFohOXBH0gP70B5Dfjt-4igQuIb9Wt6mgpIkgACUj7JxSbFYjIWtmRZGOrKcJNtLt35duKKHckmhVkEg-_LFpNZWWwA4U" },
+  { id: 2, title: "December 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBD8JvKBnRRDpqrhSUhH736LfYLgWB12TyJfUBOo6gfZyd1N9PvmJ00rY8kL8EA1Qh4vcrmHmMjXjJhJVXkK654h0PbZiwrRb_JiWk3pxs5PaFmEeCVtTpbVRCtdarqHllpX5O2O4O8Si9fuOTl9vAvy2IXOx7tKZZRAP4aZLeo4RtZS3Ja8aQATouyPL9GzxalHQwPnT8Ax71uJ0e-StjyMdGcHpICYev6i52zCu21iV1zjY_EOPNWTUdGPf5LqhKLiBVWr1f0iVI" },
+  { id: 3, title: "November 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBK7bMcK4K_zQocMW7nf67p2GDAwZahFyMRMzhyGeUfEvCgCYDTQD1fZy5aB1fX3TF2pF_NHVxSk0VFMuAz_HSl74UctMDVTv77ZMJdOfAlAqGaUe4mgIJgRTF3lyNZR7-bBLD0iKgY_1QkrRq3On-Bajzj-Ch9EwHegWjhRwO-OOVR9oC5_vZqdyuRYdoXttoJKvEH7QTI8Y-YiuQ6xtleK-w19wHiFaL0GCAsTOlPRGtBuECjUtl5TyL_6tiX3iZWnlCmVRlP_JI" },
+  { id: 4, title: "October 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0IHurd4i9gkbt4NbiV6zOoQHexhdzbkzxuE2U58ykAPzlDGMLV4WzZnzqbKMxCdAUPQ0MF9U_huzXVPHHLkMqL4rftPzXTAd11ccSz2LNnmtVSSVgo4awgduPOGliz3KwP5WSGIesHmdgEiRZEQeiQHhZlBvuKTL75fXvT30DlatBXl6n_sqFc6xCMIDiuYZ39tAIvCzCtOA3X80HeOaMKxi6YNaFS8zOIan08p7rERX2qL_5hMPq0xuI1VgA1wWe-UgSSLLKU0" }
 ];
+
+const categories = ['All', 'News', 'Circulars', 'Events', 'Training'];
 
 const circulars = [
   {
@@ -60,17 +40,51 @@ const circulars = [
   }
 ];
 
-const newsletters = [
-  { id: 1, title: "January 2024", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyMWt37Gw_Su-ShdDe9vBf7Iu31UwOYcMA8QhzTII18AWfSBtOgFe5dqERJd5NhgUhmv2d7JAmBRsA8ls_2HfPxIiEwkdds2zUGW6PBN7lEmRf6k0KOj2--r_KAxW4sagLttyU4RbOooSMPOCCRQDyVmLhhrKwwtzBnovp5RlV19ygLAGFohOXBH0gP70B5Dfjt-4igQuIb9Wt6mgpIkgACUj7JxSbFYjIWtmRZGOrKcJNtLt35duKKHckmhVkEg-_LFpNZWWwA4U" },
-  { id: 2, title: "December 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBD8JvKBnRRDpqrhSUhH736LfYLgWB12TyJfUBOo6gfZyd1N9PvmJ00rY8kL8EA1Qh4vcrmHmMjXjJhJVXkK654h0PbZiwrRb_JiWk3pxs5PaFmEeCVtTpbVRCtdarqHllpX5O2O4O8Si9fuOTl9vAvy2IXOx7tKZZRAP4aZLeo4RtZS3Ja8aQATouyPL9GzxalHQwPnT8Ax71uJ0e-StjyMdGcHpICYev6i52zCu21iV1zjY_EOPNWTUdGPf5LqhKLiBVWr1f0iVI" },
-  { id: 3, title: "November 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBK7bMcK4K_zQocMW7nf67p2GDAwZahFyMRMzhyGeUfEvCgCYDTQD1fZy5aB1fX3TF2pF_NHVxSk0VFMuAz_HSl74UctMDVTv77ZMJdOfAlAqGaUe4mgIJgRTF3lyNZR7-bBLD0iKgY_1QkrRq3On-Bajzj-Ch9EwHegWjhRwO-OOVR9oC5_vZqdyuRYdoXttoJKvEH7QTI8Y-YiuQ6xtleK-w19wHiFaL0GCAsTOlPRGtBuECjUtl5TyL_6tiX3iZWnlCmVRlP_JI" },
-  { id: 4, title: "October 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0IHurd4i9gkbt4NbiV6zOoQHexhdzbkzxuE2U58ykAPzlDGMLV4WzZnzqbKMxCdAUPQ0MF9U_huzXVPHHLkMqL4rftPzXTAd11ccSz2LNnmtVSSVgo4awgduPOGliz3KwP5WSGIesHmdgEiRZEQeiQHhZlBvuKTL75fXvT30DlatBXl6n_sqFc6xCMIDiuYZ39tAIvCzCtOA3X80HeOaMKxi6YNaFS8zOIan08p7rERX2qL_5hMPq0xuI1VgA1wWe-UgSSLLKU0" }
-];
-
-const categories = ['All', 'News', 'Circulars', 'Events', 'Training'];
-
 const NewsPage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [newsItems, setNewsItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/news');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch news');
+        }
+
+        const data = await response.json();
+
+
+const formattedNews = data.map((item, index) => ({
+  id: item.id,
+  title: item.title,
+  excerpt: item.description,
+  content: item.content,
+  category: 'News',
+  date: new Date(item.publish_date).toLocaleDateString('en-ZA', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  }),
+  readTime: '5 min read',
+  image: item.image_url,
+  isFeatured: index === 0
+}));
+
+        setNewsItems(formattedNews);
+      } catch (err) {
+        console.error('Error loading news:', err);
+        setError('Unable to load news.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
 
   const getCategoryColor = (category) => {
     switch (category) {
@@ -93,7 +107,25 @@ const NewsPage = () => {
             return 'var(--secondary-light)';
     }
 };
+if (loading) {
+  return (
+    <div className="news-page">
+      <Container className="py-5">
+        <p>Loading news...</p>
+      </Container>
+    </div>
+  );
+}
 
+if (error) {
+  return (
+    <div className="news-page">
+      <Container className="py-5">
+        <p>{error}</p>
+      </Container>
+    </div>
+  );
+}
   return (
     <div className="news-page">
     
@@ -157,6 +189,17 @@ const NewsPage = () => {
                   </Col>
                 ))}
               </Row>
+
+{/* News Content - Markdown */}
+{newsItems.length > 0 && (
+  <div className="bg-white p-4 rounded-3 mb-4">
+    <h5>{newsItems[0].title}</h5>
+
+    <ReactMarkdown>
+      {newsItems[0].content}
+    </ReactMarkdown>
+  </div>
+)}
 
               {/* Circulars Section */}
               <div className="bg-light p-4 rounded-3 mb-4">
