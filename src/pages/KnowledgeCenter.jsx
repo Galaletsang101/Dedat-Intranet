@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getDocuments } from "../services/documentsService";
 import "../styles/knowledgecenter.css";
 
 import {
@@ -72,6 +73,33 @@ const KnowledgeCenter = () => {
   const [category, setCategory] = useState("ALL");
   const [showUpload, setShowUpload] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+
+  useEffect(() => {
+    const loadDocuments = async () => {
+      try {
+        const rows = await getDocuments();
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+          return;
+        }
+
+        const mapped = rows.map((doc) => ({
+          name: doc.title || "Untitled Document",
+          category: (doc.category || "DOCUMENT").toUpperCase(),
+          status: (doc.status || "Published").toUpperCase(),
+          version: doc.version_number || "v1.0",
+          date: doc.publication_date || doc.created_at || "Today",
+          file_url: doc.file_url || "",
+        }));
+
+        setDocuments(mapped);
+      } catch (error) {
+        console.error("Failed to load documents:", error);
+      }
+    };
+
+    loadDocuments();
+  }, []);
 
   const filteredDocuments = documents.filter((doc) => {
     return (

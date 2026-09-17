@@ -9,17 +9,21 @@ import {
 
 import { getWellnessVideos } from "../firebase/wellnessService";
 
-import "../styles/wellness.css";
+import "../styles/Wellness.css";
 
-function Wellness() {
-  // ===========================
-  // STATE
-  // ===========================
+export default function Wellness() {
+  /* =========================================================
+     STATE
+  ========================================================= */
 
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+
+  /* =========================================================
+     CATEGORIES
+  ========================================================= */
 
   const categories = [
     "All",
@@ -28,9 +32,172 @@ function Wellness() {
     "Physical Care",
   ];
 
-  // ===========================
-  // FILTER VIDEOS
-  // ===========================
+  /* =========================================================
+     LOAD ADMIN WELLNESS CONTENT
+  ========================================================= */
+
+  const loadAdminWellnessContent = () => {
+    try {
+      const publishedContent = JSON.parse(
+        localStorage.getItem("dedatPublishedContent") || "[]"
+      );
+
+      const adminVideos = publishedContent
+        .filter(
+          (item) =>
+            item.page === "wellness" &&
+            item.video &&
+            item.video.url
+        )
+        .map((item) => ({
+          id: item.id,
+
+          title:
+            item.title || "Untitled Wellness Video",
+
+          description:
+            item.description ||
+            "No description available.",
+
+          category:
+            item.category || "Mental Health",
+
+          video: item.video.url,
+
+          videoType:
+            item.video.type || "video/mp4",
+
+          thumbnail:
+            item.thumbnail ||
+            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900",
+
+          duration:
+            item.duration || "--",
+
+          featured: true,
+
+          publishedDate:
+            item.publishedDate || "",
+
+          source: "admin",
+
+          fileName:
+            item.video.name || "",
+        }));
+
+      return adminVideos;
+    } catch (error) {
+      console.error(
+        "Failed to load admin wellness content:",
+        error
+      );
+
+      return [];
+    }
+  };
+
+  /* =========================================================
+     LOAD ALL WELLNESS VIDEOS
+  ========================================================= */
+
+  const loadVideos = async () => {
+    try {
+      /* Admin videos */
+      const adminVideos = loadAdminWellnessContent();
+
+      /* Firebase videos */
+      let firebaseVideos = [];
+
+      try {
+        firebaseVideos = await getWellnessVideos();
+
+        if (!Array.isArray(firebaseVideos)) {
+          firebaseVideos = [];
+        }
+      } catch (firebaseError) {
+        console.error(
+          "Failed to load Firebase wellness videos:",
+          firebaseError
+        );
+
+        firebaseVideos = [];
+      }
+
+      /*
+        Admin content appears first,
+        followed by Firebase content.
+      */
+
+      setVideos([
+        ...adminVideos,
+        ...firebaseVideos,
+      ]);
+    } catch (error) {
+      console.error(
+        "Failed to load wellness videos:",
+        error
+      );
+
+      setVideos([]);
+    }
+  };
+
+  /* =========================================================
+     LOAD WHEN PAGE OPENS
+  ========================================================= */
+
+  useEffect(() => {
+    loadVideos();
+
+    /*
+      AddContent dispatches this event after publishing.
+
+      This allows the Wellness page to update immediately
+      without requiring a page refresh.
+    */
+
+    const handleContentUpdate = () => {
+      loadVideos();
+    };
+
+    window.addEventListener(
+      "dedatContentUpdated",
+      handleContentUpdate
+    );
+
+    /*
+      Handles updates made in another browser tab.
+    */
+
+    const handleStorage = (event) => {
+      if (
+        event.key === "dedatPublishedContent"
+      ) {
+        loadVideos();
+      }
+    };
+
+    window.addEventListener(
+      "storage",
+      handleStorage
+    );
+
+    return () => {
+      window.removeEventListener(
+        "dedatContentUpdated",
+        handleContentUpdate
+      );
+
+      window.removeEventListener(
+        "storage",
+        handleStorage
+      );
+    };
+  }, []);
+
+  /* =========================================================
+     FILTER VIDEOS
+  ========================================================= */
 
   const filteredVideos = useMemo(() => {
     return videos.filter((video) => {
@@ -46,13 +213,20 @@ function Wellness() {
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
 
-      return matchesCategory && matchesSearch;
+      return (
+        matchesCategory &&
+        matchesSearch
+      );
     });
-  }, [videos, selectedCategory, searchTerm]);
+  }, [
+    videos,
+    selectedCategory,
+    searchTerm,
+  ]);
 
-  // ===========================
-  // VIDEO MODAL
-  // ===========================
+  /* =========================================================
+     VIDEO MODAL
+  ========================================================= */
 
   const openVideo = (video) => {
     setSelectedVideo(video);
@@ -62,155 +236,127 @@ function Wellness() {
     setSelectedVideo(null);
   };
 
-  // ===========================
-  // LOAD VIDEOS FROM FIRESTORE
-  // ===========================
-
-const loadVideos = async () => {
-  try {
-    const firebaseVideos = await getWellnessVideos();
-    setVideos(firebaseVideos);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-  // ===========================
-  // PAGE LOAD
-  // ===========================
-
-  useEffect(() => {
-    loadVideos();
-  }, []);
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <div className="wellness-page">
 
-      {/* ================= HERO ================= */}
+      {/* =====================================================
+          HERO
+      ===================================================== */}
 
       <section className="hero">
-
         <div className="hero-content">
 
-        
-  <h1>
-  <span style={{ color: "#5C5B5B" }}>
-    Find your balance,
-  </span>
-  <span> anytime, anywhere.</span>
-</h1>
+          <h1>
+            Find your balance,
+            <span> anytime, anywhere.</span>
+          </h1>
 
-<p style={{ color: "#666666" }}>
-  Welcome to your dedicated Employee Health and Wellness
-  space where you can discover wellness resources,
-  webinars and support whenever you need them.
-</p>
+          <p className="herop">
+            Explore wellness resources, helpful videos and
+            practical guidance to support your wellbeing.
+          </p>
 
         </div>
-
       </section>
 
-      {/* ================= TOP SECTION ================= */}
+      {/* =====================================================
+          TOP SECTION
+      ===================================================== */}
 
       <section className="top-section">
 
-        {/* CONTACT CARD */}
+        <div className="contact-card">
 
-        <div className="contact-card hover-shadow transition">
-
-          <h2 style={{ color: "#5C5B5B" }}>
-            Lyra Contact Details
+          <h2>
+            Need someone to talk to?
           </h2>
 
           <div className="contact-item">
-
-            <div className="contact-icon">
+            <span>
               <FaPhoneAlt />
-            </div>
+            </span>
 
             <div>
+              <small>
+                Phone
+              </small>
 
-              <small>Phone Support</small>
-
-              <h3 style={{ color: "#5C5B5B" }}>
-                1-800-LYRA-HELP
-              </h3>
-
-            </div>
-
-          </div>
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              <FaEnvelope />
-            </div>
-
-            <div>
-
-              <small>Email</small>
-
-              <h3 style={{ color: "#5C5B5B" }}>
-                support@lyrahealth.com
-              </h3>
-
-            </div>
-
-          </div>
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              <FaGlobe />
-            </div>
-
-            <div>
-
-              <small>Website</small>
-
-              <a
-                href="https://www.lyrahealth.com"
-                target="_blank"
-                rel="noreferrer"
-              >
-                www.lyrahealth.com
+              <a href="tel:0800123456">
+                0800 123 456
               </a>
-
             </div>
+          </div>
 
+          <div className="contact-item">
+            <span>
+              <FaEnvelope />
+            </span>
+
+            <div>
+              <small>
+                Email
+              </small>
+
+              <a href="mailto:support@lyrahealth.com">
+                support@lyrahealth.com
+              </a>
+            </div>
+          </div>
+
+          <div className="contact-item">
+            <span>
+              <FaGlobe />
+            </span>
+
+            <div>
+              <small>
+                Support
+              </small>
+
+              <a href="#">
+                Online Wellness Support
+              </a>
+            </div>
           </div>
 
         </div>
 
       </section>
 
-      {/* ================= WEBINAR LIBRARY ================= */}
+      {/* =====================================================
+          WEBINAR LIBRARY
+      ===================================================== */}
 
       <section className="library">
 
         <div className="library-top">
 
           <div>
-
-            <h2 style={{ color: "#5C5B5B" }}>
+            <h2>
               Webinar Library
             </h2>
 
-            <p style= {{color: "#666666"}}
->              Browse all employee wellness webinars.
+            <p>
+              Watch wellness videos and learn practical ways
+              to look after yourself.
             </p>
-
           </div>
 
           <div className="library-actions">
 
             <input
               type="text"
-              className="search-input transition"
-              placeholder="Search webinars..."
+              className="search-input"
+              placeholder="Search wellness videos..."
               value={searchTerm}
-              onChange={(e) =>
-                setSearchTerm(e.target.value)
+              onChange={(event) =>
+                setSearchTerm(
+                  event.target.value
+                )
               }
             />
 
@@ -218,48 +364,52 @@ const loadVideos = async () => {
 
         </div>
 
+        {/* ===================================================
+            CATEGORY BUTTONS
+        =================================================== */}
+
         <div className="category-buttons">
 
           {categories.map((category) => (
-
             <button
               key={category}
-              className={
+              type="button"
+              className={`category-btn ${
                 selectedCategory === category
-                  ? "category-btn active transition"
-                  : "category-btn transition"
-              }
+                  ? "active"
+                  : ""
+              }`}
               onClick={() =>
                 setSelectedCategory(category)
               }
             >
               {category}
             </button>
-
           ))}
 
         </div>
 
-                <div className="video-grid">
+        {/* ===================================================
+            VIDEO GRID
+        =================================================== */}
+
+        <div className="video-grid">
 
           {filteredVideos.length > 0 ? (
 
             filteredVideos.map((video) => (
 
-              <div
-                className="video-card hover-shadow transition"
+              <article
                 key={video.id}
+                className="video-card"
               >
 
-                {/* Thumbnail */}
+                {/* THUMBNAIL */}
 
                 <div className="thumbnail">
 
                   <img
-                    src={
-                      video.thumbnail ||
-                      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900"
-                    }
+                    src={video.thumbnail}
                     alt={video.title}
                   />
 
@@ -270,36 +420,44 @@ const loadVideos = async () => {
                   )}
 
                   <button
+                    type="button"
                     className="play-button"
-                    onClick={() => openVideo(video)}
+                    onClick={() =>
+                      openVideo(video)
+                    }
+                    aria-label={`Play ${video.title}`}
                   >
-                    <FaPlay />
+                    <span>
+                      <FaPlay />
+                    </span>
                   </button>
 
                 </div>
 
-                {/* Content */}
+                {/* CARD CONTENT */}
 
                 <div className="video-content">
 
                   <h3>
-                    {video.title || "Untitled Webinar"}
+                    {video.title}
                   </h3>
 
                   <p>
-                    {video.description ||
-                      "No description available."}
+                    {video.description}
                   </p>
 
                   <div className="video-footer">
 
-                    <span className="duration">
-                      {video.duration || "--"}
+                    <span>
+                      {video.duration}
                     </span>
 
                     <button
+                      type="button"
                       className="watch-btn"
-                      onClick={() => openVideo(video)}
+                      onClick={() =>
+                        openVideo(video)
+                      }
                     >
                       Watch Now
                     </button>
@@ -308,7 +466,7 @@ const loadVideos = async () => {
 
                 </div>
 
-              </div>
+              </article>
 
             ))
 
@@ -316,10 +474,13 @@ const loadVideos = async () => {
 
             <div className="empty-state">
 
-              <h2>No webinars found</h2>
+              <h2>
+                No wellness videos found
+              </h2>
 
               <p>
-                Try another search or check back later for new content.
+                Try another search term or
+                category.
               </p>
 
             </div>
@@ -330,9 +491,12 @@ const loadVideos = async () => {
 
       </section>
 
-            {/* ================= VIDEO MODAL ================= */}
+      {/* =====================================================
+          VIDEO MODAL
+      ===================================================== */}
 
       {selectedVideo && (
+
         <div
           className="video-modal"
           onClick={closeVideo}
@@ -340,29 +504,42 @@ const loadVideos = async () => {
 
           <div
             className="video-container"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
 
             <button
+              type="button"
               className="close-btn2"
               onClick={closeVideo}
+              aria-label="Close video"
             >
-              ✕
+              ×
             </button>
 
+            {/* VIDEO */}
+
             <video
+              className="video-player"
               controls
               autoPlay
-              className="video-player"
             >
+
               <source
                 src={selectedVideo.video}
-                type="video/mp4"
+                type={
+                  selectedVideo.videoType ||
+                  "video/mp4"
+                }
               />
 
-              Your browser does not support the video tag.
+              Your browser does not support
+              the video element.
 
             </video>
+
+            {/* DETAILS */}
 
             <div className="video-details">
 
@@ -377,7 +554,7 @@ const loadVideos = async () => {
               <div className="video-info">
 
                 <span>
-                  Duration: {selectedVideo.duration || "--"}
+                  {selectedVideo.duration}
                 </span>
 
                 <span className="category">
@@ -391,10 +568,9 @@ const loadVideos = async () => {
           </div>
 
         </div>
+
       )}
 
     </div>
   );
 }
-
-export default Wellness;

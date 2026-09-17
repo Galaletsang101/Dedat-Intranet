@@ -95,9 +95,6 @@ p {
     max-width: 850px;
 }
 
-.hero h1 {
-    
-}
 
 .hero h1 span {
     color: #d85f06;
@@ -181,9 +178,7 @@ p {
     margin-bottom: 8px;
 }
 
-.library-top p {
-    
-}
+
 
 .library-actions {
     display: flex;

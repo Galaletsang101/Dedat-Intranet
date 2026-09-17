@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { getPolicies } from "../services/policiesService";
 import "../styles/policies.css";
 
 /*
@@ -7,7 +8,7 @@ import "../styles/policies.css";
 |--------------------------------------------------------------------------
 */
 
-const docs = [
+const DEFAULT_DOCS = [
   {
     id: 1,
     title: "Recruitment and Selection Policy",
@@ -250,7 +251,6 @@ const docs = [
   },
 ];
 
-
 /*
 |--------------------------------------------------------------------------
 | PROGRAMMES
@@ -267,7 +267,6 @@ const programmes = [
   "Economic Planning",
   "Tourism",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -289,7 +288,6 @@ const documentTypes = [
   "Form",
   "Report",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -342,7 +340,6 @@ const subProgrammes = {
   ],
 };
 
-
 /*
 |--------------------------------------------------------------------------
 | POLICIES COMPONENT
@@ -350,6 +347,19 @@ const subProgrammes = {
 */
 
 function Policies() {
+  /*
+  |--------------------------------------------------------------------------
+  | PUBLISHED ADMIN DOCUMENTS
+  |--------------------------------------------------------------------------
+  */
+
+  const [publishedDocs, setPublishedDocs] = useState([]);
+
+  /*
+  |--------------------------------------------------------------------------
+  | FILTERS
+  |--------------------------------------------------------------------------
+  */
 
   const [programmeFilter, setProgrammeFilter] =
     useState("All");
@@ -374,6 +384,94 @@ function Policies() {
 
   const documentsPerPage = 10;
 
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD PUBLISHED POLICIES
+  |--------------------------------------------------------------------------
+  */
+
+  const loadPublishedPolicies = async () => {
+    try {
+      const policyRows = await getPolicies();
+
+      const policies = Array.isArray(policyRows)
+        ? policyRows
+            .filter((item) => item && item.title)
+            .map((item) => {
+              const publishedDate = item.publication_date
+                ? new Date(`${item.publication_date}T00:00:00`)
+                : null;
+
+              const formattedDate =
+                publishedDate && !Number.isNaN(publishedDate.getTime())
+                  ? publishedDate.toLocaleDateString("en-ZA", {
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Current";
+
+              return {
+                id: item.id,
+                title: item.title || "Untitled Policy",
+                programme: "Administration",
+                subProgramme: item.category || "General",
+                type: "Policy",
+                version: item.version_number || "Current",
+                date: formattedDate,
+                status: item.status || "Published",
+                description: item.description || "Official departmental policy document.",
+                keywords: `${item.title || ""} ${item.description || ""} ${item.category || ""} ${item.policy_number || ""} policy policies departmental document`,
+                size: "PDF",
+                path: item.file_url || "",
+              };
+            })
+        : [];
+
+      setPublishedDocs(policies);
+    } catch (error) {
+      console.error("Failed to load published policies:", error);
+      setPublishedDocs([]);
+    }
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD ON PAGE OPEN
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    loadPublishedPolicies();
+
+    const handleStorageChange = () => {
+      loadPublishedPolicies();
+    };
+
+    window.addEventListener(
+      "storage",
+      handleStorageChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        "storage",
+        handleStorageChange
+      );
+    };
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
+  | COMBINE DEFAULT + PUBLISHED
+  |--------------------------------------------------------------------------
+  */
+
+  const allDocuments = useMemo(() => {
+    return [
+      ...publishedDocs,
+      ...DEFAULT_DOCS,
+    ];
+  }, [publishedDocs]);
 
   /*
   |--------------------------------------------------------------------------
@@ -382,15 +480,12 @@ function Policies() {
   */
 
   const availableSubProgrammes = useMemo(() => {
-
     if (programmeFilter === "All") {
       return [];
     }
 
     return subProgrammes[programmeFilter] || [];
-
   }, [programmeFilter]);
-
 
   /*
   |--------------------------------------------------------------------------
@@ -399,26 +494,22 @@ function Policies() {
   */
 
   const filteredDocs = useMemo(() => {
-
     const query =
       searchTerm.trim().toLowerCase();
 
-    return docs.filter((document) => {
-
+    return allDocuments.filter((document) => {
       const matchesProgramme =
         programmeFilter === "All" ||
         document.programme === programmeFilter;
 
-
       const matchesSubProgramme =
         subProgrammeFilter === "All" ||
-        document.subProgramme === subProgrammeFilter;
-
+        document.subProgramme ===
+          subProgrammeFilter;
 
       const matchesType =
         typeFilter === "All" ||
         document.type === typeFilter;
-
 
       const searchableText = `
         ${document.title}
@@ -429,11 +520,9 @@ function Policies() {
         ${document.keywords}
       `.toLowerCase();
 
-
       const matchesSearch =
         query.length === 0 ||
         searchableText.includes(query);
-
 
       return (
         matchesProgramme &&
@@ -441,43 +530,38 @@ function Policies() {
         matchesType &&
         matchesSearch
       );
-
     });
-
   }, [
+    allDocuments,
     programmeFilter,
     subProgrammeFilter,
     typeFilter,
     searchTerm,
   ]);
 
-
   /*
   |--------------------------------------------------------------------------
-  | PAGINATION CALCULATIONS
+  | PAGINATION
   |--------------------------------------------------------------------------
   */
 
   const totalPages = Math.ceil(
-    filteredDocs.length / documentsPerPage
+    filteredDocs.length /
+      documentsPerPage
   );
-
 
   const startIndex =
     (currentPage - 1) *
     documentsPerPage;
 
-
   const endIndex =
     startIndex + documentsPerPage;
-
 
   const currentDocuments =
     filteredDocs.slice(
       startIndex,
       endIndex
     );
-
 
   /*
   |--------------------------------------------------------------------------
@@ -486,7 +570,6 @@ function Policies() {
   */
 
   function handleProgrammeChange(event) {
-
     const selectedProgramme =
       event.target.value;
 
@@ -495,10 +578,8 @@ function Policies() {
     );
 
     setSubProgrammeFilter("All");
-
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -507,14 +588,12 @@ function Policies() {
   */
 
   function handleSearchChange(event) {
-
     setSearchTerm(
       event.target.value
     );
 
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -523,14 +602,12 @@ function Policies() {
   */
 
   function handleTypeChange(event) {
-
     setTypeFilter(
       event.target.value
     );
 
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -539,14 +616,12 @@ function Policies() {
   */
 
   function handleSubProgrammeChange(event) {
-
     setSubProgrammeFilter(
       event.target.value
     );
 
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -555,14 +630,17 @@ function Policies() {
   */
 
   function handleView(path) {
+    if (!path) {
+      alert("PDF is not available.");
+      return;
+    }
 
     window.open(
       path,
-      "_blank"
+      "_blank",
+      "noopener,noreferrer"
     );
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -574,6 +652,10 @@ function Policies() {
     path,
     title
   ) {
+    if (!path) {
+      alert("PDF is not available.");
+      return;
+    }
 
     const link =
       document.createElement("a");
@@ -581,16 +663,14 @@ function Policies() {
     link.href = path;
 
     link.download =
-      `${title}.pdf`;
+      `${title || "document"}.pdf`;
 
     document.body.appendChild(link);
 
     link.click();
 
     link.remove();
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -599,19 +679,12 @@ function Policies() {
   */
 
   function clearFilters() {
-
     setProgrammeFilter("All");
-
     setSubProgrammeFilter("All");
-
     setTypeFilter("All");
-
     setSearchTerm("");
-
     setCurrentPage(1);
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -620,16 +693,13 @@ function Policies() {
   */
 
   function goToPage(page) {
-
     setCurrentPage(page);
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -638,9 +708,7 @@ function Policies() {
   */
 
   return (
-
     <div className="policies-page">
-
 
       {/* =====================================================
           HEADER
@@ -649,42 +717,39 @@ function Policies() {
       <div className="list-header">
 
         <div>
-  <h3
-    style={{
-      color: "var(--primary, #d85f06)",
-      fontSize: "2rem",
-      fontWeight: "700",
-      marginBottom: "0.5rem",
-    }}
-  >
-    Department Policies
-  </h3>
+          <h3
+            style={{
+              color: "var(--primary, #d85f06)",
+              fontSize: "2rem",
+              fontWeight: "700",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Department Policies
+          </h3>
 
-  <p
-    style={{
-      color: "#5c5b5b",
-      fontSize: "1rem",
-      lineHeight: "1.6",
-      margin: 0,
-    }}
-  >
-    Access departmental policies, legislation, strategies, guidelines,
-    procedures, templates and reports.
-  </p>
-</div>
+          <p
+            style={{
+              color: "#5c5b5b",
+              fontSize: "1rem",
+              lineHeight: "1.6",
+              margin: 0,
+            }}
+          >
+            Access departmental policies,
+            legislation, strategies, guidelines,
+            procedures, templates and reports.
+          </p>
+        </div>
 
         <span className="muted">
-
           {filteredDocs.length}{" "}
-
           {filteredDocs.length === 1
             ? "Document"
             : "Documents"}
-
         </span>
 
       </div>
-
 
       {/* =====================================================
           SEARCH
@@ -702,13 +767,11 @@ function Policies() {
 
       </div>
 
-
       {/* =====================================================
           FILTERS
       ===================================================== */}
 
       <div className="policies-filter-section">
-
 
         {/* PROGRAMME */}
 
@@ -723,24 +786,19 @@ function Policies() {
             value={programmeFilter}
             onChange={handleProgrammeChange}
           >
-
             {programmes.map(
               (programme) => (
-
                 <option
                   key={programme}
                   value={programme}
                 >
                   {programme}
                 </option>
-
               )
             )}
-
           </select>
 
         </div>
-
 
         {/* SUB-PROGRAMME */}
 
@@ -753,7 +811,9 @@ function Policies() {
           <select
             id="subProgramme"
             value={subProgrammeFilter}
-            onChange={handleSubProgrammeChange}
+            onChange={
+              handleSubProgrammeChange
+            }
             disabled={
               programmeFilter === "All"
             }
@@ -765,21 +825,18 @@ function Policies() {
 
             {availableSubProgrammes.map(
               (subProgramme) => (
-
                 <option
                   key={subProgramme}
                   value={subProgramme}
                 >
                   {subProgramme}
                 </option>
-
               )
             )}
 
           </select>
 
         </div>
-
 
         {/* DOCUMENT TYPE */}
 
@@ -797,21 +854,18 @@ function Policies() {
 
             {documentTypes.map(
               (type) => (
-
                 <option
                   key={type}
                   value={type}
                 >
                   {type}
                 </option>
-
               )
             )}
 
           </select>
 
         </div>
-
 
         {/* CLEAR FILTERS */}
 
@@ -824,7 +878,6 @@ function Policies() {
 
       </div>
 
-
       {/* =====================================================
           RESULTS COUNT
       ===================================================== */}
@@ -832,9 +885,7 @@ function Policies() {
       <div className="policies-results-header">
 
         <span>
-
           Showing{" "}
-
           <strong>
             {filteredDocs.length === 0
               ? 0
@@ -861,11 +912,9 @@ function Policies() {
           {filteredDocs.length === 1
             ? "document"
             : "documents"}
-
         </span>
 
       </div>
-
 
       {/* =====================================================
           DOCUMENT LIST
@@ -873,10 +922,7 @@ function Policies() {
 
       <div className="policies-list">
 
-
         {currentDocuments.length === 0 ? (
-
-          /* EMPTY STATE */
 
           <div className="empty-state">
 
@@ -889,8 +935,8 @@ function Policies() {
             </h3>
 
             <p>
-              No policies or documents match your
-              current search and filters.
+              No policies or documents match
+              your current search and filters.
             </p>
 
             <button
@@ -904,8 +950,6 @@ function Policies() {
 
         ) : (
 
-          /* DOCUMENT CARDS */
-
           currentDocuments.map(
             (document) => (
 
@@ -913,7 +957,6 @@ function Policies() {
                 key={document.id}
                 className="doc-card"
               >
-
 
                 {/* PDF ICON */}
 
@@ -925,7 +968,6 @@ function Policies() {
 
                 </div>
 
-
                 {/* DOCUMENT INFORMATION */}
 
                 <div className="doc-body">
@@ -933,7 +975,6 @@ function Policies() {
                   <div className="doc-title">
                     {document.title}
                   </div>
-
 
                   <div className="doc-unit">
 
@@ -947,7 +988,6 @@ function Policies() {
 
                   </div>
 
-
                   <div className="doc-meta">
 
                     <span className="document-type">
@@ -955,11 +995,13 @@ function Policies() {
                     </span>
 
                     <span>
-                      Version {document.version}
+                      Version{" "}
+                      {document.version}
                     </span>
 
                     <span>
-                      Updated {document.date}
+                      Updated{" "}
+                      {document.date}
                     </span>
 
                     <span>
@@ -968,11 +1010,9 @@ function Policies() {
 
                   </div>
 
-
                   <div className="doc-summary">
                     {document.description}
                   </div>
-
 
                   <div className="doc-status">
 
@@ -983,7 +1023,6 @@ function Policies() {
                   </div>
 
                 </div>
-
 
                 {/* ACTION BUTTONS */}
 
@@ -999,7 +1038,6 @@ function Policies() {
                   >
                     View
                   </button>
-
 
                   <button
                     className="download"
@@ -1024,7 +1062,6 @@ function Policies() {
 
       </div>
 
-
       {/* =====================================================
           PAGINATION
       ===================================================== */}
@@ -1033,12 +1070,11 @@ function Policies() {
 
         <div className="policies-pagination">
 
-
-          {/* PREVIOUS */}
-
           <button
             className="pagination-button"
-            disabled={currentPage === 1}
+            disabled={
+              currentPage === 1
+            }
             onClick={() =>
               goToPage(
                 currentPage - 1
@@ -1047,9 +1083,6 @@ function Policies() {
           >
             Previous
           </button>
-
-
-          {/* PAGE NUMBERS */}
 
           <div className="pagination-numbers">
 
@@ -1081,9 +1114,6 @@ function Policies() {
 
           </div>
 
-
-          {/* NEXT */}
-
           <button
             className="pagination-button"
             disabled={
@@ -1098,16 +1128,12 @@ function Policies() {
             Next
           </button>
 
-
         </div>
 
       )}
 
     </div>
-
   );
-
 }
-
 
 export default Policies;
