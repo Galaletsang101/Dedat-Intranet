@@ -1,13 +1,6 @@
 import { useState } from "react";
 import "../styles/calendar.css";
 import { holidays } from "../data/holidays";
-import { db } from "../firebase/firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
 
 import { useEffect } from "react";
 
@@ -50,16 +43,33 @@ useEffect(() => {
 
 const loadEvents = async () => {
   try {
-    const snapshot = await getDocs(collection(db, "calendarEvents"));
+    const response = await fetch("http://localhost:5000/api/calendar-events");
 
-    const loadedEvents = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    if (!response.ok) {
+      throw new Error("Failed to fetch calendar events");
+    }
+
+    const data = await response.json();
+
+    const loadedEvents = data.map((event) => {
+      const startDate = new Date(event.start_time);
+      const endDate = event.end_time ? new Date(event.end_time) : null;
+
+      return {
+        id: event.id,
+        date: startDate.toISOString().split("T")[0],
+        title: event.title,
+        description: event.description || "",
+        time: startDate.toTimeString().slice(0, 5),
+        endTime: endDate ? endDate.toTimeString().slice(0, 5) : "",
+        category: event.category,
+        quarter: event.quarter,
+      };
+    });
 
     setEvents(loadedEvents);
   } catch (error) {
-    console.log(error);
+    console.error("Error loading calendar events:", error);
   }
 };
 
@@ -152,91 +162,91 @@ setCurrentDate(new Date());
 
 
 const openEventModal = (day) => {
+  const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
+  setSelectedDate(date);
 
-const date =
-
-`${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-
-
-setSelectedDate(date);
-
-
-setEventData({
+  setEventData({
     title: "",
     description: "",
     time: "",
     endTime: "",
-    category: "Meeting",
+    category: "Boardroom",
     quarter: "Q1",
-});
+  });
 
-
-setShowModal(true);
-
-
+  setShowModal(true);
 };
 
 
 
 
 const saveEvent = async () => {
-  if (
-    !eventData.title ||
-    !eventData.time ||
-    (eventData.category === "Boardroom" && !eventData.endTime)
-  ) {
-    alert("Please complete event details");
+  if (!eventData.title || !eventData.time || !eventData.endTime) {
+    alert("Please complete all boardroom booking details");
     return;
   }
 
+  try {
+    const startTime = `${selectedDate} ${eventData.time}:00`;
+    const endTime = `${selectedDate} ${eventData.endTime}:00`;
 
+    const response = await fetch("http://localhost:5000/api/calendar-events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: eventData.title,
+        description: eventData.description,
+        start_time: startTime,
+        end_time: endTime,
+        category: "Boardroom",
+        quarter: eventData.quarter,
+      }),
+    });
 
+    if (!response.ok) {
+      throw new Error("Failed to save boardroom booking");
+    }
 
-const newEvent = {
+    const savedEvent = await response.json();
 
+    const startDate = new Date(savedEvent.start_time);
+    const endDate = savedEvent.end_time
+      ? new Date(savedEvent.end_time)
+      : null;
 
-date:selectedDate,
+    const newEvent = {
+      id: savedEvent.id,
+      date: startDate.toISOString().split("T")[0],
+      title: savedEvent.title,
+      description: savedEvent.description || "",
+      time: startDate.toTimeString().slice(0, 5),
+      endTime: endDate ? endDate.toTimeString().slice(0, 5) : "",
+      category: savedEvent.category,
+      quarter: savedEvent.quarter,
+    };
 
-title:eventData.title,
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
 
-time:eventData.time,
+    setEventData({
+      title: "",
+      description: "",
+      time: "",
+      endTime: "",
+      category: "Boardroom",
+      quarter: "Q1",
+    });
 
-endTime:eventData.endTime,
+    setShowModal(false);
 
-category:eventData.category
-
-
+    alert("Boardroom booked successfully");
+  } catch (error) {
+    console.error("Error saving boardroom booking:", error);
+    alert("Failed to save boardroom booking");
+  }
 };
-
-
-setEvents(prevEvents => [
-
-...prevEvents,
-
-newEvent
-
-]);
-
-
-
-
-setEventData({
-
-title:"",
-time:"",
-category:"Meeting"
-
-});
-
-
-
-setShowModal(false);
-
-
-};
-
-
 
 
 
@@ -738,246 +748,69 @@ days.map((day)=>(
 
 
 
-{
-
-showModal && (
-
-
-
-<div className="modal-overlay">
-
-
-
-<div className="event-modal">
-
-
-
-
-
-<h2>
-
-Add Event
-
-</h2>
-
-
-
-
-
-
-
-
-<select
-
-value={eventData.category}
-
-onChange={(e)=>
-
-setEventData({
-
-...eventData,
-
-category:e.target.value
-
-})
-
-
-}
-
->
-
-
-
-
-
-<option>
-
-Meeting
-
-</option>
-
-
-
-
-<option>
-
-Training
-
-</option>
-
-
-
-
-<option>
-
-Leave
-
-</option>
-
-
-
-
-<option>
-
-Deadline
-
-</option>
-
-<option>
-Boardroom
-</option>
-
-
-</select>
-
-
-
-
-
-
-
-
-
-<input
-
-type="text"
-
-placeholder="Event title"
-
-
-value={eventData.title}
-
-
-onChange={(e)=>
-
-setEventData({
-
-...eventData,
-
-title:e.target.value
-
-})
-
-
-}
-
-
-/>
-
-<textarea
-  placeholder="Event Description"
-  value={eventData.description}
-  onChange={(e) =>
-    setEventData({
-      ...eventData,
-      description: e.target.value,
-    })
-  }
-/>
-
-{
-eventData.category === "Boardroom" && (
-
-<input
-
-type="time"
-
-value={eventData.endTime}
-
-onChange={(e)=>
-
-setEventData({
-
-...eventData,
-
-endTime:e.target.value
-
-})
-
-}
-
-placeholder="End Time"
-
-/>
-
-)
-}
-
-
-
-
-
-
-<input
-
-type="time"
-
-value={eventData.time}
-
-
-onChange={(e)=>
-
-setEventData({
-
-...eventData,
-
-time:e.target.value
-
-})
-
-
-}
-
-
-/>
-
-
-
-
-
-
-
-
-<button onClick={saveEvent}>
-
-Save Event
-
-</button>
-
-
-
-
-
-
-
-<button
-
-className="close-btn"
-
-onClick={()=>setShowModal(false)}
-
->
-
-Cancel
-
-</button>
-
-
-
-
-
-
-
-</div>
-
-
-</div>
-
-
-)
-
-
-}
+{showModal && (
+  <div className="modal-overlay">
+    <div className="event-modal">
+      <h2>Book Boardroom</h2>
+
+      <input
+        type="text"
+        placeholder="Booking title"
+        value={eventData.title}
+        onChange={(e) =>
+          setEventData({
+            ...eventData,
+            title: e.target.value,
+          })
+        }
+      />
+
+      <textarea
+        placeholder="Booking description"
+        value={eventData.description}
+        onChange={(e) =>
+          setEventData({
+            ...eventData,
+            description: e.target.value,
+          })
+        }
+      />
+
+      <label>Start Time</label>
+      <input
+        type="time"
+        value={eventData.time}
+        onChange={(e) =>
+          setEventData({
+            ...eventData,
+            time: e.target.value,
+          })
+        }
+      />
+
+      <label>End Time</label>
+      <input
+        type="time"
+        value={eventData.endTime}
+        onChange={(e) =>
+          setEventData({
+            ...eventData,
+            endTime: e.target.value,
+          })
+        }
+      />
+
+      <button onClick={saveEvent}>Book Boardroom</button>
+
+      <button
+        className="close-btn"
+        onClick={() => setShowModal(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
 
 
 

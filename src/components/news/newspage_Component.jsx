@@ -25,66 +25,86 @@ const newsletters = [
 
 const categories = ['All', 'News', 'Circulars', 'Events', 'Training'];
 
-const circulars = [
-  {
-    id: 1,
-    title: "Circular 04 of 2024: Revised Travel & Subsistence Policy",
-    description: "Effective from Feb 1st, 2024. Mandatory for all departmental travel claims.",
-    date: "Jan 10, 2024"
-  },
-  {
-    id: 2,
-    title: "Gazette 112: Economic Development Amendments",
-    description: "Key changes to provincial tender evaluation criteria for SME support.",
-    date: "Jan 8, 2024"
-  }
-];
 
 const NewsPage = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [newsItems, setNewsItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+const [activeCategory, setActiveCategory] = useState('All');
+const [newsItems, setNewsItems] = useState([]);
+const [circulars, setCirculars] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/news');
+ useEffect(() => {
+  const fetchNewsAndCirculars = async () => {
+    try {
+      // Fetch News
+      const newsResponse = await fetch(
+        'http://localhost:5000/api/news'
+      );
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch news');
-        }
-
-        const data = await response.json();
-
-
-const formattedNews = data.map((item, index) => ({
-  id: item.id,
-  title: item.title,
-  excerpt: item.description,
-  content: item.content,
-  category: 'News',
-  date: new Date(item.publish_date).toLocaleDateString('en-ZA', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }),
-  readTime: '5 min read',
-  image: item.image_url,
-  isFeatured: index === 0
-}));
-
-        setNewsItems(formattedNews);
-      } catch (err) {
-        console.error('Error loading news:', err);
-        setError('Unable to load news.');
-      } finally {
-        setLoading(false);
+      if (!newsResponse.ok) {
+        throw new Error('Failed to fetch news');
       }
-    };
 
-    fetchNews();
-  }, []);
+      const newsData = await newsResponse.json();
+
+      const formattedNews = newsData.map((item, index) => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.description,
+        content: item.content,
+        category: 'News',
+        date: new Date(item.publish_date).toLocaleDateString('en-ZA', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }),
+        readTime: '5 min read',
+        image: item.image_url,
+        isFeatured: index === 0
+      }));
+
+      setNewsItems(formattedNews);
+
+
+      // Fetch Circulus
+      const circularsResponse = await fetch(
+        'http://localhost:5000/api/circulus'
+      );
+
+      if (!circularsResponse.ok) {
+        throw new Error('Failed to fetch circulars');
+      }
+
+      const circularsData = await circularsResponse.json();
+
+      const formattedCirculars = circularsData.map((item) => ({
+        id: item.id,
+        title: item.tittle,
+        description: item.description,
+        date: item.date_published
+          ? new Date(item.date_published).toLocaleDateString('en-ZA', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })
+          : 'No date',
+        circularNumber: item.circulus_number,
+        author: item.author,
+        fileUrl: item.file_url
+      }));
+
+      setCirculars(formattedCirculars);
+
+    } catch (err) {
+      console.error('Error loading news and circulars:', err);
+      setError('Unable to load news and circulars.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchNewsAndCirculars();
+}, []);
 
   const getCategoryColor = (category) => {
     switch (category) {
@@ -213,23 +233,61 @@ if (error) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {circulars.map(circ => (
-                    <div key={circ.id} className="circular-item">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="d-flex align-items-center justify-content-center">
-                          <FaFileAlt  />
-                        </div>
-                        <div>
-                          <h6 className="circular-title">{circ.title}</h6>
-                          <p className="circular-meta">{circ.description}</p>
-                        </div>
-                      </div>
-                      <div className="d-flex gap-2 flex-shrink-0">
-                        <button className="btn btn-sm btn-outline-primary">View Summary</button>
-                        <button className="btn btn-sm btn-primary"><FaDownload className="me-1" /> PDF</button>
-                      </div>
-                    </div>
-                  ))}
+                  {circulars.length === 0 ? (
+  <p className="text-muted">No circulars available.</p>
+) : (
+  circulars.map(circ => (
+    <div key={circ.id} className="circular-item">
+      <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center justify-content-center">
+          <FaFileAlt />
+        </div>
+
+        <div>
+          <h6 className="circular-title">
+            {circ.title}
+          </h6>
+
+          <p className="circular-meta">
+            {circ.description}
+          </p>
+
+          <small className="text-muted">
+            {circ.circularNumber && `${circ.circularNumber} • `}
+            {circ.date}
+          </small>
+        </div>
+      </div>
+
+      <div className="d-flex gap-2 flex-shrink-0">
+
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => {
+            if (circ.fileUrl) {
+              window.open(circ.fileUrl, '_blank');
+            }
+          }}
+        >
+          View Summary
+        </button>
+
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => {
+            if (circ.fileUrl) {
+              window.open(circ.fileUrl, '_blank');
+            }
+          }}
+        >
+          <FaDownload className="me-1" />
+          PDF
+        </button>
+
+      </div>
+    </div>
+  ))
+)}
                 </div>
               </div>
 

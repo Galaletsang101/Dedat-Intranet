@@ -1,254 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "../styles/policies.css";
 
-/*
-|--------------------------------------------------------------------------
-| TEST DOCUMENT DATA
-|--------------------------------------------------------------------------
-*/
-
-const docs = [
-  {
-    id: 1,
-    title: "Recruitment and Selection Policy",
-    programme: "Corporate Services",
-    subProgramme: "Human Resource Administration",
-    type: "Policy",
-    version: "2026",
-    date: "Aug 2026",
-    status: "Approved",
-    description:
-      "Policy governing recruitment and selection of departmental employees.",
-    keywords: "recruitment selection HR employees hiring",
-    size: "2.4 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 2,
-    title: "Risk Management Policy",
-    programme: "Administration",
-    subProgramme: "Risk Management",
-    type: "Policy",
-    version: "2026",
-    date: "Aug 2026",
-    status: "Approved",
-    description:
-      "Policy providing the framework for identifying, assessing and managing departmental risks.",
-    keywords: "risk management ERM risk register",
-    size: "1.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 3,
-    title: "Employee Health and Wellness Policy",
-    programme: "Corporate Services",
-    subProgramme: "Employee Health and Wellness",
-    type: "Policy",
-    version: "2026",
-    date: "Jul 2026",
-    status: "Approved",
-    description:
-      "Guidance relating to employee health, wellness and workplace wellbeing.",
-    keywords: "employee wellness health EHW diversity",
-    size: "1.6 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 4,
-    title: "Code of Conduct for the Public Service",
-    programme: "Corporate Services",
-    subProgramme: "Labour Relations",
-    type: "Guideline",
-    version: "2026",
-    date: "Jul 2026",
-    status: "Approved",
-    description:
-      "Guidelines relating to ethical conduct and responsibilities of public service employees.",
-    keywords: "code conduct ethics employees public service",
-    size: "1.2 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 5,
-    title: "Consumer Protection Act",
-    programme: "Consumer Protection and Business Regulation",
-    subProgramme: "Consumer Protection",
-    type: "Act / Legislation",
-    version: "Current",
-    date: "2026",
-    status: "Approved",
-    description:
-      "Legislation relating to consumer protection and consumer rights.",
-    keywords: "consumer protection legislation consumers complaints",
-    size: "3.1 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 6,
-    title: "Consumer Complaint Lodging Form",
-    programme: "Consumer Protection and Business Regulation",
-    subProgramme: "Consumer Protection",
-    type: "Form",
-    version: "2026",
-    date: "Jun 2026",
-    status: "Approved",
-    description:
-      "Official form for lodging a consumer complaint with the department.",
-    keywords: "consumer complaint form complaint lodging",
-    size: "650 KB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 7,
-    title: "Northern Cape Manufacturing Strategy",
-    programme: "Trade and Sector Development",
-    subProgramme: "Sector Development",
-    type: "Strategy",
-    version: "2026",
-    date: "Jun 2026",
-    status: "Approved",
-    description:
-      "Strategy supporting manufacturing and industrial development in the Northern Cape.",
-    keywords: "manufacturing industry sector development",
-    size: "4.2 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 8,
-    title: "Investment Opportunity Framework",
-    programme: "Trade and Sector Development",
-    subProgramme: "Trade and Investment Promotion",
-    type: "Framework",
-    version: "2026",
-    date: "May 2026",
-    status: "Approved",
-    description:
-      "Framework supporting trade and investment promotion opportunities in the province.",
-    keywords: "investment trade business exporters opportunities",
-    size: "2.7 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 9,
-    title: "Local Economic Development Strategy",
-    programme: "Integrated Economic Development Services",
-    subProgramme: "Regional and Local Economic Development",
-    type: "Strategy",
-    version: "2026",
-    date: "May 2026",
-    status: "Approved",
-    description:
-      "Strategy supporting local economic development and inclusive economic participation.",
-    keywords: "LED local economic development economy",
-    size: "3.5 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 10,
-    title: "Red Tape Reduction Guidelines",
-    programme: "Integrated Economic Development Services",
-    subProgramme: "Regional and Local Economic Development",
-    type: "Guideline",
-    version: "2026",
-    date: "Apr 2026",
-    status: "Approved",
-    description:
-      "Guidelines for identifying and reducing unnecessary regulatory barriers affecting businesses.",
-    keywords: "red tape business regulation SMME",
-    size: "1.4 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 11,
-    title: "Economic Overview Report",
-    programme: "Economic Planning",
-    subProgramme: "Economic Research and Policy Development",
-    type: "Report",
-    version: "2026",
-    date: "Apr 2026",
-    status: "Approved",
-    description:
-      "Overview of economic conditions, trends and developments relevant to the Northern Cape.",
-    keywords: "economic overview economy research report",
-    size: "3.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 12,
-    title: "Digital Infrastructure Guidelines",
-    programme: "Economic Planning",
-    subProgramme: "Knowledge Economy Support",
-    type: "Guideline",
-    version: "2026",
-    date: "Mar 2026",
-    status: "Approved",
-    description:
-      "Guidelines supporting digital infrastructure and knowledge economy initiatives.",
-    keywords: "ICT digital broadband infrastructure technology",
-    size: "2.1 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 13,
-    title: "Tourism Enterprise Support Programme Guidelines",
-    programme: "Tourism",
-    subProgramme: "Tourism Development",
-    type: "Guideline",
-    version: "2026",
-    date: "Mar 2026",
-    status: "Approved",
-    description:
-      "Guidelines for tourism enterprises seeking departmental support.",
-    keywords: "tourism enterprise support grant business",
-    size: "2.9 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 14,
-    title: "Tourism Safety Guidelines",
-    programme: "Tourism",
-    subProgramme: "Tourism Growth",
-    type: "Guideline",
-    version: "2026",
-    date: "Feb 2026",
-    status: "Approved",
-    description:
-      "Guidelines supporting safe and responsible tourism activities.",
-    keywords: "tourism safety visitors tourists",
-    size: "1.7 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 15,
-    title: "Annual Performance Plan",
-    programme: "Administration",
-    subProgramme: "Strategic Management",
-    type: "Plan",
-    version: "2026/27",
-    date: "Feb 2026",
-    status: "Approved",
-    description:
-      "Annual departmental performance planning document outlining planned outputs and targets.",
-    keywords:
-      "APP annual performance plan strategic planning targets",
-    size: "4.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-];
 
 
 /*
@@ -259,15 +11,8 @@ const docs = [
 
 const programmes = [
   "All",
-  "Administration",
-  "Corporate Services",
-  "Integrated Economic Development Services",
-  "Trade and Sector Development",
-  "Consumer Protection and Business Regulation",
-  "Economic Planning",
-  "Tourism",
+  "General",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -350,6 +95,55 @@ const subProgrammes = {
 */
 
 function Policies() {
+
+  const [docs, setDocs] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
+useEffect(() => {
+  loadPolicies();
+}, []);
+
+const loadPolicies = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/api/policies");
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch policies");
+    }
+
+    const data = await response.json();
+
+    const formattedPolicies = data.map((policy) => ({
+      id: policy.id,
+      title: policy.title,
+      programme: policy.category || "General",
+      subProgramme: policy.author || "Department",
+      type: "Policy",
+      version: policy.version_number || "N/A",
+      date: policy.publication_date
+        ? new Date(policy.publication_date).toLocaleDateString("en-ZA", {
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A",
+      status: policy.status || "Unknown",
+      description: policy.description || "",
+      keywords: `${policy.title} ${policy.policy_number || ""} ${
+        policy.category || ""
+      } ${policy.author || ""}`,
+      size: "",
+      path: policy.file_url,
+    }));
+
+    setDocs(formattedPolicies);
+  } catch (error) {
+    console.error("Error loading policies:", error);
+    setError("Unable to load policies.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const [programmeFilter, setProgrammeFilter] =
     useState("All");
@@ -872,10 +666,20 @@ function Policies() {
       ===================================================== */}
 
       <div className="policies-list">
+        {loading && (
+  <div className="empty-state">
+    <h3>Loading policies...</h3>
+  </div>
+)}
+
+{error && !loading && (
+  <div className="empty-state">
+    <h3>{error}</h3>
+  </div>
+)}
 
 
-        {currentDocuments.length === 0 ? (
-
+        {!loading && !error && currentDocuments.length === 0 ? (
           /* EMPTY STATE */
 
           <div className="empty-state">
