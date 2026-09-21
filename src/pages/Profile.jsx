@@ -1,162 +1,106 @@
-import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 
-import { auth, db } from "../firebase/firebase";
+import { useState } from "react";
+
+import {
+    getCurrentUser,
+    updateProfile
+} from "../services/authService";
 
 import "../styles/profile.css";
 
 
-function Profile(){
+function Profile() {
 
-
-    const [profile, setProfile] = useState(null);
+    const [profile, setProfile] = useState(
+        getCurrentUser()
+    );
 
     const [editMode, setEditMode] = useState(false);
 
-    const [userId, setUserId] = useState(null);
 
-
-
-    useEffect(()=>{
-
-
-        const unsubscribe = onAuthStateChanged(
-            auth,
-            async(user)=>{
-
-
-                if(user){
-
-
-                    setUserId(user.uid);
-
-
-                    const userRef = doc(
-                        db,
-                        "users",
-                        user.uid
-                    );
-
-
-                    const userSnap = await getDoc(userRef);
-
-
-
-                    if(userSnap.exists()){
-
-
-                        setProfile(
-                            userSnap.data()
-                        );
-
-
-                    }
-
-                }
-
-
-            }
-        );
-
-
-        return unsubscribe;
-
-
-    },[]);
-
-
-
-
-    function handleChange(e){
-
+    function handleChange(e) {
 
         setProfile({
-
             ...profile,
-
             [e.target.name]: e.target.value
-
         });
-
 
     }
 
 
+    function cancelEdit() {
 
-
-
-    async function saveProfile(){
-
-
-        const userRef = doc(
-            db,
-            "users",
-            userId
+        setProfile(
+            getCurrentUser()
         );
-
-
-        await updateDoc(
-            userRef,
-            {
-
-                firstName: profile.firstName,
-
-                surname: profile.surname,
-
-                employeeNumber: profile.employeeNumber,
-
-                programme: profile.programme,
-
-                position: profile.position
-
-            }
-        );
-
 
         setEditMode(false);
 
+    }
+
+    async function saveProfile() {
+
+    try {
+
+        const updatedUser = await updateProfile(
+            profile.id,
+            profile
+        );
+
+        setProfile(updatedUser);
+
+        setEditMode(false);
+
+        alert("Profile updated successfully.");
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+
+}
+
+    if (!profile) {
+
+        return (
+            <p>
+                Loading profile...
+            </p>
+        );
 
     }
 
 
-
-
-    if(!profile){
-
-        return <p>Loading profile...</p>;
-
-    }
-
-
+    const initials =
+        `${profile.first_name?.charAt(0) || ""}${profile.surname?.charAt(0) || ""}`;
 
 
     return (
 
         <div className="profile-page">
 
-
             <div className="profile-card">
 
 
+                {/* ==========================================
+                    PROFILE HEADER
+                ========================================== */}
 
                 <div className="profile-header">
 
+                    <div className="profile-avatar">
 
-                   <div className="profile-avatar">
+                        {initials}
 
-    {profile.firstName.charAt(0)}
-    {profile.surname.charAt(0)}
-
-</div>
-
+                    </div>
 
 
                     <div>
 
                         <h1>
 
-                            {profile.firstName} {profile.surname}
+                            {profile.first_name} {profile.surname}
 
                         </h1>
 
@@ -167,44 +111,50 @@ function Profile(){
 
                         </p>
 
-
                     </div>
-
 
                 </div>
 
 
 
+                {/* ==========================================
+                    PROFILE ACTIONS
+                ========================================== */}
 
                 <div className="profile-actions">
 
-
                     <button
-                        onClick={()=>setEditMode(!editMode)}
+                        onClick={() =>
+                            editMode
+                                ? cancelEdit()
+                                : setEditMode(true)
+                        }
                     >
 
-                        {editMode ? "Cancel" : "Edit Profile"}
+                        {editMode
+                            ? "Cancel"
+                            : "Edit Profile"}
 
                     </button>
-
 
                 </div>
 
 
 
-
+                {/* ==========================================
+                    PROFILE INFORMATION
+                ========================================== */}
 
                 <div className="profile-info">
 
 
                     <ProfileField
                         label="First Name"
-                        name="firstName"
-                        value={profile.firstName}
+                        name="first_name"
+                        value={profile.first_name}
                         editMode={editMode}
                         onChange={handleChange}
                     />
-
 
 
                     <ProfileField
@@ -216,15 +166,13 @@ function Profile(){
                     />
 
 
-
                     <ProfileField
-                        label="Employee Number"
-                        name="employeeNumber"
-                        value={profile.employeeNumber}
-                        editMode={editMode}
+                        label="Employee ID"
+                        name="employee_id"
+                        value={profile.employee_id}
+                        editMode={false}
                         onChange={handleChange}
                     />
-
 
 
                     <ProfileField
@@ -235,6 +183,14 @@ function Profile(){
                         onChange={handleChange}
                     />
 
+
+                    <ProfileField
+                        label="Subprogramme"
+                        name="subprogramme"
+                        value={profile.subprogramme}
+                        editMode={editMode}
+                        onChange={handleChange}
+                    />
 
 
                     <ProfileField
@@ -247,6 +203,7 @@ function Profile(){
 
 
 
+                    {/* Email */}
 
                     <div className="profile-row">
 
@@ -262,6 +219,8 @@ function Profile(){
 
 
 
+                    {/* Role */}
+
                     <div className="profile-row">
 
                         <strong>
@@ -275,31 +234,47 @@ function Profile(){
                     </div>
 
 
+
+                    {/* Account Created */}
+
+                    <div className="profile-row">
+
+                        <strong>
+                            Account Created
+                        </strong>
+
+                        <span>
+                            {profile.created_date
+                                ? new Date(
+                                    profile.created_date
+                                ).toLocaleDateString()
+                                : "N/A"}
+                        </span>
+
+                    </div>
+
+
                 </div>
 
 
 
+                {/* ==========================================
+                    SAVE BUTTON
+                ========================================== */}
 
+              {editMode && (
 
-                {
+    <button
+        className="save-button"
+        onClick={saveProfile}
+    >
+        Save Changes
+    </button>
 
-                    editMode &&
-
-                    <button
-                        className="save-button"
-                        onClick={saveProfile}
-                    >
-
-                        Save Changes
-
-                    </button>
-
-                }
-
+)}
 
 
             </div>
-
 
         </div>
 
@@ -309,7 +284,9 @@ function Profile(){
 
 
 
-
+/* ==========================================
+   PROFILE FIELD
+========================================== */
 
 function ProfileField({
     label,
@@ -317,50 +294,39 @@ function ProfileField({
     value,
     editMode,
     onChange
-}){
+}) {
+
+    return (
+
+        <div className="profile-row">
+
+            <strong>
+                {label}
+            </strong>
 
 
-return (
+            {editMode ? (
 
-<div className="profile-row">
+                <input
+                    name={name}
+                    value={value || ""}
+                    onChange={onChange}
+                />
 
+            ) : (
 
-<strong>
-    {label}
-</strong>
+                <span>
+                    {value || "N/A"}
+                </span>
 
+            )}
 
+        </div>
 
-{
-
-editMode ?
-
-<input
-
-name={name}
-
-value={value || ""}
-
-onChange={onChange}
-
-/>
-
-:
-
-<span>
-    {value}
-</span>
+    );
 
 }
-
-
-</div>
-
-);
-
-
-}
-
 
 
 export default Profile;
+

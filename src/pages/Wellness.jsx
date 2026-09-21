@@ -7,7 +7,6 @@ import {
   FaPlay,
 } from "react-icons/fa";
 
-import { getWellnessVideos } from "../firebase/wellnessService";
 
 import "../styles/wellness.css";
 
@@ -68,10 +67,23 @@ function Wellness() {
 
 const loadVideos = async () => {
   try {
-    const firebaseVideos = await getWellnessVideos();
-    setVideos(firebaseVideos);
+    const response = await fetch("http://localhost:5000/api/wellness");
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch wellness videos");
+    }
+
+    const wellnessVideos = await response.json();
+
+    const formattedVideos = wellnessVideos.map((video) => ({
+      ...video,
+      video: video.video_url
+    }));
+
+    setVideos(formattedVideos);
+
   } catch (error) {
-    console.error(error);
+    console.error("Failed to load wellness videos:", error);
   }
 };
 
