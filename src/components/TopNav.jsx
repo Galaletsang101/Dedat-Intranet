@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
-
-import { auth, db } from "../firebase/firebase";
+import {
+  getCurrentUser,
+  logoutUser
+} from "../services/authService";
 
 import "../styles/topnav.css";
 
@@ -15,52 +16,43 @@ import { FaBars, FaTimes } from "react-icons/fa";
 function TopNav({ toggleMenu, menuOpen }) {
   const navigate = useNavigate();
 
-  const [profile, setProfile] = useState(null);
-
   const [showMenu, setShowMenu] = useState(false);
 
+  // Get the currently logged-in PostgreSQL user
+  const user = getCurrentUser();
+
+  // Get initials
+  const initials = user
+    ? `${user.first_name?.charAt(0) || ""}${user.surname?.charAt(0) || ""}`
+    : "U";
+
+  // Get full name
+  const fullName = user
+    ? `${user.first_name || ""} ${user.surname || ""}`.trim()
+    : "User";
+
   async function handleLogout() {
-    await signOut(auth);
+    logoutUser();
 
     setShowMenu(false);
 
     navigate("/");
   }
 
-  useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-
-        const unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setProfile(docSnap.data());
-          }
-        });
-
-        return unsubscribeProfile;
-      }
-    });
-
-    return unsubscribeAuth;
-  }, []);
-
   return (
     <header className="topnav">
-      {/* Hamburger */}
 
+      {/* Hamburger */}
       <button className="hamburger" onClick={toggleMenu}>
         {menuOpen ? <FaTimes /> : <FaBars />}
       </button>
 
       {/* Logo */}
-
       <div className="logo">
         <img src={logo} alt="DeDAaT Logo" />
       </div>
 
       {/* Main Navigation */}
-
       <nav className="nav-links">
         <NavLink to="/home">Home</NavLink>
 
@@ -80,30 +72,43 @@ function TopNav({ toggleMenu, menuOpen }) {
       </nav>
 
       {/* Profile */}
+      <div
+        className="profile"
+        onClick={() => setShowMenu(!showMenu)}
+      >
 
-      <div className="profile" onClick={() => setShowMenu(!showMenu)}>
+        {/* Initials */}
         <div className="topnav-avatar">
-          {profile
-            ? `${profile.firstName.charAt(0)}${profile.surname.charAt(0)}`
-            : "U"}
+          {initials}
         </div>
 
+        {/* Name and Position */}
         <div className="profile-details">
-          <span>
-            {profile ? `${profile.firstName} ${profile.surname}` : "User"}
-          </span>
+          <span>{fullName}</span>
 
-          <small>{profile ? profile.position : ""}</small>
+          <small>
+            {user?.position || ""}
+          </small>
         </div>
 
+        {/* Profile Menu */}
         {showMenu && (
-          <div className="profile-menu" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => navigate("/profile")}>View Profile</button>
+          <div
+            className="profile-menu"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => navigate("/profile")}>
+              View Profile
+            </button>
 
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         )}
+
       </div>
+
     </header>
   );
 }

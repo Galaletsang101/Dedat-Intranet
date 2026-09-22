@@ -1,246 +1,431 @@
+
 /* ==========================================
-   DEDAT Top Navigation
+   DEDAT TOP NAVIGATION
 ========================================== */
 
 .topnav {
-
   height: var(--navbar-height);
-
   width: 100%;
 
   display: flex;
-
   align-items: center;
-
-  justify-content: space-between;
 
   padding: 0 30px;
 
   background: var(--surface);
-
   border-bottom: 1px solid var(--border-light);
-
   box-shadow: var(--shadow-sm);
 
   position: sticky;
-
   top: 0;
-
   z-index: 1000;
 
+  box-sizing: border-box;
 }
 
 
-/* Logo */
+/* ==========================================
+   LOGO
+========================================== */
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
 
 .logo img {
-
-  height: 55px;
-
+  height: 52px;
   width: auto;
-
   object-fit: contain;
-
+  display: block;
 }
 
 
-/* Navigation Links */
+/* ==========================================
+   MAIN NAVIGATION
+========================================== */
 
 .nav-links {
-
   display: flex;
-
   align-items: center;
 
-  gap: 25px;
+  gap: 22px;
 
+  margin-left: 35px;
+
+  flex: 1;
 }
 
 
 .nav-links a {
-
   color: var(--secondary);
 
   font-size: var(--font-sm);
-
   font-weight: var(--fw-medium);
+
+  text-decoration: none;
 
   padding: 8px 0;
 
   position: relative;
 
-}
+  white-space: nowrap;
 
-
-/* Active Link */
-
-.nav-links a.active {
-
-  color: var(--primary);
-
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 
 /* Hover */
 
 .nav-links a:hover {
-
   color: var(--primary);
+}
 
+
+/* Active Link */
+
+.nav-links a.active {
+  color: var(--primary);
 }
 
 
 /* Active underline */
 
 .nav-links a.active::after {
-
   content: "";
 
   position: absolute;
 
   bottom: 0;
-
   left: 0;
 
   width: 100%;
-
   height: 3px;
 
   background: var(--primary);
 
   border-radius: 10px;
-
 }
 
 
-/* Profile */
+/* ==========================================
+   PROFILE AREA
+========================================== */
 
 .profile {
-
   display: flex;
-
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
 
   cursor: pointer;
 
   position: relative;
 
+  flex-shrink: 0;
+
+  padding: 6px 8px;
+  margin-left: 20px;
+
+  border-radius: 10px;
+
+  transition: background 0.2s ease;
 }
 
 
-/* Avatar */
+.profile:hover {
+  background: var(--primary-extra-light);
+}
+
+
+/* ==========================================
+   AVATAR
+========================================== */
 
 .topnav-avatar {
+  width: 40px;
+  height: 40px;
 
-  width: 42px;
-
-  height: 42px;
+  min-width: 40px;
 
   border-radius: 50%;
 
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   background: var(--primary);
 
-  color: white;
+  color: #ffffff;
 
+  font-size: 14px;
   font-weight: var(--fw-semibold);
 
+  text-transform: uppercase;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 
-/* Profile Text */
+/* ==========================================
+   PROFILE TEXT
+========================================== */
 
 .profile-details {
+  display: flex;
+  flex-direction: column;
 
-  display:flex;
+  justify-content: center;
 
-  flex-direction:column;
+  min-width: 120px;
 
+  line-height: 1.2;
 }
 
 
 .profile-details span {
-
-  font-weight: var(--fw-semibold);
-
-  font-size: var(--font-sm);
-
   color: var(--text-primary);
 
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semibold);
+
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: 160px;
 }
 
 
 .profile-details small {
+  margin-top: 3px;
 
   color: var(--text-muted);
 
   font-size: var(--font-xs);
 
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: 160px;
 }
 
 
-/* Profile Dropdown */
+/* ==========================================
+   PROFILE DROPDOWN
+========================================== */
 
 .profile-menu {
+  position: absolute;
 
-  position:absolute;
+  top: calc(100% + 10px);
+  right: 0;
 
-  top:55px;
+  width: 190px;
 
-  right:0;
+  background: #ffffff;
 
-  width:180px;
+  border: 1px solid var(--border-light);
 
-  background:white;
+  border-radius: var(--radius-md);
 
-  border-radius:var(--radius-md);
+  box-shadow: var(--shadow-md);
 
-  box-shadow:var(--shadow-md);
+  padding: 8px;
 
-  padding:10px;
-
-  border:1px solid var(--border-light);
-
+  animation: profileMenuFade 0.15s ease;
 }
 
 
+/* Dropdown animation */
+
+@keyframes profileMenuFade {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Dropdown buttons */
+
 .profile-menu button {
+  width: 100%;
 
-  width:100%;
+  display: block;
 
-  padding:10px;
+  border: none;
 
-  text-align:left;
+  background: transparent;
 
-  border-radius:8px;
+  color: var(--text-primary);
 
+  padding: 11px 12px;
+
+  text-align: left;
+
+  font-size: var(--font-sm);
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 
 .profile-menu button:hover {
+  background: var(--primary-extra-light);
 
-  background:var(--primary-extra-light);
-
-  color:var(--primary);
-
+  color: var(--primary);
 }
 
 
-/* Hamburger */
+/* ==========================================
+   HAMBURGER
+========================================== */
 
 .hamburger {
+  display: none;
 
-  display:none;
+  border: none;
 
-  font-size:24px;
+  background: transparent;
 
-  color:var(--primary);
+  font-size: 24px;
 
+  color: var(--primary);
+
+  cursor: pointer;
+
+  padding: 6px;
+
+  margin-right: 12px;
 }
+
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 1200px) {
+
+  .topnav {
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    gap: 15px;
+    margin-left: 25px;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+  }
+
+  .profile-details {
+    min-width: 100px;
+  }
+
+  .profile-details span,
+  .profile-details small {
+    max-width: 120px;
+  }
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 900px) {
+
+  .topnav {
+    padding: 0 16px;
+  }
+
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .logo {
+    flex: 1;
+  }
+
+  .logo img {
+    height: 48px;
+  }
+
+  .profile {
+    margin-left: auto;
+  }
+
+  .profile-details {
+    display: none;
+  }
+
+  .topnav-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .profile-menu {
+    top: calc(100% + 8px);
+    right: 0;
+  }
+}
+
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 480px) {
+
+  .topnav {
+    height: 65px;
+    padding: 0 12px;
+  }
+
+  .logo img {
+    height: 43px;
+  }
+
+  .hamburger {
+    font-size: 21px;
+    margin-right: 8px;
+  }
+
+  .topnav-avatar {
+    width: 37px;
+    height: 37px;
+
+    min-width: 37px;
+
+    font-size: 13px;
+  }
+
+  .profile-menu {
+    width: 170px;
+  }
+}
+
