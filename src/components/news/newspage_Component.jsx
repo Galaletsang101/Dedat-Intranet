@@ -2,6 +2,8 @@
 // src/components/news/NewsPage.jsx
 
 import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+
 import {
   Container,
   Row,
@@ -20,18 +22,12 @@ import {
   FaClock,
 } from "react-icons/fa";
 
-import ReactMarkdown from "react-markdown";
-import { getNews } from "../../services/newsService";
-import { getCirculus } from "../../services/circulusService";
-
 import "./NewsPage.css";
 
-/* =========================================================
-   TEMPORARY NEWSLETTER DATA
 
-   We will connect these to the appropriate backend/file
-   structure later.
-========================================================= */
+// ============================================================
+// STATIC NEWSLETTER ARCHIVE
+// ============================================================
 
 const newsletters = [
   {
@@ -50,7 +46,7 @@ const newsletters = [
     id: 3,
     title: "November 2023",
     image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBK7bMcK4K_zQocMW7nf67p2GDAwZahFyMRMzhyGeUfCgCYDTQD1fZy5aB1fX3TF2pF_NHVxSk0VFMuAz_HSl74UctMDVTv77ZMJdOfAlAqGaUe4mgIJgRTF3lyNZR7-bBLD0iKgY_1QkrRq3On-Bajzj-Ch9EwHegWjhRwO-OOVR9oC5_vZqdyuRYdoXttoJKvEH7QTI8Y-YiuQ6xtleK-w19wHiFaL0GCAsTOlPRGtBuECjUtl5TyL_6tiX3iZWnlCmVRlP_JI",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBK7bMcK4K_zQocMW7nf67p2GDAwZahFyMRMzhyGeUfEvCgCYDTQD1fZy5aB1fX3TF2pF_NHVxSk0VFMuAz_HSl74UctMDVTv77ZMJdOfAlAqGaUe4mgIJgRTF3lyNZR7-bBLD0iKgY_1QkrRq3On-Bajzj-Ch9EwHegWjhRwO-OOVR9oC5_vZqdyuRYdoXttoJKvEH7QTI8Y-YiuQ6xtleK-w19wHiFaL0GCAsTOlPRGtBuECjUtl5TyL_6tiX3iZWnlCmVRlP_JI",
   },
   {
     id: 4,
@@ -60,9 +56,10 @@ const newsletters = [
   },
 ];
 
-/* =========================================================
-   NEWS CATEGORIES
-========================================================= */
+
+// ============================================================
+// CATEGORY FILTERS
+// ============================================================
 
 const categories = [
   "All",
@@ -72,348 +69,432 @@ const categories = [
   "Training",
 ];
 
-/* =========================================================
-   NEWS PAGE
-========================================================= */
+
+// ============================================================
+// STATIC CIRCULARS
+// ============================================================
+
+const circulars = [
+  {
+    id: 1,
+    title:
+      "Circular 04 of 2024: Revised Travel & Subsistence Policy",
+    description:
+      "Effective from Feb 1st, 2024. Mandatory for all departmental travel claims.",
+    date: "Jan 10, 2024",
+  },
+];
+
+
+// ============================================================
+// DATE FORMATTER
+// ============================================================
+
+const formatDate = (date) => {
+  if (!date) {
+    return "Date unavailable";
+  }
+
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Date unavailable";
+  }
+
+  return parsedDate.toLocaleDateString("en-ZA", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+
+// ============================================================
+// NEWS PAGE
+// ============================================================
 
 const NewsPage = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] =
+    useState("All");
 
   const [newsItems, setNewsItems] = useState([]);
-  const [circularItems, setCircularItems] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
-  /* =======================================================
-     LOAD NEWS
-  ======================================================= */
+  const [error, setError] = useState("");
+
+
+  // ==========================================================
+  // FETCH NEWS FROM BACKEND
+  // ==========================================================
 
   useEffect(() => {
-    const loadNews = async () => {
+    const fetchNews = async () => {
       try {
-        const data = await getNews();
+        setLoading(true);
+        setError("");
 
-        setNewsItems(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to load news:", error);
+        const response = await fetch(
+          "http://localhost:5000/api/news"
+        );
 
-        setNewsItems([]);
-      }
-    };
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch news: ${response.status}`
+          );
+        }
 
-    const loadCirculars = async () => {
-      try {
-        const data = await getCirculus();
+        const data = await response.json();
 
-        setCircularItems(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to load circulars:", error);
+        const formattedNews = Array.isArray(data)
+          ? data.map((item, index) => ({
+              id: item.id,
 
-        setCircularItems([]);
+              title: item.title || "Untitled News Article",
+
+              excerpt:
+                item.description ||
+                item.excerpt ||
+                "",
+
+              content_markdown:
+                item.content_markdown || "",
+
+              category:
+                item.category || "News",
+
+              author:
+                item.author || "DEDaT",
+
+              publication_date:
+                item.publication_date ||
+                item.publish_date ||
+                null,
+
+              image_url:
+                item.image_url || "",
+
+              is_featured:
+                item.is_featured === true ||
+                (index === 0 &&
+                  item.is_featured === undefined),
+            }))
+          : [];
+
+        setNewsItems(formattedNews);
+      } catch (err) {
+        console.error(
+          "Error loading news:",
+          err
+        );
+
+        setError(
+          "Unable to load news. Please make sure the backend server is running."
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    loadNews();
-    loadCirculars();
-
-    /*
-     * Listen for newly published News from AddContent.
-     */
-    const handleNewsUpdated = () => {
-      loadNews();
-      loadCirculars();
-    };
-
-    window.addEventListener(
-      "dedat-news-updated",
-      handleNewsUpdated
-    );
-
-    return () => {
-      window.removeEventListener(
-        "dedat-news-updated",
-        handleNewsUpdated
-      );
-    };
+    fetchNews();
   }, []);
 
-  /* =======================================================
-     FORMAT DATE
-  ======================================================= */
 
-  const formatDate = (date) => {
-    if (!date) {
-      return "";
-    }
-
-    const formattedDate = new Date(`${date}T00:00:00`);
-
-    if (Number.isNaN(formattedDate.getTime())) {
-      return date;
-    }
-
-    return formattedDate.toLocaleDateString("en-ZA", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  /* =======================================================
-     CATEGORY COLOURS
-  ======================================================= */
-
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case "Training":
-        return "var(--success)";
-
-      case "Campaign":
-        return "var(--primary)";
-
-      case "News":
-        return "var(--info)";
-
-      case "Circulars":
-        return "var(--secondary)";
-
-      case "Events":
-        return "var(--accent)";
-
-      default:
-        return "var(--secondary-light)";
-    }
-  };
-
-  /* =======================================================
-     FILTER NEWS
-
-     Uses PostgreSQL field:
-     category
-  ======================================================= */
+  // ==========================================================
+  // FILTER NEWS
+  // ==========================================================
 
   const filteredNews =
     activeCategory === "All"
       ? newsItems
       : newsItems.filter(
           (item) =>
-            item.category?.toLowerCase() ===
-            activeCategory.toLowerCase()
+            item.category === activeCategory
         );
 
-  /* =======================================================
-     LOADING
-  ======================================================= */
+
+  // ==========================================================
+  // FEATURED NEWS
+  // ==========================================================
+
+  const featuredNews = filteredNews.filter(
+    (item) => item.is_featured
+  );
+
+
+  // ==========================================================
+  // LOADING STATE
+  // ==========================================================
 
   if (loading) {
     return (
       <div className="news-page">
-        <Container fluid className="px-4 py-4">
-          <div className="news-container">
-            <p>Loading news...</p>
+        <Container className="py-5">
+          <p>Loading news...</p>
+        </Container>
+      </div>
+    );
+  }
+
+
+  // ==========================================================
+  // ERROR STATE
+  // ==========================================================
+
+  if (error) {
+    return (
+      <div className="news-page">
+        <Container className="py-5">
+          <div className="text-center">
+            <FaNewspaper
+              size={40}
+              className="mb-3"
+            />
+
+            <p>{error}</p>
           </div>
         </Container>
       </div>
     );
   }
 
-  /* =======================================================
-     PAGE
-  ======================================================= */
+
+  // ==========================================================
+  // MAIN PAGE
+  // ==========================================================
 
   return (
     <div className="news-page">
+
       <Container fluid className="px-4 py-4">
+
         <div className="news-container">
 
           <Row className="g-4">
 
-            {/* =================================================
+            {/* ==================================================
                 MAIN CONTENT
-            ================================================= */}
+            ================================================== */}
 
             <Col lg={8}>
 
-              {/* =================================================
+              {/* ==================================================
                   CATEGORY FILTERS
-              ================================================= */}
+              ================================================== */}
 
               <div
                 className="d-flex gap-2 mb-4 overflow-auto pb-2"
-                style={{ flexWrap: "nowrap" }}
+                style={{
+                  flexWrap: "nowrap",
+                }}
               >
-                {categories.map((cat) => (
+
+                {categories.map((category) => (
+
                   <button
-                    key={cat}
+                    key={category}
                     className={`category-filter-btn ${
-                      activeCategory === cat
+                      activeCategory === category
                         ? "active"
                         : ""
                     }`}
                     onClick={() =>
-                      setActiveCategory(cat)
+                      setActiveCategory(category)
                     }
                   >
-                    {cat}
+                    {category}
                   </button>
+
                 ))}
+
               </div>
 
-              {/* =================================================
-                  FEATURED NEWS / HERO
-              ================================================= */}
 
-              {filteredNews
-                .filter((item) => item.is_featured)
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    className="news-hero mb-4"
-                  >
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.title}
-                      />
-                    ) : (
-                      <div className="news-hero-placeholder">
-                        <FaNewspaper />
-                      </div>
-                    )}
+              {/* ==================================================
+                  FEATURED NEWS
+              ================================================== */}
 
-                    <div className="news-hero-overlay">
+              {featuredNews.length > 0 && (
 
-                      <Badge className="badge-featured mb-2">
-                        {item.category}
-                      </Badge>
+                <>
 
-                      <h1>{item.title}</h1>
+                  {featuredNews.map((item) => (
 
-                      {item.excerpt && (
-                        <p className="hero-excerpt">
-                          {item.excerpt}
-                        </p>
+                    <div
+                      key={item.id}
+                      className="news-hero mb-4"
+                    >
+
+                      {item.image_url ? (
+
+                        <img
+                          src={item.image_url}
+                          alt={item.title}
+                        />
+
+                      ) : (
+
+                        <div className="news-hero-placeholder">
+
+                          <FaNewspaper />
+
+                        </div>
+
                       )}
 
-                      <div className="d-flex align-items-center gap-3 meta-text">
 
-                        <span>
-                          <FaClock className="me-1" />
-                          {item.author || "DEDaT"}
-                        </span>
+                      <div className="news-hero-overlay">
 
-                        <span>•</span>
+                        <Badge className="badge-featured mb-2">
 
-                        <span>
-                          {formatDate(
-                            item.publication_date
-                          )}
-                        </span>
+                          {item.category}
+
+                        </Badge>
+
+
+                        <h1>
+                          {item.title}
+                        </h1>
+
+
+                        {item.excerpt && (
+
+                          <p className="hero-excerpt">
+                            {item.excerpt}
+                          </p>
+
+                        )}
+
+
+                        <div className="d-flex align-items-center gap-3 meta-text">
+
+                          <span>
+                            <FaClock className="me-1" />
+
+                            {item.author ||
+                              "DEDaT"}
+                          </span>
+
+
+                          <span>•</span>
+
+
+                          <span>
+                            {formatDate(
+                              item.publication_date
+                            )}
+                          </span>
+
+                        </div>
 
                       </div>
 
                     </div>
-                  </div>
-                ))}
 
-              {/* =================================================
-                  NEWS GRID
-              ================================================= */}
+                  ))}
 
-              <Row className="g-3 mb-4">
+                </>
 
-                {filteredNews
-                  .filter((item) => !item.is_featured)
-                  .map((item) => (
-                    <Col md={6} key={item.id}>
+              )}
 
-                      <div className="news-card-item">
 
-                        {/* IMAGE */}
+              {/* ==================================================
+                  NEWS ARTICLES
+              ================================================== */}
 
-                        <div className="card-img-wrapper">
+              {filteredNews.length > 0 ? (
 
-                          {item.image_url ? (
-                            <img
-                              src={item.image_url}
-                              alt={item.title}
-                            />
-                          ) : (
-                            <div className="news-card-placeholder">
-                              <FaNewspaper />
-                            </div>
+                <div className="news-list">
+
+                  {filteredNews.map((item) => (
+
+                    <div
+                      key={item.id}
+                      className="card mb-4 border-0 shadow-sm"
+                    >
+
+                      <div className="card-body">
+
+                        <p className="text-muted small mb-1">
+
+                          {formatDate(
+                            item.publication_date
+                          )}
+
+                        </p>
+
+
+                        <h5 className="card-title">
+
+                          {item.title}
+
+                        </h5>
+
+
+                        {item.excerpt && (
+
+                          <p className="card-excerpt">
+
+                            {item.excerpt}
+
+                          </p>
+
+                        )}
+
+
+                        {/* ========================================
+                            MARKDOWN CONTENT
+                        ======================================== */}
+
+                        {item.content_markdown && (
+
+                          <div className="news-markdown-preview">
+
+                            <ReactMarkdown>
+
+                              {item.content_markdown}
+
+                            </ReactMarkdown>
+
+                          </div>
+
+                        )}
+
+
+                        {/* ========================================
+                            AUTHOR
+                        ======================================== */}
+
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+
+                          {item.author && (
+
+                            <p className="small text-muted mb-0">
+
+                              By {item.author}
+
+                            </p>
+
                           )}
 
                           <Badge
-                            className="card-category-badge"
-                            style={{
-                              backgroundColor:
-                                getCategoryColor(
-                                  item.category
-                                ),
-                            }}
+                            bg="secondary"
                           >
                             {item.category}
                           </Badge>
 
                         </div>
 
-                        {/* CONTENT */}
-
-                        <div className="card-body">
-
-                          <p className="text-muted small mb-1">
-                            {formatDate(
-                              item.publication_date
-                            )}
-                          </p>
-
-                          <h5 className="card-title">
-                            {item.title}
-                          </h5>
-
-                          {item.excerpt && (
-                            <p className="card-excerpt">
-                              {item.excerpt}
-                            </p>
-                          )}
-
-                          {/* =================================================
-                              MARKDOWN CONTENT
-                          ================================================= */}
-
-                          {item.content_markdown && (
-                            <div className="news-markdown-preview">
-
-                              <ReactMarkdown>
-                                {item.content_markdown}
-                              </ReactMarkdown>
-
-                            </div>
-                          )}
-
-                          {item.author && (
-                            <p className="small text-muted mt-2 mb-0">
-                              By {item.author}
-                            </p>
-                          )}
-
-                        </div>
-
                       </div>
 
-                    </Col>
+                    </div>
+
                   ))}
 
-              </Row>
+                </div>
 
-              {/* =================================================
-                  EMPTY NEWS STATE
-              ================================================= */}
+              ) : (
 
-              {filteredNews.length === 0 && (
                 <div className="text-center py-5">
 
                   <FaNewspaper
@@ -421,28 +502,38 @@ const NewsPage = () => {
                     className="mb-3"
                   />
 
-                  <h5>No news available</h5>
+                  <h5>
+                    No news available
+                  </h5>
 
                   <p className="text-muted">
-                    There are currently no news articles
-                    in this category.
+
+                    There are currently no news
+                    articles in this category.
+
                   </p>
 
                 </div>
+
               )}
 
-              {/* =================================================
+
+              {/* ==================================================
                   CIRCULARS
-              ================================================= */}
+              ================================================== */}
 
               <div className="bg-light p-4 rounded-3 mb-4">
 
                 <div className="d-flex justify-content-between align-items-center mb-3">
 
                   <h5 className="d-flex align-items-center gap-2">
+
                     <FaGavel />
+
                     Official Circulars & Gazettes
+
                   </h5>
+
 
                   <div className="position-relative">
 
@@ -456,16 +547,20 @@ const NewsPage = () => {
                     <input
                       className="form-control form-control-sm ps-4"
                       placeholder="Search gazettes..."
-                      style={{ width: "200px" }}
+                      style={{
+                        width: "200px",
+                      }}
                     />
 
                   </div>
 
                 </div>
 
+
                 <div className="space-y-3">
 
-                  {circularItems.map((circ) => (
+                  {circulars.map((circ) => (
+
                     <div
                       key={circ.id}
                       className="circular-item"
@@ -474,50 +569,70 @@ const NewsPage = () => {
                       <div className="d-flex align-items-center gap-3">
 
                         <div className="d-flex align-items-center justify-content-center">
+
                           <FaFileAlt />
+
                         </div>
+
 
                         <div>
 
                           <h6 className="circular-title">
+
                             {circ.title}
+
                           </h6>
 
+
                           <p className="circular-meta">
+
                             {circ.description}
+
                           </p>
 
+
                           <span className="text-muted small">
-                            {circ.status || "Published"} • {formatDate(circ.publication_date)}
+
+                            {circ.date}
+
                           </span>
 
                         </div>
 
                       </div>
 
+
                       <div className="d-flex gap-2 flex-shrink-0">
 
-                        <a className="btn btn-sm btn-outline-primary" href={circ.file_url || "#"} target="_blank" rel="noreferrer">
-                          View Summary
-                        </a>
+                        <button className="btn btn-sm btn-outline-primary">
 
-                        <a className="btn btn-sm btn-primary" href={circ.file_url || "#"} target="_blank" rel="noreferrer">
+                          View Summary
+
+                        </button>
+
+
+                        <button className="btn btn-sm btn-primary">
+
                           <FaDownload className="me-1" />
+
                           PDF
-                        </a>
+
+                        </button>
 
                       </div>
 
                     </div>
+
                   ))}
 
                 </div>
 
               </div>
 
-              {/* =================================================
+
+              {/* ==================================================
                   NEWSLETTER ARCHIVE
-              ================================================= */}
+              ================================================== */}
 
               <div>
 
@@ -525,9 +640,11 @@ const NewsPage = () => {
                   Digital Newsletters
                 </h5>
 
+
                 <Row className="g-3">
 
                   {newsletters.map((item) => (
+
                     <Col
                       xs={6}
                       md={3}
@@ -544,18 +661,24 @@ const NewsPage = () => {
                           />
 
                           <div className="hover-overlay">
+
                             <FaEye />
+
                           </div>
 
                         </div>
 
+
                         <p className="text-center small fw-semibold mt-2">
+
                           {item.title}
+
                         </p>
 
                       </div>
 
                     </Col>
+
                   ))}
 
                 </Row>
@@ -564,17 +687,19 @@ const NewsPage = () => {
 
             </Col>
 
-            {/* =================================================
+
+            {/* ==================================================
                 SIDEBAR
-            ================================================= */}
+            ================================================== */}
 
             <Col lg={4}>
 
               <div className="d-flex flex-column gap-4">
 
-                {/* =================================================
+
+                {/* ==================================================
                     EXECUTIVE CORNER
-                ================================================= */}
+                ================================================== */}
 
                 <div className="executive-corner">
 
@@ -584,35 +709,45 @@ const NewsPage = () => {
                     className="executive-image"
                   />
 
+
                   <div className="executive-body">
 
                     <Badge className="mb-2">
+
                       MEC'S CORNER
+
                     </Badge>
 
+
                     <blockquote className="executive-quote">
-                      "Our collective efforts in digitizing
-                      the workplace are a testament to our
-                      commitment to efficiency and
-                      transparency for the people of Northern
-                      Cape."
+
+                      "Our collective efforts in
+                      digitizing the workplace are
+                      a testament to our commitment
+                      to efficiency and transparency
+                      for the people of Northern Cape."
+
                     </blockquote>
 
+
                     <div className="d-flex align-items-center gap-2">
-                      <div></div>
 
                       <span className="fw-semibold">
+
                         Hon. Abraham Vosloo
+
                       </span>
+
                     </div>
 
                   </div>
 
                 </div>
 
-                {/* =================================================
+
+                {/* ==================================================
                     UPCOMING EVENTS
-                ================================================= */}
+                ================================================== */}
 
                 <div className="sidebar-widget">
 
@@ -623,6 +758,7 @@ const NewsPage = () => {
                     <FaCalendarAlt />
 
                   </h6>
+
 
                   <div className="space-y-3">
 
@@ -635,9 +771,11 @@ const NewsPage = () => {
                           height: "56px",
                           background: "#f8f9fa",
                           borderRadius: "0.5rem",
-                          border: "1px solid #e9ecef",
+                          border:
+                            "1px solid #e9ecef",
                         }}
                       >
+
                         <span className="small fw-bold">
                           JAN
                         </span>
@@ -648,19 +786,25 @@ const NewsPage = () => {
 
                       </div>
 
+
                       <div>
 
                         <h6 className="fw-semibold">
+
                           Departmental Town Hall
+
                         </h6>
 
                         <p className="small text-muted">
+
                           09:00 AM • Main Atrium
+
                         </p>
 
                       </div>
 
                     </div>
+
 
                     <div className="d-flex gap-3">
 
@@ -671,9 +815,11 @@ const NewsPage = () => {
                           height: "56px",
                           background: "#f8f9fa",
                           borderRadius: "0.5rem",
-                          border: "1px solid #e9ecef",
+                          border:
+                            "1px solid #e9ecef",
                         }}
                       >
+
                         <span className="small fw-bold">
                           JAN
                         </span>
@@ -684,19 +830,25 @@ const NewsPage = () => {
 
                       </div>
 
+
                       <div>
 
                         <h6 className="fw-semibold">
+
                           Project Management Circle
+
                         </h6>
 
                         <p className="small text-muted">
+
                           02:00 PM • Virtual (Teams)
+
                         </p>
 
                       </div>
 
                     </div>
+
 
                     <div className="d-flex gap-3">
 
@@ -707,9 +859,11 @@ const NewsPage = () => {
                           height: "56px",
                           background: "#f8f9fa",
                           borderRadius: "0.5rem",
-                          border: "1px solid #e9ecef",
+                          border:
+                            "1px solid #e9ecef",
                         }}
                       >
+
                         <span className="small fw-bold">
                           FEB
                         </span>
@@ -720,14 +874,19 @@ const NewsPage = () => {
 
                       </div>
 
+
                       <div>
 
                         <h6 className="fw-semibold">
+
                           Regional Stakeholder Summit
+
                         </h6>
 
                         <p className="small text-muted">
+
                           10:00 AM • Kimberley ICC
+
                         </p>
 
                       </div>
@@ -736,51 +895,74 @@ const NewsPage = () => {
 
                   </div>
 
+
                   <button className="btn btn-outline-primary w-100 mt-3">
+
                     View All Events
+
                   </button>
 
                 </div>
 
-                {/* =================================================
+
+                {/* ==================================================
                     TRAINING
-                ================================================= */}
+                ================================================== */}
 
                 <div className="sidebar-widget">
 
                   <h6 className="widget-title">
+
                     Active Training Sessions
+
                   </h6>
+
 
                   <div className="space-y-2">
 
                     <div className="d-flex justify-content-between align-items-center p-2">
+
                       <span className="fw-semibold">
+
                         Data Ethics 101
+
                       </span>
 
+
                       <Badge>
+
                         In Progress
+
                       </Badge>
+
                     </div>
 
+
                     <div className="d-flex justify-content-between align-items-center p-2">
+
                       <span>
+
                         Advanced Excel for HR
+
                       </span>
 
+
                       <Badge>
+
                         Starting Soon
+
                       </Badge>
+
                     </div>
 
                   </div>
 
                 </div>
 
-                {/* =================================================
+
+                {/* ==================================================
                     FEATURED CAMPAIGN
-                ================================================= */}
+                ================================================== */}
 
                 <div className="position-relative rounded-3 overflow-hidden">
 
@@ -790,15 +972,21 @@ const NewsPage = () => {
                     className="w-100 h-100 object-fit-cover"
                   />
 
+
                   <div className="position-absolute inset-0 d-flex flex-column justify-content-end p-3">
 
                     <h6 className="text-white fw-bold">
+
                       Wellness Month 2024
+
                     </h6>
 
+
                     <p className="text-white-50 small">
-                      Prioritizing your mental health in
-                      the workplace.
+
+                      Prioritizing your mental health
+                      in the workplace.
+
                     </p>
 
                   </div>
@@ -812,10 +1000,13 @@ const NewsPage = () => {
           </Row>
 
         </div>
+
       </Container>
+
     </div>
   );
 };
+
 
 export default NewsPage;
 
