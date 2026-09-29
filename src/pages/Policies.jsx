@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "../styles/policies.css";
 
-
-
 /*
 |--------------------------------------------------------------------------
 | PROGRAMMES
@@ -34,7 +32,6 @@ const documentTypes = [
   "Form",
   "Report",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -87,7 +84,6 @@ const subProgrammes = {
   ],
 };
 
-
 /*
 |--------------------------------------------------------------------------
 | POLICIES COMPONENT
@@ -95,55 +91,17 @@ const subProgrammes = {
 */
 
 function Policies() {
+  /*
+  |--------------------------------------------------------------------------
+  | STATE
+  |--------------------------------------------------------------------------
+  */
 
   const [docs, setDocs] = useState([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState("");
 
-useEffect(() => {
-  loadPolicies();
-}, []);
+  const [loading, setLoading] = useState(true);
 
-const loadPolicies = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/policies");
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch policies");
-    }
-
-    const data = await response.json();
-
-    const formattedPolicies = data.map((policy) => ({
-      id: policy.id,
-      title: policy.title,
-      programme: policy.category || "General",
-      subProgramme: policy.author || "Department",
-      type: "Policy",
-      version: policy.version_number || "N/A",
-      date: policy.publication_date
-        ? new Date(policy.publication_date).toLocaleDateString("en-ZA", {
-            month: "short",
-            year: "numeric",
-          })
-        : "N/A",
-      status: policy.status || "Unknown",
-      description: policy.description || "",
-      keywords: `${policy.title} ${policy.policy_number || ""} ${
-        policy.category || ""
-      } ${policy.author || ""}`,
-      size: "",
-      path: policy.file_url,
-    }));
-
-    setDocs(formattedPolicies);
-  } catch (error) {
-    console.error("Error loading policies:", error);
-    setError("Unable to load policies.");
-  } finally {
-    setLoading(false);
-  }
-};
+  const [error, setError] = useState("");
 
   const [programmeFilter, setProgrammeFilter] =
     useState("All");
@@ -168,6 +126,126 @@ const loadPolicies = async () => {
 
   const documentsPerPage = 10;
 
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD POLICIES FROM POSTGRESQL
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    loadPolicies();
+  }, []);
+
+  async function loadPolicies() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        "http://localhost:5000/api/policies"
+      );
+
+      if (!response.ok) {
+        const data = await response
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          data.error ||
+            "Failed to fetch policies."
+        );
+      }
+
+      const data = await response.json();
+
+      /*
+      |--------------------------------------------------------------------------
+      | Convert PostgreSQL records into the structure
+      | used by the existing Policies page.
+      |--------------------------------------------------------------------------
+      */
+
+      const formattedPolicies = data.map(
+        (policy) => ({
+          id: policy.id,
+
+          title:
+            policy.title || "Untitled Policy",
+
+          programme:
+            policy.category || "General",
+
+          subProgramme:
+            policy.author || "Department",
+
+          type:
+            "Policy",
+
+          /*
+           * The PostgreSQL policies table does not
+           * contain a version_number column.
+           */
+          version:
+            "1.0",
+
+          date:
+            policy.publication_date
+              ? new Date(
+                  policy.publication_date
+                ).toLocaleDateString(
+                  "en-ZA",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )
+              : "N/A",
+
+          status:
+            policy.status || "Unknown",
+
+          description:
+            policy.description || "",
+
+          keywords:
+            `${policy.title || ""} ${
+              policy.policy_number || ""
+            } ${
+              policy.category || ""
+            } ${
+              policy.author || ""
+            }`,
+
+          size:
+            "",
+
+          /*
+           * This comes directly from the
+           * PostgreSQL file_url column.
+           */
+          path:
+            policy.file_url || "",
+        })
+      );
+
+      setDocs(formattedPolicies);
+
+    } catch (error) {
+      console.error(
+        "Error loading policies:",
+        error
+      );
+
+      setError(
+        error?.message ||
+          "Unable to load policies."
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -175,16 +253,18 @@ const loadPolicies = async () => {
   |--------------------------------------------------------------------------
   */
 
-  const availableSubProgrammes = useMemo(() => {
+  const availableSubProgrammes =
+    useMemo(() => {
+      if (programmeFilter === "All") {
+        return [];
+      }
 
-    if (programmeFilter === "All") {
-      return [];
-    }
-
-    return subProgrammes[programmeFilter] || [];
-
-  }, [programmeFilter]);
-
+      return (
+        subProgrammes[
+          programmeFilter
+        ] || []
+      );
+    }, [programmeFilter]);
 
   /*
   |--------------------------------------------------------------------------
@@ -192,59 +272,72 @@ const loadPolicies = async () => {
   |--------------------------------------------------------------------------
   */
 
-  const filteredDocs = useMemo(() => {
+  const filteredDocs =
+    useMemo(() => {
+      const query =
+        searchTerm
+          .trim()
+          .toLowerCase();
 
-    const query =
-      searchTerm.trim().toLowerCase();
+      return docs.filter(
+        (document) => {
+          const matchesProgramme =
+            programmeFilter ===
+              "All" ||
+            document.programme ===
+              programmeFilter;
 
-    return docs.filter((document) => {
+          const matchesSubProgramme =
+            subProgrammeFilter ===
+              "All" ||
+            document.subProgramme ===
+              subProgrammeFilter;
 
-      const matchesProgramme =
-        programmeFilter === "All" ||
-        document.programme === programmeFilter;
+          const matchesType =
+            typeFilter === "All" ||
+            document.type ===
+              typeFilter;
 
+          const searchableText = `
+            ${document.title}
+            ${document.programme}
+            ${document.subProgramme}
+            ${document.type}
+            ${document.description}
+            ${document.keywords}
+          `.toLowerCase();
 
-      const matchesSubProgramme =
-        subProgrammeFilter === "All" ||
-        document.subProgramme === subProgrammeFilter;
+          const matchesSearch =
+            query.length === 0 ||
+            searchableText.includes(
+              query
+            );
 
-
-      const matchesType =
-        typeFilter === "All" ||
-        document.type === typeFilter;
-
-
-      const searchableText = `
-        ${document.title}
-        ${document.programme}
-        ${document.subProgramme}
-        ${document.type}
-        ${document.description}
-        ${document.keywords}
-      `.toLowerCase();
-
-
-      const matchesSearch =
-        query.length === 0 ||
-        searchableText.includes(query);
-
-
-      return (
-        matchesProgramme &&
-        matchesSubProgramme &&
-        matchesType &&
-        matchesSearch
+          return (
+            matchesProgramme &&
+            matchesSubProgramme &&
+            matchesType &&
+            matchesSearch
+          );
+        }
       );
+    }, [
+      /*
+       * IMPORTANT:
+       * docs must be here so the list
+       * recalculates after PostgreSQL
+       * data is loaded.
+       */
+      docs,
 
-    });
+      programmeFilter,
 
-  }, [
-    programmeFilter,
-    subProgrammeFilter,
-    typeFilter,
-    searchTerm,
-  ]);
+      subProgrammeFilter,
 
+      typeFilter,
+
+      searchTerm,
+    ]);
 
   /*
   |--------------------------------------------------------------------------
@@ -252,19 +345,19 @@ const loadPolicies = async () => {
   |--------------------------------------------------------------------------
   */
 
-  const totalPages = Math.ceil(
-    filteredDocs.length / documentsPerPage
-  );
-
+  const totalPages =
+    Math.ceil(
+      filteredDocs.length /
+        documentsPerPage
+    );
 
   const startIndex =
     (currentPage - 1) *
     documentsPerPage;
 
-
   const endIndex =
-    startIndex + documentsPerPage;
-
+    startIndex +
+    documentsPerPage;
 
   const currentDocuments =
     filteredDocs.slice(
@@ -272,15 +365,15 @@ const loadPolicies = async () => {
       endIndex
     );
 
-
   /*
   |--------------------------------------------------------------------------
   | PROGRAMME FILTER CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleProgrammeChange(event) {
-
+  function handleProgrammeChange(
+    event
+  ) {
     const selectedProgramme =
       event.target.value;
 
@@ -293,15 +386,15 @@ const loadPolicies = async () => {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | SEARCH CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleSearchChange(event) {
-
+  function handleSearchChange(
+    event
+  ) {
     setSearchTerm(
       event.target.value
     );
@@ -309,15 +402,15 @@ const loadPolicies = async () => {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | DOCUMENT TYPE CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleTypeChange(event) {
-
+  function handleTypeChange(
+    event
+  ) {
     setTypeFilter(
       event.target.value
     );
@@ -325,22 +418,21 @@ const loadPolicies = async () => {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | SUB-PROGRAMME CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleSubProgrammeChange(event) {
-
+  function handleSubProgrammeChange(
+    event
+  ) {
     setSubProgrammeFilter(
       event.target.value
     );
 
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -349,14 +441,20 @@ const loadPolicies = async () => {
   */
 
   function handleView(path) {
+    if (!path) {
+      alert(
+        "No PDF file is available for this policy."
+      );
+
+      return;
+    }
 
     window.open(
       path,
-      "_blank"
+      "_blank",
+      "noopener,noreferrer"
     );
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -368,23 +466,32 @@ const loadPolicies = async () => {
     path,
     title
   ) {
+    if (!path) {
+      alert(
+        "No PDF file is available for this policy."
+      );
+
+      return;
+    }
 
     const link =
-      document.createElement("a");
+      document.createElement(
+        "a"
+      );
 
     link.href = path;
 
     link.download =
-      `${title}.pdf`;
+      `${title || "policy"}.pdf`;
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link
+    );
 
     link.click();
 
     link.remove();
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -393,7 +500,6 @@ const loadPolicies = async () => {
   */
 
   function clearFilters() {
-
     setProgrammeFilter("All");
 
     setSubProgrammeFilter("All");
@@ -403,9 +509,7 @@ const loadPolicies = async () => {
     setSearchTerm("");
 
     setCurrentPage(1);
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -414,16 +518,13 @@ const loadPolicies = async () => {
   */
 
   function goToPage(page) {
-
     setCurrentPage(page);
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -432,9 +533,7 @@ const loadPolicies = async () => {
   */
 
   return (
-
     <div className="policies-page">
-
 
       {/* =====================================================
           HEADER
@@ -443,38 +542,38 @@ const loadPolicies = async () => {
       <div className="list-header">
 
         <div>
-  <h3
-    style={{
-      color: "var(--primary, #d85f06)",
-      fontSize: "2rem",
-      fontWeight: "700",
-      marginBottom: "0.5rem",
-    }}
-  >
-    Department Policies
-  </h3>
+          <h3
+            style={{
+              color:
+                "var(--primary, #d85f06)",
+              fontSize: "2rem",
+              fontWeight: "700",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Department Policies
+          </h3>
 
-  <p
-    style={{
-      color: "#5c5b5b",
-      fontSize: "1rem",
-      lineHeight: "1.6",
-      margin: 0,
-    }}
-  >
-    Access departmental policies, legislation, strategies, guidelines,
-    procedures, templates and reports.
-  </p>
-</div>
+          <p
+            style={{
+              color: "#5c5b5b",
+              fontSize: "1rem",
+              lineHeight: "1.6",
+              margin: 0,
+            }}
+          >
+            Access departmental policies,
+            legislation, strategies,
+            guidelines, procedures,
+            templates and reports.
+          </p>
+        </div>
 
         <span className="muted">
-
           {filteredDocs.length}{" "}
-
           {filteredDocs.length === 1
             ? "Document"
             : "Documents"}
-
         </span>
 
       </div>
@@ -489,7 +588,9 @@ const loadPolicies = async () => {
         <input
           type="text"
           value={searchTerm}
-          onChange={handleSearchChange}
+          onChange={
+            handleSearchChange
+          }
           placeholder="Search documents, policies, legislation, keywords..."
           aria-label="Search documents"
         />
@@ -503,7 +604,6 @@ const loadPolicies = async () => {
 
       <div className="policies-filter-section">
 
-
         {/* PROGRAMME */}
 
         <div className="filter-group">
@@ -514,20 +614,22 @@ const loadPolicies = async () => {
 
           <select
             id="programme"
-            value={programmeFilter}
-            onChange={handleProgrammeChange}
+            value={
+              programmeFilter
+            }
+            onChange={
+              handleProgrammeChange
+            }
           >
 
             {programmes.map(
               (programme) => (
-
                 <option
                   key={programme}
                   value={programme}
                 >
                   {programme}
                 </option>
-
               )
             )}
 
@@ -546,10 +648,15 @@ const loadPolicies = async () => {
 
           <select
             id="subProgramme"
-            value={subProgrammeFilter}
-            onChange={handleSubProgrammeChange}
+            value={
+              subProgrammeFilter
+            }
+            onChange={
+              handleSubProgrammeChange
+            }
             disabled={
-              programmeFilter === "All"
+              programmeFilter ===
+              "All"
             }
           >
 
@@ -559,14 +666,14 @@ const loadPolicies = async () => {
 
             {availableSubProgrammes.map(
               (subProgramme) => (
-
                 <option
                   key={subProgramme}
-                  value={subProgramme}
+                  value={
+                    subProgramme
+                  }
                 >
                   {subProgramme}
                 </option>
-
               )
             )}
 
@@ -585,20 +692,22 @@ const loadPolicies = async () => {
 
           <select
             id="documentType"
-            value={typeFilter}
-            onChange={handleTypeChange}
+            value={
+              typeFilter
+            }
+            onChange={
+              handleTypeChange
+            }
           >
 
             {documentTypes.map(
               (type) => (
-
                 <option
                   key={type}
                   value={type}
                 >
                   {type}
                 </option>
-
               )
             )}
 
@@ -611,7 +720,9 @@ const loadPolicies = async () => {
 
         <button
           className="clear-filters"
-          onClick={clearFilters}
+          onClick={
+            clearFilters
+          }
         >
           Clear Filters
         </button>
@@ -626,11 +737,11 @@ const loadPolicies = async () => {
       <div className="policies-results-header">
 
         <span>
-
           Showing{" "}
 
           <strong>
-            {filteredDocs.length === 0
+            {filteredDocs.length ===
+            0
               ? 0
               : startIndex + 1}
           </strong>
@@ -652,7 +763,8 @@ const loadPolicies = async () => {
 
           {" "}
 
-          {filteredDocs.length === 1
+          {filteredDocs.length ===
+          1
             ? "document"
             : "documents"}
 
@@ -666,58 +778,90 @@ const loadPolicies = async () => {
       ===================================================== */}
 
       <div className="policies-list">
+
+        {/* LOADING */}
+
         {loading && (
-  <div className="empty-state">
-    <h3>Loading policies...</h3>
-  </div>
-)}
-
-{error && !loading && (
-  <div className="empty-state">
-    <h3>{error}</h3>
-  </div>
-)}
-
-
-        {!loading && !error && currentDocuments.length === 0 ? (
-          /* EMPTY STATE */
-
           <div className="empty-state">
-
-            <div className="empty-icon">
-              PDF
-            </div>
-
             <h3>
-              No documents found
+              Loading policies...
             </h3>
-
-            <p>
-              No policies or documents match your
-              current search and filters.
-            </p>
-
-            <button
-              className="clear-empty-button"
-              onClick={clearFilters}
-            >
-              Clear Filters
-            </button>
-
           </div>
+        )}
 
-        ) : (
 
-          /* DOCUMENT CARDS */
+        {/* ERROR */}
 
+        {error &&
+          !loading && (
+            <div className="empty-state">
+              <h3>
+                {error}
+              </h3>
+
+              <button
+                className="clear-empty-button"
+                onClick={
+                  loadPolicies
+                }
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+
+        {/* EMPTY */}
+
+        {!loading &&
+          !error &&
+          currentDocuments.length ===
+            0 && (
+
+            <div className="empty-state">
+
+              <div className="empty-icon">
+                PDF
+              </div>
+
+              <h3>
+                No documents found
+              </h3>
+
+              <p>
+                No policies or documents
+                match your current
+                search and filters.
+              </p>
+
+              <button
+                className="clear-empty-button"
+                onClick={
+                  clearFilters
+                }
+              >
+                Clear Filters
+              </button>
+
+            </div>
+          )}
+
+
+        {/* DOCUMENT CARDS */}
+
+        {!loading &&
+          !error &&
+          currentDocuments.length >
+            0 &&
           currentDocuments.map(
             (document) => (
 
               <div
-                key={document.id}
+                key={
+                  document.id
+                }
                 className="doc-card"
               >
-
 
                 {/* PDF ICON */}
 
@@ -735,19 +879,25 @@ const loadPolicies = async () => {
                 <div className="doc-body">
 
                   <div className="doc-title">
-                    {document.title}
+                    {
+                      document.title
+                    }
                   </div>
 
 
                   <div className="doc-unit">
 
-                    {document.programme}
+                    {
+                      document.programme
+                    }
 
                     <span className="separator">
                       →
                     </span>
 
-                    {document.subProgramme}
+                    {
+                      document.subProgramme
+                    }
 
                   </div>
 
@@ -755,26 +905,40 @@ const loadPolicies = async () => {
                   <div className="doc-meta">
 
                     <span className="document-type">
-                      {document.type}
+                      {
+                        document.type
+                      }
                     </span>
 
                     <span>
-                      Version {document.version}
+                      Version{" "}
+                      {
+                        document.version
+                      }
                     </span>
 
                     <span>
-                      Updated {document.date}
+                      Updated{" "}
+                      {
+                        document.date
+                      }
                     </span>
 
-                    <span>
-                      {document.size}
-                    </span>
+                    {document.size && (
+                      <span>
+                        {
+                          document.size
+                        }
+                      </span>
+                    )}
 
                   </div>
 
 
                   <div className="doc-summary">
-                    {document.description}
+                    {
+                      document.description
+                    }
                   </div>
 
 
@@ -782,7 +946,9 @@ const loadPolicies = async () => {
 
                     <span className="status-dot"></span>
 
-                    {document.status}
+                    {
+                      document.status
+                    }
 
                   </div>
 
@@ -820,11 +986,8 @@ const loadPolicies = async () => {
                 </div>
 
               </div>
-
             )
-          )
-
-        )}
+          )}
 
       </div>
 
@@ -837,12 +1000,14 @@ const loadPolicies = async () => {
 
         <div className="policies-pagination">
 
-
           {/* PREVIOUS */}
 
           <button
             className="pagination-button"
-            disabled={currentPage === 1}
+            disabled={
+              currentPage ===
+              1
+            }
             onClick={() =>
               goToPage(
                 currentPage - 1
@@ -859,7 +1024,8 @@ const loadPolicies = async () => {
 
             {Array.from(
               {
-                length: totalPages,
+                length:
+                  totalPages,
               },
               (_, index) =>
                 index + 1
@@ -869,7 +1035,8 @@ const loadPolicies = async () => {
                 <button
                   key={page}
                   className={`pagination-number ${
-                    currentPage === page
+                    currentPage ===
+                    page
                       ? "active"
                       : ""
                   }`}
@@ -891,7 +1058,8 @@ const loadPolicies = async () => {
           <button
             className="pagination-button"
             disabled={
-              currentPage === totalPages
+              currentPage ===
+              totalPages
             }
             onClick={() =>
               goToPage(
@@ -902,16 +1070,11 @@ const loadPolicies = async () => {
             Next
           </button>
 
-
         </div>
-
       )}
 
     </div>
-
   );
-
 }
-
 
 export default Policies;

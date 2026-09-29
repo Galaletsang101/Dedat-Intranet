@@ -5,6 +5,7 @@ import { createFaq } from "../services/faqsService";
 import { createDocument } from "../services/documentsService";
 import { createPolicy } from "../services/policiesService";
 import { createCirculus } from "../services/circulusService";
+import { createWellnessVideo } from "../services/wellnessService";
 import "../styles/addContent.css";
 
 /* =========================================================
@@ -68,6 +69,12 @@ const PAGE_OPTIONS = [
     name: "Wellness",
     description: "Add wellness videos and helpful resources.",
     type: "video",
+  },
+  {
+    id: "calendar",
+    name: "Calendar Event",
+    description: "Create calendar events for staff.",
+    type: "calendar",
   },
 ];
 
@@ -176,6 +183,15 @@ export default function AddContent() {
   const [staffDescription, setStaffDescription] = useState("");
 
   /* =========================================================
+     CALENDAR
+  ========================================================= */
+
+  const [calendarStartTime, setCalendarStartTime] = useState("");
+  const [calendarEndTime, setCalendarEndTime] = useState("");
+  const [calendarCategory, setCalendarCategory] = useState("Meeting");
+  const [calendarQuarter, setCalendarQuarter] = useState("Q1");
+
+  /* =========================================================
      UI
   ========================================================= */
 
@@ -230,6 +246,12 @@ export default function AddContent() {
     setStaffTelephone("");
     setStaffDescription("");
 
+    /* Calendar */
+    setCalendarStartTime("");
+    setCalendarEndTime("");
+    setCalendarCategory("Meeting");
+    setCalendarQuarter("Q1");
+
     setActiveStep(1);
 
     setShowGuide(false);
@@ -277,6 +299,12 @@ export default function AddContent() {
     setStaffEmail("");
     setStaffTelephone("");
     setStaffDescription("");
+
+    /* Calendar */
+    setCalendarStartTime("");
+    setCalendarEndTime("");
+    setCalendarCategory("Meeting");
+    setCalendarQuarter("Q1");
 
     setShowCategoryInput(false);
     setNewCategory("");
@@ -557,6 +585,45 @@ export default function AddContent() {
       }
     }
 
+    /* Calendar */
+    if (selectedPage === "calendar") {
+      if (!title.trim()) {
+        setMessage("Please enter the event title.");
+        setMessageType("error");
+        return false;
+      }
+
+      if (!publishedDate) {
+        setMessage("Please select the event date.");
+        setMessageType("error");
+        return false;
+      }
+
+      if (!calendarStartTime) {
+        setMessage("Please select the start time.");
+        setMessageType("error");
+        return false;
+      }
+
+      if (!calendarEndTime) {
+        setMessage("Please select the end time.");
+        setMessageType("error");
+        return false;
+      }
+
+      if (calendarEndTime <= calendarStartTime) {
+        setMessage("End time must be after start time.");
+        setMessageType("error");
+        return false;
+      }
+
+      if (!calendarCategory) {
+        setMessage("Please select an event category.");
+        setMessageType("error");
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -578,6 +645,41 @@ export default function AddContent() {
   ========================================================= */
 
   const renderPreviewContent = () => {
+    /* Calendar */
+    if (selectedPageData.type === "calendar") {
+      return (
+        <div className="preview-calendar">
+          <h2>{title}</h2>
+
+          {description && (
+            <p>
+              <strong>Description:</strong> {description}
+            </p>
+          )}
+
+          <p>
+            <strong>Date:</strong> {publishedDate}
+          </p>
+
+          <p>
+            <strong>Start Time:</strong> {calendarStartTime}
+          </p>
+
+          <p>
+            <strong>End Time:</strong> {calendarEndTime}
+          </p>
+
+          <p>
+            <strong>Category:</strong> {calendarCategory}
+          </p>
+
+          <p>
+            <strong>Quarter:</strong> {calendarQuarter}
+          </p>
+        </div>
+      );
+    }
+
     if (selectedPageData.type === "video") {
       return (
         <div className="preview-media">
@@ -696,7 +798,10 @@ export default function AddContent() {
   ========================================================= */
 
   const handlePublish = async () => {
+    console.log("PUBLISH CLICKED - selectedPage:", selectedPage);
+
     if (!validateForm()) {
+      console.log("VALIDATION FAILED");
       return;
     }
 
@@ -766,7 +871,7 @@ export default function AddContent() {
     }
 
     /* =======================================================
-       FAQ -> PostgreSQL table shape: faqs
+       FAQ -> PostgreSQL
     ======================================================= */
 
     if (selectedPage === "faq") {
@@ -775,7 +880,7 @@ export default function AddContent() {
           question: faqQuestion.trim(),
           answer: faqAnswer,
           category: category.trim() || "General",
-          keywords: [],
+          keyword: "",
           status: "published",
         });
 
@@ -797,7 +902,7 @@ export default function AddContent() {
     }
 
     /* =======================================================
-       POLICIES -> PostgreSQL table shape: policies
+       POLICIES -> PostgreSQL
     ======================================================= */
 
     if (selectedPage === "policies") {
@@ -810,7 +915,6 @@ export default function AddContent() {
           author: author.trim() || "",
           publication_date: publishedDate || null,
           review_date: publishedDate || null,
-          version_number: "1.0",
           status: "published",
           file_url: pdfUrl || "",
         });
@@ -862,6 +966,126 @@ export default function AddContent() {
       } catch (error) {
         console.error("Failed to publish document:", error);
         setMessage(error?.message || "Failed to publish the document.");
+        setMessageType("error");
+      }
+
+      return;
+    }
+
+    /* =======================================================
+       WELLNESS -> PostgreSQL wellness_videos
+    ======================================================= */
+
+    if (selectedPage === "wellness") {
+      console.log("WELLNESS PUBLISH BUTTON REACHED");
+
+      try {
+        console.log("WELLNESS DATA BEFORE API:", {
+          title: title.trim(),
+          description: description.trim() || "",
+          category: category || "Mental Health",
+          duration: "",
+          thumbnail: imageUrl.trim() || "",
+          video_url: videoUrl.trim(),
+          featured: isFeatured,
+        });
+
+        await createWellnessVideo({
+          title: title.trim(),
+          description: description.trim() || "",
+          category: category || "Mental Health",
+          duration: "",
+          thumbnail: imageUrl.trim() || "",
+          video_url: videoUrl.trim(),
+          featured: isFeatured,
+        });
+
+        console.log("WELLNESS API REQUEST COMPLETED");
+
+        setMessage("Wellness video published successfully.");
+        setMessageType("success");
+        setShowPreview(false);
+        setActiveStep(1);
+
+        setTimeout(() => {
+          resetForm();
+        }, 1200);
+      } catch (error) {
+        console.error("Failed to publish wellness video:", error);
+
+        setMessage(
+          error?.message ||
+            "Failed to publish the wellness video."
+        );
+
+        setMessageType("error");
+      }
+
+      return;
+    }
+
+    /* =======================================================
+       CALENDAR EVENT -> PostgreSQL calendar_events
+    ======================================================= */
+
+    if (selectedPage === "calendar") {
+      try {
+        const startTime =
+          `${publishedDate} ${calendarStartTime}:00`;
+
+        const endTime =
+          `${publishedDate} ${calendarEndTime}:00`;
+
+        const response = await fetch(
+          "http://localhost:5000/api/calendar-events",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              title: title.trim(),
+              description: description.trim() || "",
+              start_time: startTime,
+              end_time: endTime,
+              category: calendarCategory,
+              quarter: calendarQuarter,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Failed to create calendar event."
+          );
+        }
+
+        setMessage("Calendar event created successfully.");
+        setMessageType("success");
+
+        setShowPreview(false);
+        setActiveStep(1);
+
+        setTimeout(() => {
+          resetForm();
+        }, 1200);
+
+      } catch (error) {
+        console.error(
+          "Failed to create calendar event:",
+          error
+        );
+
+        setMessage(
+          error?.message ||
+            "Failed to create the calendar event."
+        );
+
         setMessageType("error");
       }
 
@@ -1184,6 +1408,131 @@ export default function AddContent() {
     }
 
     /* =======================================================
+       CALENDAR EVENT
+    ======================================================= */
+
+    if (selectedPage === "calendar") {
+      return (
+        <>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Event Title *</label>
+
+              <input
+                type="text"
+                value={title}
+                onChange={(event) =>
+                  setTitle(event.target.value)
+                }
+                placeholder="Enter event title"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Date *</label>
+
+              <input
+                type="date"
+                value={publishedDate}
+                onChange={(event) =>
+                  setPublishedDate(event.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Start Time *</label>
+
+              <input
+                type="time"
+                value={calendarStartTime}
+                onChange={(event) =>
+                  setCalendarStartTime(event.target.value)
+                }
+              />
+            </div>
+
+            <div className="form-group">
+              <label>End Time *</label>
+
+              <input
+                type="time"
+                value={calendarEndTime}
+                onChange={(event) =>
+                  setCalendarEndTime(event.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Event Category *</label>
+
+              <select
+                value={calendarCategory}
+                onChange={(event) =>
+                  setCalendarCategory(event.target.value)
+                }
+              >
+                <option value="Meeting">
+                  Meeting
+                </option>
+
+                <option value="Training">
+                  Training
+                </option>
+
+                <option value="Leave">
+                  Leave
+                </option>
+
+                <option value="Deadline">
+                  Deadline
+                </option>
+
+                <option value="Boardroom">
+                  Boardroom
+                </option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Quarter</label>
+
+              <select
+                value={calendarQuarter}
+                onChange={(event) =>
+                  setCalendarQuarter(event.target.value)
+                }
+              >
+                <option value="Q1">Q1</option>
+                <option value="Q2">Q2</option>
+                <option value="Q3">Q3</option>
+                <option value="Q4">Q4</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Description</label>
+
+            <textarea
+              value={description}
+              onChange={(event) =>
+                setDescription(event.target.value)
+              }
+              placeholder="Enter a description for the calendar event"
+              rows="5"
+            />
+          </div>
+        </>
+      );
+    }
+
+    /* =======================================================
        PROGRAMMES & UNITS
     ======================================================= */
 
@@ -1411,7 +1760,6 @@ export default function AddContent() {
                   Newsletter
                 </option>
 
-                {/* ADDED CIRCULARS CATEGORY */}
                 <option value="Circulars">
                   Circulars
                 </option>

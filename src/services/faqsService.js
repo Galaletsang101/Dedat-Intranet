@@ -2,109 +2,92 @@
  * =========================================================
  * FAQS SERVICE
  * PostgreSQL table: faqs
- * Object shape mirrors the existing faqs table.
- * Temporary mock: localStorage.
- * Future API route: GET/POST/PUT/DELETE /faqs
  * =========================================================
  */
 
-import {
-  STORAGE_KEYS,
-  defaultFaqs,
-  readCollection,
-  writeCollection,
-  makeTimestamp,
-  nextId,
-} from "./contentStorage.js";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export async function getFaqs() {
-  try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/faqs`);
-      if (response.ok) {
-        return await response.json();
-      }
-    }
-  } catch (error) {
-    console.warn("API unavailable for FAQs, using localStorage mock.", error);
+  const response = await fetch(`${API_BASE}/faqs`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch FAQs.");
   }
 
-  return readCollection(STORAGE_KEYS.faqs, defaultFaqs);
+  return await response.json();
 }
 
 export async function getFaqById(id) {
-  const faqs = readCollection(STORAGE_KEYS.faqs, defaultFaqs);
-  return faqs.find((item) => String(item.id) === String(id)) || null;
+  const response = await fetch(`${API_BASE}/faqs/${id}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch FAQ.");
+  }
+
+  return await response.json();
 }
 
 export async function createFaq(faqData) {
-  try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/faqs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: faqData.question || "",
-          answer: faqData.answer || "",
-          category: faqData.category || "General",
-          keywords: Array.isArray(faqData.keywords)
-            ? faqData.keywords
-            : [],
-          status: faqData.status || "draft",
-        }),
-      });
+  const response = await fetch(`${API_BASE}/faqs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      question: faqData.question || "",
+      answer: faqData.answer || "",
+      category: faqData.category || "General",
+      keywords: Array.isArray(faqData.keywords)
+        ? faqData.keywords.join(", ")
+        : faqData.keywords || "",
+      status: faqData.status || "draft",
+    }),
+  });
 
-      if (response.ok) {
-        return await response.json();
+  if (!response.ok) {
+    let errorMessage = "Failed to create FAQ.";
+
+    try {
+      const errorData = await response.json();
+
+      if (errorData.error) {
+        errorMessage = errorData.error;
       }
+    } catch {
+      // Keep default error message
     }
-  } catch (error) {
-    console.warn("API unavailable for FAQs, using localStorage mock.", error);
+
+    throw new Error(errorMessage);
   }
 
-  const faqs = readCollection(STORAGE_KEYS.faqs, defaultFaqs);
-  const record = {
-    id: nextId(),
-    question: faqData.question || "",
-    answer: faqData.answer || "",
-    category: faqData.category || "General",
-    keywords: Array.isArray(faqData.keywords)
-      ? faqData.keywords
-      : [],
-    status: faqData.status || "draft",
-    created_at: makeTimestamp(),
-    updated_at: makeTimestamp(),
-  };
-
-  faqs.push(record);
-  writeCollection(STORAGE_KEYS.faqs, faqs);
-
-  return record;
+  return await response.json();
 }
 
 export async function updateFaq(id, faqData) {
-  const faqs = readCollection(STORAGE_KEYS.faqs, defaultFaqs);
-  const index = faqs.findIndex((faq) => String(faq.id) === String(id));
+  const response = await fetch(`${API_BASE}/faqs/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(faqData),
+  });
 
-  if (index === -1) {
-    return null;
+  if (!response.ok) {
+    throw new Error("Failed to update FAQ.");
   }
 
-  faqs[index] = {
-    ...faqs[index],
-    ...faqData,
-    updated_at: makeTimestamp(),
-  };
-
-  writeCollection(STORAGE_KEYS.faqs, faqs);
-  return faqs[index];
+  return await response.json();
 }
 
 export async function deleteFaq(id) {
-  const faqs = readCollection(STORAGE_KEYS.faqs, defaultFaqs);
-  const filtered = faqs.filter((faq) => String(faq.id) !== String(id));
-  writeCollection(STORAGE_KEYS.faqs, filtered);
-  return filtered;
+  const response = await fetch(`${API_BASE}/faqs/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete FAQ.");
+  }
+
+  return await response.json();
 }

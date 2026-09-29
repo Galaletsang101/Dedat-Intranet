@@ -1,120 +1,259 @@
 /*
  * =========================================================
  * DOCUMENTS SERVICE
- * PostgreSQL table: documents
- * Object shape mirrors the existing documents table.
- * Temporary mock: localStorage.
- * Future API route: GET/POST/PUT/DELETE /documents
+ * =========================================================
+ *
+ * Frontend communicates with:
+ *
+ * React
+ *   ↓
+ * Node / Express API
+ *   ↓
+ * PostgreSQL
+ *
+ * PostgreSQL table:
+ * documents
+ *
+ * Backend routes:
+ * GET    /api/documents
+ * GET    /api/documents/:id
+ * POST   /api/documents
+ * PUT    /api/documents/:id
+ * DELETE /api/documents/:id
+ *
  * =========================================================
  */
 
-import {
-  STORAGE_KEYS,
-  defaultDocuments,
-  readCollection,
-  writeCollection,
-  makeTimestamp,
-  nextId,
-} from "./contentStorage.js";
+const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000/api";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+// =========================================================
+// GET ALL DOCUMENTS
+// =========================================================
 
 export async function getDocuments() {
-  try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/documents`);
+    const response = await fetch(
+        `${API_BASE}/documents`
+    );
 
-      if (response.ok) {
-        return await response.json();
-      }
+    const data = await response
+        .json()
+        .catch(() => []);
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error ||
+            "Failed to fetch documents."
+        );
     }
-  } catch (error) {
-    console.warn("API unavailable for documents, using localStorage mock.", error);
-  }
 
-  return readCollection(STORAGE_KEYS.documents, defaultDocuments);
+    return data;
 }
+
+
+// =========================================================
+// GET DOCUMENT BY ID
+// =========================================================
 
 export async function getDocumentById(id) {
-  const docs = readCollection(STORAGE_KEYS.documents, defaultDocuments);
-  return docs.find((doc) => String(doc.id) === String(id)) || null;
+    const response = await fetch(
+        `${API_BASE}/documents/${id}`
+    );
+
+    const data = await response
+        .json()
+        .catch(() => null);
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error ||
+            "Failed to fetch document."
+        );
+    }
+
+    return data;
 }
+
+
+// =========================================================
+// CREATE DOCUMENT
+// =========================================================
 
 export async function createDocument(documentData) {
-  try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/documents`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: documentData.title || "",
-          description: documentData.description || "",
-          category: documentData.category || "Knowledge Centre",
-          keywords: Array.isArray(documentData.keywords)
-            ? documentData.keywords
-            : [],
-          knowledge_owner: documentData.knowledge_owner || "",
-          publication_date: documentData.publication_date || null,
-          review_date: documentData.review_date || null,
-          version_number: documentData.version_number || "1.0",
-          status: documentData.status || "draft",
-          file_url: documentData.file_url || "",
-        }),
-      });
+    const response = await fetch(
+        `${API_BASE}/documents`,
+        {
+            method: "POST",
 
-      if (response.ok) {
-        return await response.json();
-      }
+            headers: {
+                "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+                title:
+                    documentData.title ||
+                    "",
+
+                description:
+                    documentData.description ||
+                    "",
+
+                category:
+                    documentData.category ||
+                    "DOCUMENT",
+
+                keywords:
+                    Array.isArray(
+                        documentData.keywords
+                    )
+                        ? documentData.keywords.join(", ")
+                        : documentData.keywords || "",
+
+                knowledge_owner:
+                    documentData.knowledge_owner ||
+                    "",
+
+                publication_date:
+                    documentData.publication_date ||
+                    null,
+
+                review_date:
+                    documentData.review_date ||
+                    null,
+
+                version_number:
+                    documentData.version_number ||
+                    "v1.0",
+
+                status:
+                    documentData.status ||
+                    "Published",
+
+                file_url:
+                    documentData.file_url ||
+                    "",
+            }),
+        }
+    );
+
+    const data = await response
+        .json()
+        .catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error ||
+            "Failed to create document."
+        );
     }
-  } catch (error) {
-    console.warn("API unavailable for documents, using localStorage mock.", error);
-  }
 
-  const docs = readCollection(STORAGE_KEYS.documents, defaultDocuments);
-  const record = {
-    id: nextId(),
-    title: documentData.title || "",
-    description: documentData.description || "",
-    category: documentData.category || "Knowledge Centre",
-    keywords: Array.isArray(documentData.keywords)
-      ? documentData.keywords
-      : [],
-    knowledge_owner: documentData.knowledge_owner || "",
-    publication_date: documentData.publication_date || null,
-    review_date: documentData.review_date || null,
-    version_number: documentData.version_number || "1.0",
-    status: documentData.status || "draft",
-    file_url: documentData.file_url || "",
-    created_at: makeTimestamp(),
-  };
-
-  docs.push(record);
-  writeCollection(STORAGE_KEYS.documents, docs);
-
-  return record;
+    return data;
 }
 
-export async function updateDocument(id, documentData) {
-  const docs = readCollection(STORAGE_KEYS.documents, defaultDocuments);
-  const index = docs.findIndex((doc) => String(doc.id) === String(id));
 
-  if (index === -1) {
-    return null;
-  }
+// =========================================================
+// UPDATE DOCUMENT
+// =========================================================
 
-  docs[index] = {
-    ...docs[index],
-    ...documentData,
-    updated_at: makeTimestamp(),
-  };
+export async function updateDocument(
+    id,
+    documentData
+) {
+    const response = await fetch(
+        `${API_BASE}/documents/${id}`,
+        {
+            method: "PUT",
 
-  writeCollection(STORAGE_KEYS.documents, docs);
-  return docs[index];
+            headers: {
+                "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+                title:
+                    documentData.title ||
+                    "",
+
+                description:
+                    documentData.description ||
+                    "",
+
+                category:
+                    documentData.category ||
+                    "DOCUMENT",
+
+                keywords:
+                    Array.isArray(
+                        documentData.keywords
+                    )
+                        ? documentData.keywords.join(", ")
+                        : documentData.keywords || "",
+
+                knowledge_owner:
+                    documentData.knowledge_owner ||
+                    "",
+
+                publication_date:
+                    documentData.publication_date ||
+                    null,
+
+                review_date:
+                    documentData.review_date ||
+                    null,
+
+                version_number:
+                    documentData.version_number ||
+                    "v1.0",
+
+                status:
+                    documentData.status ||
+                    "Published",
+
+                file_url:
+                    documentData.file_url ||
+                    "",
+            }),
+        }
+    );
+
+    const data = await response
+        .json()
+        .catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error ||
+            "Failed to update document."
+        );
+    }
+
+    return data;
 }
+
+
+// =========================================================
+// DELETE DOCUMENT
+// =========================================================
 
 export async function deleteDocument(id) {
-  const docs = readCollection(STORAGE_KEYS.documents, defaultDocuments);
-  const filtered = docs.filter((doc) => String(doc.id) !== String(id));
-  writeCollection(STORAGE_KEYS.documents, filtered);
-  return filtered;
+    const response = await fetch(
+        `${API_BASE}/documents/${id}`,
+        {
+            method: "DELETE",
+        }
+    );
+
+    const data = await response
+        .json()
+        .catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error ||
+            "Failed to delete document."
+        );
+    }
+
+    return data;
 }

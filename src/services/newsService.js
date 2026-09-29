@@ -6,7 +6,6 @@
  * React -> Express API -> PostgreSQL
  *
  * The object structure matches the PostgreSQL "news" table.
- * Temporary mock: localStorage.
  * =========================================================
  */
 
@@ -29,15 +28,18 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export async function getNews() {
   try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/news`);
+    const response = await fetch(`${API_BASE}/news`);
 
-      if (response.ok) {
-        return await response.json();
-      }
+    if (response.ok) {
+      return await response.json();
     }
+
+    const errorText = await response.text();
+    console.error(
+      `News API error (${response.status}): ${errorText}`
+    );
   } catch (error) {
-    console.warn("API unavailable for news, using localStorage mock.", error);
+    console.error("Failed to fetch news from API:", error);
   }
 
   return readCollection(STORAGE_KEYS.news, defaultNews);
@@ -62,51 +64,36 @@ export async function getNewsById(id) {
 
 export async function createNews(newsData) {
   try {
-    if (import.meta.env.VITE_API_URL) {
-      const response = await fetch(`${API_BASE}/news`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: newsData.title || "",
-          excerpt: newsData.excerpt || "",
-          content_markdown: newsData.content_markdown || "",
-          category: newsData.category || "News",
-          author: newsData.author || "",
-          publication_date: newsData.publication_date || null,
-          image_url: newsData.image_url || "",
-          is_featured: newsData.is_featured ?? false,
-        }),
-      });
+    const response = await fetch(`${API_BASE}/news`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: newsData.title || "",
+        excerpt: newsData.excerpt || "",
+        content_markdown: newsData.content_markdown || "",
+        category: newsData.category || "News",
+        author: newsData.author || "",
+        publication_date: newsData.publication_date || null,
+        image_url: newsData.image_url || "",
+        is_featured: newsData.is_featured ?? false,
+      }),
+    });
 
-      if (response.ok) {
-        return await response.json();
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      throw new Error(
+        `News API error (${response.status}): ${errorText}`
+      );
     }
+
+    return await response.json();
   } catch (error) {
-    console.warn("API unavailable for news, using localStorage mock.", error);
+    console.error("Failed to create news:", error);
+    throw error;
   }
-
-  const news = readCollection(STORAGE_KEYS.news, defaultNews);
-  const record = {
-    id: nextId(),
-    title: newsData.title || "",
-    excerpt: newsData.excerpt || "",
-    content_markdown: newsData.content_markdown || "",
-    category: newsData.category || "News",
-    author: newsData.author || "",
-    publication_date: newsData.publication_date || null,
-    image_url: newsData.image_url || "",
-    is_featured: newsData.is_featured ?? false,
-    created_at: makeTimestamp(),
-    updated_at: null,
-  };
-
-  news.push(record);
-  writeCollection(STORAGE_KEYS.news, news);
-
-  return record;
 }
 
 /*
@@ -117,7 +104,9 @@ export async function createNews(newsData) {
 
 export async function updateNews(id, newsData) {
   const news = readCollection(STORAGE_KEYS.news, defaultNews);
-  const index = news.findIndex((item) => String(item.id) === String(id));
+  const index = news.findIndex(
+    (item) => String(item.id) === String(id)
+  );
 
   if (index === -1) {
     return null;
@@ -141,7 +130,12 @@ export async function updateNews(id, newsData) {
 
 export async function deleteNews(id) {
   const news = readCollection(STORAGE_KEYS.news, defaultNews);
-  const filtered = news.filter((item) => String(item.id) !== String(id));
+
+  const filtered = news.filter(
+    (item) => String(item.id) !== String(id)
+  );
+
   writeCollection(STORAGE_KEYS.news, filtered);
+
   return filtered;
 }
