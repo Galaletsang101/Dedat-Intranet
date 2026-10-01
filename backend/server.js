@@ -132,73 +132,87 @@ app.get("/api/calendar-events", async (req, res) => {
         });
     }
 });
+
 // POST boardroom booking
-app.post("/api/calendar-events", async (req, res) => {
-    try {
-        const {
-            title,
-            description,
-            start_time,
-            end_time,
-            quarter
-        } = req.body;
-
-        if (!title || !start_time || !end_time) {
-            return res.status(400).json({
-                error: "Title, start time and end time are required"
-            });
-        }
-
-        // Make sure the end time is after the start time
-        if (new Date(end_time) <= new Date(start_time)) {
-            return res.status(400).json({
-                error: "End time must be after start time"
-            });
-        }
-
-        // Check for an overlapping boardroom booking
-        const conflict = await pool.query(
-            `SELECT *
-             FROM calendar_events
-             WHERE category = 'Boardroom'
-             AND start_time < $2
-             AND end_time > $1`,
-            [start_time, end_time]
-        );
-
-        if (conflict.rows.length > 0) {
-            return res.status(409).json({
-                error: "The boardroom is already booked for this time."
-            });
-        }
-
-        // Create the booking
-        const result = await pool.query(
-            `INSERT INTO calendar_events
-            (title, description, start_time, end_time, category, quarter)
-            VALUES ($1, $2, $3, $4, 'Boardroom', $5)
-            RETURNING *`,
-            [
+app.post(
+    "/api/calendar-events",
+    authenticateToken,
+    async (req, res) => {
+        try {
+            const {
                 title,
-                description || null,
+                description,
                 start_time,
                 end_time,
-                quarter || null
-            ]
-        );
+                quarter
+            } = req.body;
 
-        res.status(201).json(result.rows[0]);
+            // Check required fields
+            if (!title || !start_time || !end_time) {
+                return res.status(400).json({
+                    error: "Title, start time and end time are required"
+                });
+            }
 
-    } catch (error) {
-  console.error("Error saving boardroom booking:", error);
+            // Make sure the end time is after the start time
+            if (new Date(end_time) <= new Date(start_time)) {
+                return res.status(400).json({
+                    error: "End time must be after start time"
+                });
+            }
 
-  if (error.message.includes("409")) {
-    alert("The boardroom is already booked for this time.");
-  } else {
-    alert("Failed to save boardroom booking.");
-  }
-}
-});
+            // Check for an overlapping boardroom booking
+            const conflict = await pool.query(
+                `SELECT *
+                 FROM calendar_events
+                 WHERE category = 'Boardroom'
+                 AND start_time < $2
+                 AND end_time > $1`,
+                [start_time, end_time]
+            );
+
+            if (conflict.rows.length > 0) {
+                return res.status(409).json({
+                    error: "The boardroom is already booked for this time."
+                });
+            }
+
+            // Create the booking
+            const result = await pool.query(
+                `INSERT INTO calendar_events
+                (
+                    title,
+                    description,
+                    start_time,
+                    end_time,
+                    category,
+                    quarter
+                )
+                VALUES ($1, $2, $3, $4, 'Boardroom', $5)
+                RETURNING *`,
+                [
+                    title,
+                    description || null,
+                    start_time,
+                    end_time,
+                    quarter || null
+                ]
+            );
+
+            res.status(201).json({
+                message: "Boardroom booking created successfully.",
+                booking: result.rows[0]
+            });
+
+        } catch (error) {
+            console.error("Error saving boardroom booking:", error);
+
+            res.status(500).json({
+                error: "Failed to save boardroom booking."
+            });
+        }
+    }
+);
 
 // GET documents
 app.get("/api/documents", async (req, res) => {

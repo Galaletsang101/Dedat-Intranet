@@ -212,13 +212,6 @@ export function isLoggedIn() {
 
 
 
-// ============================================================
-// RESET PASSWORD
-// ============================================================
-
-
-// We will implement PostgreSQL password reset separately.
-
 export async function resetPassword(email) {
 
   throw new Error(
