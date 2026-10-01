@@ -23,6 +23,7 @@ import StaffDirectory from "./pages/StaffDirectory";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
 import FAQ from "./pages/FAQ";
 import Policies from "./pages/Policies";
+import AddContent from "./pages/AddContent";
 
 function App() {
   return (
@@ -59,6 +60,8 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
 
             <Route path="/policies" element={<Policies />} />
+
+            <Route path="add-content" element={<AddContent />} />
           </Route>
         </Route>
       </Routes>

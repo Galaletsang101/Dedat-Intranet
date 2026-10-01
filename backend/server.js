@@ -86,6 +86,73 @@ app.get("/api/news", async (req, res) => {
 });
 
 // ============================================================
+// CREATE NEWS
+// ============================================================
+
+app.post("/api/news", async (req, res) => {
+    try {
+        const {
+            title,
+            excerpt,
+            content_markdown,
+            category,
+            author,
+            publication_date,
+            image_url,
+            is_featured
+        } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                error: "News title is required"
+            });
+        }
+
+        if (!content_markdown || !content_markdown.trim()) {
+            return res.status(400).json({
+                error: "News Markdown content is required"
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO news (
+                title,
+                excerpt,
+                content_markdown,
+                category,
+                author,
+                publication_date,
+                image_url,
+                is_featured,
+                created_date,
+                updated_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+            RETURNING *`,
+            [
+                title.trim(),
+                excerpt || null,
+                content_markdown.trim(),
+                category || "News",
+                author || null,
+                publication_date || null,
+                image_url || null,
+                is_featured ?? false
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error creating news:", error);
+
+        res.status(500).json({
+            error: "Failed to create news"
+        });
+    }
+});
+
+// ============================================================
 // WELLNESS VIDEOS
 // ============================================================
 
@@ -117,6 +184,108 @@ app.get("/api/wellness", async (req, res) => {
     }
 });
 
+// ============================================================
+// WELLNESS VIDEOS
+// ============================================================
+
+app.get("/api/wellness", async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT
+                id,
+                title,
+                description,
+                category,
+                duration,
+                thumbnail,
+                video_url,
+                featured,
+                created_date
+             FROM wellness_videos
+             ORDER BY created_date DESC`
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error("Wellness API error:", error);
+
+        res.status(500).json({
+            error: "Failed to fetch wellness videos"
+        });
+    }
+});
+
+// ============================================================
+// CREATE WELLNESS VIDEO
+// ============================================================
+
+app.post("/api/wellness", async (req, res) => {
+    try {
+        const {
+            title,
+            description,
+            category,
+            duration,
+            thumbnail,
+            video_url,
+            featured
+        } = req.body;
+
+        // Check what the frontend is sending
+        console.log("WELLNESS POST DATA:", req.body);
+
+        const result = await pool.query(
+            `INSERT INTO wellness_videos
+                (
+                    title,
+                    description,
+                    category,
+                    duration,
+                    thumbnail,
+                    video_url,
+                    featured
+                )
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING
+                id,
+                title,
+                description,
+                category,
+                duration,
+                thumbnail,
+                video_url,
+                featured,
+                created_date`,
+            [
+                title,
+                description || "",
+                category || "Mental Health",
+                duration || "",
+                thumbnail || "",
+                video_url || "",
+                featured ?? false
+            ]
+        );
+
+        // Check what PostgreSQL inserted
+        console.log("WELLNESS INSERTED:", result.rows[0]);
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Create wellness video API error:", error);
+
+        res.status(500).json({
+            error: "Failed to create wellness video"
+        });
+    }
+});
+
+// ============================================================
+// CALENDAR EVENTS
+// ============================================================
+
 // GET calendar events
 app.get("/api/calendar-events", async (req, res) => {
     try {
@@ -125,15 +294,19 @@ app.get("/api/calendar-events", async (req, res) => {
         );
 
         res.json(result.rows);
+
     } catch (error) {
         console.error("Error fetching calendar events:", error);
+
         res.status(500).json({
             error: "Failed to fetch calendar events"
         });
     }
 });
+// ============================================================
+// CREATE CALENDAR EVENT
+// ============================================================
 
-// POST boardroom booking
 app.post(
     "/api/calendar-events",
     authenticateToken,
@@ -144,6 +317,7 @@ app.post(
                 description,
                 start_time,
                 end_time,
+                category,
                 quarter
             } = req.body;
 
@@ -161,23 +335,35 @@ app.post(
                 });
             }
 
-            // Check for an overlapping boardroom booking
-            const conflict = await pool.query(
-                `SELECT *
-                 FROM calendar_events
-                 WHERE category = 'Boardroom'
-                 AND start_time < $2
-                 AND end_time > $1`,
-                [start_time, end_time]
-            );
+            // Use Meeting as the default category
+            const eventCategory = category || "Meeting";
 
-            if (conflict.rows.length > 0) {
-                return res.status(409).json({
-                    error: "The boardroom is already booked for this time."
-                });
+            // ========================================================
+            // BOARDROOM CONFLICT CHECK
+            // Only Boardroom bookings need this check
+            // ========================================================
+
+            if (eventCategory === "Boardroom") {
+                const conflict = await pool.query(
+                    `SELECT *
+                     FROM calendar_events
+                     WHERE category = 'Boardroom'
+                     AND start_time < $2
+                     AND end_time > $1`,
+                    [start_time, end_time]
+                );
+
+                if (conflict.rows.length > 0) {
+                    return res.status(409).json({
+                        error: "The boardroom is already booked for this time."
+                    });
+                }
             }
 
-            // Create the booking
+            // ========================================================
+            // CREATE EVENT
+            // ========================================================
+
             const result = await pool.query(
                 `INSERT INTO calendar_events
                 (
@@ -188,47 +374,267 @@ app.post(
                     category,
                     quarter
                 )
-                VALUES ($1, $2, $3, $4, 'Boardroom', $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *`,
                 [
                     title,
                     description || null,
                     start_time,
                     end_time,
+                    eventCategory,
                     quarter || null
                 ]
             );
 
             res.status(201).json({
-                message: "Boardroom booking created successfully.",
-                booking: result.rows[0]
+                message: "Calendar event created successfully.",
+                event: result.rows[0]
             });
 
         } catch (error) {
-            console.error("Error saving boardroom booking:", error);
+            console.error("Error saving calendar event:", error);
 
             res.status(500).json({
-                error: "Failed to save boardroom booking."
+                error: "Failed to save calendar event."
             });
         }
     }
 );
 
-// GET documents
+// ============================================================
+// DOCUMENTS
+// ============================================================
+
+// GET all documents
 app.get("/api/documents", async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM documents ORDER BY created_at DESC"
+            `SELECT *
+             FROM documents
+             ORDER BY created_at DESC`
         );
 
         res.json(result.rows);
+
     } catch (error) {
         console.error("Error fetching documents:", error);
+
         res.status(500).json({
             error: "Failed to fetch documents"
         });
     }
 });
+
+
+// GET single document
+app.get("/api/documents/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await pool.query(
+            `SELECT *
+             FROM documents
+             WHERE id = $1`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Document not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error fetching document:", error);
+
+        res.status(500).json({
+            error: "Failed to fetch document"
+        });
+    }
+});
+
+
+// CREATE document
+app.post("/api/documents", async (req, res) => {
+    try {
+        const {
+            title,
+            description,
+            category,
+            keywords,
+            knowledge_owner,
+            publication_date,
+            review_date,
+            version_number,
+            status,
+            file_url
+        } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                error: "Document title is required"
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO documents (
+                title,
+                description,
+                category,
+                keywords,
+                knowledge_owner,
+                publication_date,
+                review_date,
+                version_number,
+                status,
+                file_url
+            )
+            VALUES (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10
+            )
+            RETURNING *`,
+            [
+                title.trim(),
+                description || null,
+                category || "DOCUMENT",
+                keywords || "",
+                knowledge_owner || null,
+                publication_date || null,
+                review_date || null,
+                version_number || "v1.0",
+                status || "Published",
+                file_url || null
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error creating document:", error);
+
+        res.status(500).json({
+            error: "Failed to create document"
+        });
+    }
+});
+
+
+// UPDATE document
+app.put("/api/documents/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const {
+            title,
+            description,
+            category,
+            keywords,
+            knowledge_owner,
+            publication_date,
+            review_date,
+            version_number,
+            status,
+            file_url
+        } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                error: "Document title is required"
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE documents
+             SET
+                title = $1,
+                description = $2,
+                category = $3,
+                keywords = $4,
+                knowledge_owner = $5,
+                publication_date = $6,
+                review_date = $7,
+                version_number = $8,
+                status = $9,
+                file_url = $10
+             WHERE id = $11
+             RETURNING *`,
+            [
+                title.trim(),
+                description || null,
+                category || "DOCUMENT",
+                keywords || "",
+                knowledge_owner || null,
+                publication_date || null,
+                review_date || null,
+                version_number || "v1.0",
+                status || "Published",
+                file_url || null,
+                id
+            ]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Document not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error updating document:", error);
+
+        res.status(500).json({
+            error: "Failed to update document"
+        });
+    }
+});
+
+
+// DELETE document
+app.delete("/api/documents/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await pool.query(
+            `DELETE FROM documents
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Document not found"
+            });
+        }
+
+        res.json({
+            message: "Document deleted successfully",
+            document: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("Error deleting document:", error);
+
+        res.status(500).json({
+            error: "Failed to delete document"
+        });
+    }
+});
+
+
 
 
 // GET policies
@@ -247,6 +653,67 @@ app.get("/api/policies", async (req, res) => {
     }
 });
 
+// CREATE policy
+app.post("/api/policies", async (req, res) => {
+    try {
+        const {
+            title,
+            policy_number,
+            description,
+            category,
+            author,
+            publication_date,
+            review_date,
+            status,
+            file_url
+        } = req.body;
+
+        if (!title) {
+            return res.status(400).json({
+                error: "Policy title is required"
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO policies (
+                title,
+                policy_number,
+                description,
+                category,
+                author,
+                publication_date,
+                review_date,
+                status,
+                file_url
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING *`,
+            [
+                title,
+                policy_number || null,
+                description || null,
+                category || "Policy",
+                author || null,
+                publication_date || null,
+                review_date || null,
+                status || "draft",
+                file_url || null
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error creating policy:", error);
+
+        res.status(500).json({
+            error: "Failed to create policy"
+        });
+    }
+});
+// =========================================================
+// FAQs
+// =========================================================
 
 // GET FAQs
 app.get("/api/faqs", async (req, res) => {
@@ -258,8 +725,62 @@ app.get("/api/faqs", async (req, res) => {
         res.json(result.rows);
     } catch (error) {
         console.error("Error fetching FAQs:", error);
+
         res.status(500).json({
             error: "Failed to fetch FAQs"
+        });
+    }
+});
+
+
+// POST FAQ
+app.post("/api/faqs", async (req, res) => {
+    try {
+        const {
+            question,
+            answer,
+            category,
+            keywords,
+            status
+        } = req.body;
+
+        // Validate required fields
+        if (!question || !answer || !category) {
+            return res.status(400).json({
+                error: "Question, answer, and category are required."
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO faqs
+            (
+                question,
+                answer,
+                category,
+                keywords,
+                status,
+                created_at,
+                updated_at
+            )
+            VALUES
+            ($1, $2, $3, $4, $5, NOW(), NOW())
+            RETURNING *`,
+            [
+                question,
+                answer,
+                category,
+                keywords || "",
+                status || "draft"
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error creating FAQ:", error);
+
+        res.status(500).json({
+            error: "Failed to create FAQ"
         });
     }
 });
@@ -268,7 +789,7 @@ app.get("/api/faqs", async (req, res) => {
 app.get("/api/circulus", async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM circulus ORDER BY date_published DESC"
+            "SELECT * FROM circulus ORDER BY publication_date DESC"
         );
 
         res.json(result.rows);
@@ -276,6 +797,64 @@ app.get("/api/circulus", async (req, res) => {
         console.error("Error fetching circulus:", error);
         res.status(500).json({
             error: "Failed to fetch circulus"
+        });
+    }
+});
+
+// ============================================================
+// CREATE CIRCULUS
+// ============================================================
+
+app.post("/api/circulus", async (req, res) => {
+    try {
+        const {
+            title,
+            description,
+            category,
+            author,
+            publication_date,
+            file_url,
+            status
+        } = req.body;
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({
+                error: "Circulus title is required"
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO circulus (
+                title,
+                description,
+                category,
+                author,
+                publication_date,
+                file_url,
+                status,
+                created_at,
+                updated_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+            RETURNING *`,
+            [
+                title.trim(),
+                description || null,
+                category || "Circulars",
+                author || null,
+                publication_date || null,
+                file_url || null,
+                status || "Published"
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error creating circulus:", error);
+
+        res.status(500).json({
+            error: "Failed to create circulus"
         });
     }
 });
