@@ -61,7 +61,7 @@ function Login() {
 
 
       setError(
-        "Invalid email or password."
+        error.message || "Invalid email or password."
       );
 
 

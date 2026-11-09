@@ -24,6 +24,8 @@
  * =========================================================
  */
 
+import { authFetch } from "./apiClient.js";
+
 const API_BASE =
     import.meta.env.VITE_API_URL ||
     "http://localhost:5000/api";
@@ -82,14 +84,10 @@ export async function getDocumentById(id) {
 // =========================================================
 
 export async function createDocument(documentData) {
-    const response = await fetch(
-        `${API_BASE}/documents`,
+    const response = await authFetch(
+        "/documents",
         {
             method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-            },
 
             body: JSON.stringify({
                 title:
@@ -161,14 +159,10 @@ export async function updateDocument(
     id,
     documentData
 ) {
-    const response = await fetch(
-        `${API_BASE}/documents/${id}`,
+    const response = await authFetch(
+        `/documents/${id}`,
         {
             method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json",
-            },
 
             body: JSON.stringify({
                 title:
@@ -237,8 +231,8 @@ export async function updateDocument(
 // =========================================================
 
 export async function deleteDocument(id) {
-    const response = await fetch(
-        `${API_BASE}/documents/${id}`,
+    const response = await authFetch(
+        `/documents/${id}`,
         {
             method: "DELETE",
         }

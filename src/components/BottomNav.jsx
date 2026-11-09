@@ -8,6 +8,7 @@ import {
   FaHeart,
   FaHeadset,
   FaPlus,
+  FaUserShield,
 } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
@@ -73,6 +74,11 @@ function BottomNav() {
     // ============================================================
     ...(user?.role === "Admin"
       ? [
+          {
+            name: "Admin Center",
+            icon: <FaUserShield />,
+            path: "/admin",
+          },
           {
             name: "Add Content",
             icon: <FaPlus />,

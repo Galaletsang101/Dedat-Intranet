@@ -13,10 +13,8 @@ import {
   STORAGE_KEYS,
   defaultNews,
   readCollection,
-  writeCollection,
-  makeTimestamp,
-  nextId,
 } from "./contentStorage.js";
+import { authFetch, parseJsonResponse } from "./apiClient.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -63,37 +61,21 @@ export async function getNewsById(id) {
  */
 
 export async function createNews(newsData) {
-  try {
-    const response = await fetch(`${API_BASE}/news`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: newsData.title || "",
-        excerpt: newsData.excerpt || "",
-        content_markdown: newsData.content_markdown || "",
-        category: newsData.category || "News",
-        author: newsData.author || "",
-        publication_date: newsData.publication_date || null,
-        image_url: newsData.image_url || "",
-        is_featured: newsData.is_featured ?? false,
-      }),
-    });
+  const response = await authFetch("/news", {
+    method: "POST",
+    body: JSON.stringify({
+      title: newsData.title || "",
+      excerpt: newsData.excerpt || "",
+      content_markdown: newsData.content_markdown || "",
+      category: newsData.category || "News",
+      author: newsData.author || "",
+      publication_date: newsData.publication_date || null,
+      image_url: newsData.image_url || "",
+      is_featured: newsData.is_featured ?? false,
+    }),
+  });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-
-      throw new Error(
-        `News API error (${response.status}): ${errorText}`
-      );
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to create news:", error);
-    throw error;
-  }
+  return parseJsonResponse(response, "Failed to create news.");
 }
 
 /*
@@ -103,23 +85,21 @@ export async function createNews(newsData) {
  */
 
 export async function updateNews(id, newsData) {
-  const news = readCollection(STORAGE_KEYS.news, defaultNews);
-  const index = news.findIndex(
-    (item) => String(item.id) === String(id)
-  );
+  const response = await authFetch(`/news/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title: newsData.title || "",
+      excerpt: newsData.excerpt || "",
+      content_markdown: newsData.content_markdown || "",
+      category: newsData.category || "News",
+      author: newsData.author || "",
+      publication_date: newsData.publication_date || null,
+      image_url: newsData.image_url || "",
+      is_featured: newsData.is_featured ?? false,
+    }),
+  });
 
-  if (index === -1) {
-    return null;
-  }
-
-  news[index] = {
-    ...news[index],
-    ...newsData,
-    updated_at: makeTimestamp(),
-  };
-
-  writeCollection(STORAGE_KEYS.news, news);
-  return news[index];
+  return parseJsonResponse(response, "Failed to update news.");
 }
 
 /*
@@ -129,13 +109,9 @@ export async function updateNews(id, newsData) {
  */
 
 export async function deleteNews(id) {
-  const news = readCollection(STORAGE_KEYS.news, defaultNews);
+  const response = await authFetch(`/news/${id}`, {
+    method: "DELETE",
+  });
 
-  const filtered = news.filter(
-    (item) => String(item.id) !== String(id)
-  );
-
-  writeCollection(STORAGE_KEYS.news, filtered);
-
-  return filtered;
+  return parseJsonResponse(response, "Failed to delete news.");
 }

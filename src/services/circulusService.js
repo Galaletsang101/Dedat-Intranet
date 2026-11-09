@@ -10,10 +10,8 @@ import {
   STORAGE_KEYS,
   defaultCirculus,
   readCollection,
-  writeCollection,
-  makeTimestamp,
-  nextId,
 } from "./contentStorage.js";
+import { authFetch, parseJsonResponse } from "./apiClient.js";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -73,36 +71,20 @@ export async function getCirculusById(id) {
  */
 
 export async function createCirculus(recordData) {
-  try {
-    const response = await fetch(`${API_BASE}/circulus`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: recordData.title || "",
-        description: recordData.description || "",
-        category: recordData.category || "Circulars",
-        author: recordData.author || "",
-        publication_date: recordData.publication_date || null,
-        file_url: recordData.file_url || "",
-        status: recordData.status || "draft",
-      }),
-    });
+  const response = await authFetch("/circulus", {
+    method: "POST",
+    body: JSON.stringify({
+      title: recordData.title || "",
+      description: recordData.description || "",
+      category: recordData.category || "Circulars",
+      author: recordData.author || "",
+      publication_date: recordData.publication_date || null,
+      file_url: recordData.file_url || "",
+      status: recordData.status || "draft",
+    }),
+  });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-
-      throw new Error(
-        `Circulus API error (${response.status}): ${errorText}`
-      );
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to create circulus:", error);
-    throw error;
-  }
+  return parseJsonResponse(response, "Failed to create circulus.");
 }
 
 /*
@@ -112,28 +94,20 @@ export async function createCirculus(recordData) {
  */
 
 export async function updateCirculus(id, recordData) {
-  const items = readCollection(
-    STORAGE_KEYS.circulus,
-    defaultCirculus
-  );
+  const response = await authFetch(`/circulus/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title: recordData.title || "",
+      description: recordData.description || "",
+      category: recordData.category || "Circulars",
+      author: recordData.author || "",
+      publication_date: recordData.publication_date || null,
+      file_url: recordData.file_url || "",
+      status: recordData.status || "Published",
+    }),
+  });
 
-  const index = items.findIndex(
-    (item) => String(item.id) === String(id)
-  );
-
-  if (index === -1) {
-    return null;
-  }
-
-  items[index] = {
-    ...items[index],
-    ...recordData,
-    updated_at: makeTimestamp(),
-  };
-
-  writeCollection(STORAGE_KEYS.circulus, items);
-
-  return items[index];
+  return parseJsonResponse(response, "Failed to update circulus.");
 }
 
 /*
@@ -143,16 +117,9 @@ export async function updateCirculus(id, recordData) {
  */
 
 export async function deleteCirculus(id) {
-  const items = readCollection(
-    STORAGE_KEYS.circulus,
-    defaultCirculus
-  );
+  const response = await authFetch(`/circulus/${id}`, {
+    method: "DELETE",
+  });
 
-  const filtered = items.filter(
-    (item) => String(item.id) !== String(id)
-  );
-
-  writeCollection(STORAGE_KEYS.circulus, filtered);
-
-  return filtered;
+  return parseJsonResponse(response, "Failed to delete circulus.");
 }

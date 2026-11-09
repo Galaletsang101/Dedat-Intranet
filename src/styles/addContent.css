@@ -1199,3 +1199,48 @@
     height: 450px;
   }
 }
+
+/* =========================================================
+   QUICK LINKS TO OTHER ADMIN MODULES
+========================================================= */
+
+.admin-quicklinks {
+  max-width: 1400px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 20px;
+}
+
+.admin-quicklinks > span {
+  color: #777;
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.admin-quicklink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  color: #d85f06;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-quicklink:hover {
+  background: #fdf5ef;
+  border-color: #d85f06;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #888;
+}

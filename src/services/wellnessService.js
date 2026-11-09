@@ -1,13 +1,9 @@
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { authFetch } from "./apiClient.js";
 
 export async function createWellnessVideo(videoData) {
   try {
-    const response = await fetch(`${API_BASE}/wellness`, {
+    const response = await authFetch("/wellness", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         title: videoData.title || "",
         description: videoData.description || "",

@@ -1,22 +1,32 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { FaUsers, FaBuilding } from "react-icons/fa";
 import { createNews } from "../services/newsService";
 import { createFaq } from "../services/faqsService";
 import { createDocument } from "../services/documentsService";
 import { createPolicy } from "../services/policiesService";
 import { createCirculus } from "../services/circulusService";
 import { createWellnessVideo } from "../services/wellnessService";
+import { authFetch, parseJsonResponse } from "../services/apiClient";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/addContent.css";
 
 /* =========================================================
    PAGE OPTIONS
-========================================================= */
+
+   Employee/user/department records moved to the Admin Center
+   (/#/admin) once that became a real, database-backed module -
+   keeping separate non-functional stubs for them here would just
+   be a second, broken way to do the same thing.
+========================================= */
 
 const PAGE_OPTIONS = [
   {
-    id: "dashboard",
-    name: "Dashboard",
-    description: "Add dashboard announcements, notices and updates.",
+    id: "news",
+    name: "News & Circulars",
+    description:
+      "Publish official news, circulars, gazettes and newsletters.",
     type: "markdown",
   },
   {
@@ -26,43 +36,16 @@ const PAGE_OPTIONS = [
     type: "faq",
   },
   {
-    id: "homepage",
-    name: "Homepage",
-    description: "Add homepage announcements and information.",
-    type: "markdown",
-  },
-  {
     id: "knowledge",
     name: "Knowledge Centre",
     description: "Add documents, guides and knowledge resources.",
     type: "markdown-pdf",
   },
   {
-    id: "news",
-    name: "News & Circulars",
-    description:
-      "Publish official news, circulars, gazettes and newsletters.",
-    type: "markdown",
-  },
-  {
     id: "policies",
     name: "Policies",
     description: "Add and publish official departmental policy documents.",
     type: "pdf",
-  },
-  {
-    id: "programsUnits",
-    name: "Programmes & Units",
-    description:
-      "Add programme, sub-programme and unit information.",
-    type: "program",
-  },
-  {
-    id: "staffDirectory",
-    name: "Staff Directory",
-    description:
-      "Add staff members and their contact information.",
-    type: "staff",
   },
   {
     id: "wellness",
@@ -77,29 +60,6 @@ const PAGE_OPTIONS = [
     type: "calendar",
   },
 ];
-
-/* =========================================================
-   DEFAULT MARKDOWN
-========================================================= */
-
-const DEFAULT_MARKDOWN = `# New Content
-
-## Introduction
-
-Write your content here.
-
-## Details
-
-Add the relevant information.
-
-- Point one
-- Point two
-- Point three
-
-## Contact Information
-
-Add contact information if required.
-`;
 
 /* =========================================================
    FAQ CATEGORIES
@@ -122,8 +82,7 @@ export default function AddContent() {
      PAGE
   ========================================================= */
 
-  const [selectedPage, setSelectedPage] = useState("policies");
-  const [activeStep, setActiveStep] = useState(1);
+  const [selectedPage, setSelectedPage] = useState("news");
 
   /* =========================================================
      GENERAL CONTENT
@@ -137,7 +96,7 @@ export default function AddContent() {
   const [imageUrl, setImageUrl] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
 
-  const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
+  const [content, setContent] = useState("");
 
   /* =========================================================
      PDF
@@ -165,24 +124,6 @@ export default function AddContent() {
   const [showCategoryInput, setShowCategoryInput] = useState(false);
 
   /* =========================================================
-     PROGRAMMES & UNITS
-  ========================================================= */
-
-  const [programme, setProgramme] = useState("");
-  const [unit, setUnit] = useState("");
-
-  /* =========================================================
-     STAFF DIRECTORY
-  ========================================================= */
-
-  const [staffName, setStaffName] = useState("");
-  const [staffPosition, setStaffPosition] = useState("");
-  const [staffProgramme, setStaffProgramme] = useState("");
-  const [staffEmail, setStaffEmail] = useState("");
-  const [staffTelephone, setStaffTelephone] = useState("");
-  const [staffDescription, setStaffDescription] = useState("");
-
-  /* =========================================================
      CALENDAR
   ========================================================= */
 
@@ -195,8 +136,8 @@ export default function AddContent() {
      UI
   ========================================================= */
 
-  const [showGuide, setShowGuide] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
@@ -212,6 +153,18 @@ export default function AddContent() {
     );
   }, [selectedPage]);
 
+  const hasUnsavedInput = () =>
+    Boolean(
+      title.trim() ||
+        description.trim() ||
+        content.trim() ||
+        faqQuestion.trim() ||
+        faqAnswer.trim() ||
+        pdfFile ||
+        videoFile ||
+        videoUrl.trim()
+    );
+
   /* =========================================================
      RESET FORM
   ========================================================= */
@@ -225,7 +178,7 @@ export default function AddContent() {
     setImageUrl("");
     setIsFeatured(false);
 
-    setMarkdown(DEFAULT_MARKDOWN);
+    setContent("");
 
     setPdfFile(null);
     setPdfUrl("");
@@ -236,25 +189,12 @@ export default function AddContent() {
     setFaqQuestion("");
     setFaqAnswer("");
 
-    setProgramme("");
-    setUnit("");
-
-    setStaffName("");
-    setStaffPosition("");
-    setStaffProgramme("");
-    setStaffEmail("");
-    setStaffTelephone("");
-    setStaffDescription("");
-
     /* Calendar */
     setCalendarStartTime("");
     setCalendarEndTime("");
     setCalendarCategory("Meeting");
     setCalendarQuarter("Q1");
 
-    setActiveStep(1);
-
-    setShowGuide(false);
     setShowPreview(false);
 
     setShowCategoryInput(false);
@@ -269,51 +209,19 @@ export default function AddContent() {
   ========================================================= */
 
   const handlePageChange = (pageId) => {
+    if (pageId === selectedPage) return;
+
+    if (
+      hasUnsavedInput() &&
+      !window.confirm(
+        "You have unsaved changes on this form. Switch content type and discard them?"
+      )
+    ) {
+      return;
+    }
+
     setSelectedPage(pageId);
-
-    setTitle("");
-    setDescription("");
-    setCategory("");
-    setAuthor("");
-    setPublishedDate("");
-    setImageUrl("");
-    setIsFeatured(false);
-
-    setMarkdown(DEFAULT_MARKDOWN);
-
-    setPdfFile(null);
-    setPdfUrl("");
-
-    setVideoFile(null);
-    setVideoUrl("");
-
-    setFaqQuestion("");
-    setFaqAnswer("");
-
-    setProgramme("");
-    setUnit("");
-
-    setStaffName("");
-    setStaffPosition("");
-    setStaffProgramme("");
-    setStaffEmail("");
-    setStaffTelephone("");
-    setStaffDescription("");
-
-    /* Calendar */
-    setCalendarStartTime("");
-    setCalendarEndTime("");
-    setCalendarCategory("Meeting");
-    setCalendarQuarter("Q1");
-
-    setShowCategoryInput(false);
-    setNewCategory("");
-
-    setShowPreview(false);
-    setMessage("");
-    setMessageType("");
-
-    setActiveStep(1);
+    resetForm();
   };
 
   /* =========================================================
@@ -338,8 +246,6 @@ export default function AddContent() {
 
     setMessage("");
     setMessageType("");
-
-    setActiveStep(2);
   };
 
   /* =========================================================
@@ -364,8 +270,6 @@ export default function AddContent() {
 
     setMessage("");
     setMessageType("");
-
-    setActiveStep(2);
   };
 
   /* =========================================================
@@ -408,36 +312,6 @@ export default function AddContent() {
   ========================================================= */
 
   const validateForm = () => {
-    /* Dashboard */
-    if (selectedPage === "dashboard") {
-      if (!title.trim()) {
-        setMessage("Please enter a title.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!markdown.trim()) {
-        setMessage("Please enter some Markdown content.");
-        setMessageType("error");
-        return false;
-      }
-    }
-
-    /* Homepage */
-    if (selectedPage === "homepage") {
-      if (!title.trim()) {
-        setMessage("Please enter a title.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!markdown.trim()) {
-        setMessage("Please enter some Markdown content.");
-        setMessageType("error");
-        return false;
-      }
-    }
-
     /* Policies */
     if (selectedPage === "policies") {
       if (!title.trim()) {
@@ -461,8 +335,8 @@ export default function AddContent() {
         return false;
       }
 
-      if (!markdown.trim()) {
-        setMessage("Please enter some Markdown content.");
+      if (!content.trim()) {
+        setMessage("Please enter some content.");
         setMessageType("error");
         return false;
       }
@@ -482,8 +356,8 @@ export default function AddContent() {
         return false;
       }
 
-      if (!markdown.trim()) {
-        setMessage("Please enter some Markdown content.");
+      if (!content.trim()) {
+        setMessage("Please enter some content.");
         setMessageType("error");
         return false;
       }
@@ -511,60 +385,6 @@ export default function AddContent() {
 
       if (!category.trim()) {
         setMessage("Please select an FAQ category.");
-        setMessageType("error");
-        return false;
-      }
-    }
-
-    /* Programmes & Units */
-    if (selectedPage === "programsUnits") {
-      if (!programme.trim()) {
-        setMessage("Please enter the programme.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!unit.trim()) {
-        setMessage("Please enter the unit.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!markdown.trim()) {
-        setMessage("Please enter some Markdown content.");
-        setMessageType("error");
-        return false;
-      }
-    }
-
-    /* Staff Directory */
-    if (selectedPage === "staffDirectory") {
-      if (!staffName.trim()) {
-        setMessage("Please enter the staff member's name.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!staffPosition.trim()) {
-        setMessage("Please enter the staff member's position.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!staffProgramme.trim()) {
-        setMessage("Please enter the programme.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!staffEmail.trim()) {
-        setMessage("Please enter the staff member's email.");
-        setMessageType("error");
-        return false;
-      }
-
-      if (!staffTelephone.trim()) {
-        setMessage("Please enter the staff member's telephone number.");
         setMessageType("error");
         return false;
       }
@@ -636,7 +456,6 @@ export default function AddContent() {
       return;
     }
 
-    setActiveStep(3);
     setShowPreview(true);
   };
 
@@ -706,9 +525,9 @@ export default function AddContent() {
     ) {
       return (
         <div className="preview-document">
-          {markdown && (
+          {content && (
             <div className="preview-markdown">
-              <ReactMarkdown>{markdown}</ReactMarkdown>
+              <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           )}
 
@@ -742,53 +561,9 @@ export default function AddContent() {
       );
     }
 
-    if (selectedPageData.type === "program") {
-      return (
-        <div className="preview-program">
-          <h2>{unit}</h2>
-
-          <p>
-            <strong>Programme:</strong> {programme}
-          </p>
-
-          <ReactMarkdown>{markdown}</ReactMarkdown>
-        </div>
-      );
-    }
-
-    if (selectedPageData.type === "staff") {
-      return (
-        <div className="preview-staff">
-          <h2>{staffName}</h2>
-
-          <p>
-            <strong>Position:</strong> {staffPosition}
-          </p>
-
-          <p>
-            <strong>Programme:</strong> {staffProgramme}
-          </p>
-
-          <p>
-            <strong>Email:</strong> {staffEmail}
-          </p>
-
-          <p>
-            <strong>Telephone:</strong> {staffTelephone}
-          </p>
-
-          {staffDescription && (
-            <p>
-              <strong>Description:</strong> {staffDescription}
-            </p>
-          )}
-        </div>
-      );
-    }
-
     return (
       <div className="preview-markdown">
-        <ReactMarkdown>{markdown}</ReactMarkdown>
+        <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     );
   };
@@ -798,19 +573,17 @@ export default function AddContent() {
   ========================================================= */
 
   const handlePublish = async () => {
-    console.log("PUBLISH CLICKED - selectedPage:", selectedPage);
-
     if (!validateForm()) {
-      console.log("VALIDATION FAILED");
       return;
     }
 
-    /* =======================================================
-       NEWS & CIRCULARS -> PostgreSQL table shape: news or circulus
-    ======================================================= */
+    setIsPublishing(true);
+    setMessage("");
+    setMessageType("");
 
-    if (selectedPage === "news") {
-      try {
+    try {
+      /* NEWS & CIRCULARS -> PostgreSQL table shape: news or circulus */
+      if (selectedPage === "news") {
         const selectedCategory = (category || "").trim().toLowerCase();
 
         if (selectedCategory === "circulars") {
@@ -825,57 +598,21 @@ export default function AddContent() {
           });
 
           setMessage("Circular published successfully.");
-          setMessageType("success");
-          setShowPreview(false);
-          setActiveStep(1);
+        } else {
+          await createNews({
+            title: title.trim(),
+            excerpt: description.trim() || null,
+            content_markdown: content,
+            category: category.trim(),
+            author: author.trim() || null,
+            publication_date: publishedDate || null,
+            image_url: imageUrl.trim() || null,
+            is_featured: isFeatured,
+          });
 
-          setTimeout(() => {
-            resetForm();
-          }, 1200);
-
-          return;
+          setMessage("News article published successfully.");
         }
-
-        await createNews({
-          title: title.trim(),
-          excerpt: description.trim() || null,
-          content_markdown: markdown,
-          category: category.trim(),
-          author: author.trim() || null,
-          publication_date: publishedDate || null,
-          image_url: imageUrl.trim() || null,
-          is_featured: isFeatured,
-        });
-
-        setMessage("News article published successfully.");
-        setMessageType("success");
-
-        setShowPreview(false);
-        setActiveStep(1);
-
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-      } catch (error) {
-        console.error("Failed to publish content:", error);
-
-        setMessage(
-          error?.message ||
-            "Failed to publish the content."
-        );
-
-        setMessageType("error");
-      }
-
-      return;
-    }
-
-    /* =======================================================
-       FAQ -> PostgreSQL
-    ======================================================= */
-
-    if (selectedPage === "faq") {
-      try {
+      } else if (selectedPage === "faq") {
         await createFaq({
           question: faqQuestion.trim(),
           answer: faqAnswer,
@@ -885,28 +622,7 @@ export default function AddContent() {
         });
 
         setMessage("FAQ published successfully.");
-        setMessageType("success");
-        setShowPreview(false);
-        setActiveStep(1);
-
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-      } catch (error) {
-        console.error("Failed to publish FAQ:", error);
-        setMessage(error?.message || "Failed to publish the FAQ.");
-        setMessageType("error");
-      }
-
-      return;
-    }
-
-    /* =======================================================
-       POLICIES -> PostgreSQL
-    ======================================================= */
-
-    if (selectedPage === "policies") {
-      try {
+      } else if (selectedPage === "policies") {
         await createPolicy({
           title: title.trim(),
           policy_number: `POL-${Date.now()}`,
@@ -920,28 +636,7 @@ export default function AddContent() {
         });
 
         setMessage("Policy published successfully.");
-        setMessageType("success");
-        setShowPreview(false);
-        setActiveStep(1);
-
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-      } catch (error) {
-        console.error("Failed to publish policy:", error);
-        setMessage(error?.message || "Failed to publish the policy.");
-        setMessageType("error");
-      }
-
-      return;
-    }
-
-    /* =======================================================
-       KNOWLEDGE CENTRE -> PostgreSQL table shape: documents
-    ======================================================= */
-
-    if (selectedPage === "knowledge") {
-      try {
+      } else if (selectedPage === "knowledge") {
         await createDocument({
           title: title.trim(),
           description: description.trim() || "",
@@ -956,40 +651,7 @@ export default function AddContent() {
         });
 
         setMessage("Knowledge document published successfully.");
-        setMessageType("success");
-        setShowPreview(false);
-        setActiveStep(1);
-
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-      } catch (error) {
-        console.error("Failed to publish document:", error);
-        setMessage(error?.message || "Failed to publish the document.");
-        setMessageType("error");
-      }
-
-      return;
-    }
-
-    /* =======================================================
-       WELLNESS -> PostgreSQL wellness_videos
-    ======================================================= */
-
-    if (selectedPage === "wellness") {
-      console.log("WELLNESS PUBLISH BUTTON REACHED");
-
-      try {
-        console.log("WELLNESS DATA BEFORE API:", {
-          title: title.trim(),
-          description: description.trim() || "",
-          category: category || "Mental Health",
-          duration: "",
-          thumbnail: imageUrl.trim() || "",
-          video_url: videoUrl.trim(),
-          featured: isFeatured,
-        });
-
+      } else if (selectedPage === "wellness") {
         await createWellnessVideo({
           title: title.trim(),
           description: description.trim() || "",
@@ -1000,225 +662,42 @@ export default function AddContent() {
           featured: isFeatured,
         });
 
-        console.log("WELLNESS API REQUEST COMPLETED");
-
         setMessage("Wellness video published successfully.");
-        setMessageType("success");
-        setShowPreview(false);
-        setActiveStep(1);
+      } else if (selectedPage === "calendar") {
+        const startTime = `${publishedDate} ${calendarStartTime}:00`;
+        const endTime = `${publishedDate} ${calendarEndTime}:00`;
 
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-      } catch (error) {
-        console.error("Failed to publish wellness video:", error);
+        const response = await authFetch("/calendar-events", {
+          method: "POST",
+          body: JSON.stringify({
+            title: title.trim(),
+            description: description.trim() || "",
+            start_time: startTime,
+            end_time: endTime,
+            category: calendarCategory,
+            quarter: calendarQuarter,
+          }),
+        });
 
-        setMessage(
-          error?.message ||
-            "Failed to publish the wellness video."
-        );
-
-        setMessageType("error");
-      }
-
-      return;
-    }
-
-    /* =======================================================
-       CALENDAR EVENT -> PostgreSQL calendar_events
-    ======================================================= */
-
-    if (selectedPage === "calendar") {
-      try {
-        const startTime =
-          `${publishedDate} ${calendarStartTime}:00`;
-
-        const endTime =
-          `${publishedDate} ${calendarEndTime}:00`;
-
-        const response = await fetch(
-          "http://localhost:5000/api/calendar-events",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-              title: title.trim(),
-              description: description.trim() || "",
-              start_time: startTime,
-              end_time: endTime,
-              category: calendarCategory,
-              quarter: calendarQuarter,
-            }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error ||
-              "Failed to create calendar event."
-          );
-        }
+        await parseJsonResponse(response, "Failed to create calendar event.");
 
         setMessage("Calendar event created successfully.");
-        setMessageType("success");
-
-        setShowPreview(false);
-        setActiveStep(1);
-
-        setTimeout(() => {
-          resetForm();
-        }, 1200);
-
-      } catch (error) {
-        console.error(
-          "Failed to create calendar event:",
-          error
-        );
-
-        setMessage(
-          error?.message ||
-            "Failed to create the calendar event."
-        );
-
-        setMessageType("error");
       }
 
-      return;
+      setMessageType("success");
+      setShowPreview(false);
+
+      setTimeout(() => {
+        resetForm();
+      }, 1200);
+    } catch (error) {
+      console.error(`Failed to publish ${selectedPage}:`, error);
+
+      setMessage(error?.message || "Failed to publish the content.");
+      setMessageType("error");
+    } finally {
+      setIsPublishing(false);
     }
-
-    /* =======================================================
-       OTHER PAGES
-
-       These still use the temporary localStorage system
-       until their backend/API integrations are completed.
-    ======================================================= */
-
-    const content = {
-      id: Date.now(),
-
-      page: selectedPage,
-
-      pageName: selectedPageData.name,
-
-      type: selectedPageData.type,
-
-      title:
-        selectedPage === "faq"
-          ? faqQuestion
-          : selectedPage === "programsUnits"
-          ? unit
-          : selectedPage === "staffDirectory"
-          ? staffName
-          : title,
-
-      description,
-
-      category:
-        selectedPage === "faq"
-          ? category
-          : selectedPage === "wellness"
-          ? category || "Mental Health"
-          : category,
-
-      author:
-        selectedPage === "news"
-          ? author
-          : "",
-
-      publishedDate,
-
-      markdown:
-        selectedPage === "dashboard" ||
-        selectedPage === "homepage" ||
-        selectedPage === "knowledge" ||
-        selectedPage === "news" ||
-        selectedPage === "programsUnits"
-          ? markdown
-          : "",
-
-      faq:
-        selectedPage === "faq"
-          ? {
-              question: faqQuestion,
-              answer: faqAnswer,
-              category,
-            }
-          : null,
-
-      pdf:
-        selectedPage === "policies" ||
-        selectedPage === "knowledge"
-          ? {
-              name: pdfFile?.name || "",
-              url: pdfUrl || "",
-              type: pdfFile?.type || "application/pdf",
-            }
-          : null,
-
-      video:
-        selectedPage === "wellness"
-          ? {
-              name: videoFile?.name || "",
-              url: videoUrl || "",
-              type: videoFile?.type || "",
-            }
-          : null,
-
-      programme:
-        selectedPage === "programsUnits"
-          ? {
-              programme,
-              unit,
-            }
-          : null,
-
-      staff:
-        selectedPage === "staffDirectory"
-          ? {
-              name: staffName,
-              position: staffPosition,
-              programme: staffProgramme,
-              email: staffEmail,
-              telephone: staffTelephone,
-              description: staffDescription,
-            }
-          : null,
-
-      createdAt: new Date().toISOString(),
-    };
-
-    const existingContent = JSON.parse(
-      localStorage.getItem("dedatPublishedContent") || "[]"
-    );
-
-    const updatedContent = [...existingContent, content];
-
-    localStorage.setItem(
-      "dedatPublishedContent",
-      JSON.stringify(updatedContent)
-    );
-
-    window.dispatchEvent(new Event("dedatContentUpdated"));
-
-    setMessage(
-      `${selectedPageData.name} content published successfully.`
-    );
-
-    setMessageType("success");
-
-    setShowPreview(false);
-
-    setActiveStep(1);
-
-    setTimeout(() => {
-      resetForm();
-    }, 1200);
   };
 
   /* =========================================================
@@ -1226,64 +705,59 @@ export default function AddContent() {
   ========================================================= */
 
   const renderContentDetails = () => {
-    /* =======================================================
-       FAQ
-    ======================================================= */
-
+    /* FAQ has its own dedicated editor below */
     if (selectedPage === "faq") {
       return null;
     }
 
-    /* =======================================================
-       POLICIES
-    ======================================================= */
-
+    /* POLICIES */
     if (selectedPage === "policies") {
       return (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>Policy Title *</label>
+              <label htmlFor="policy-title">Policy Title *</label>
 
               <input
+                id="policy-title"
                 type="text"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Enter policy title"
+                placeholder="e.g. Supply Chain Management Policy"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Published Date</label>
+              <label htmlFor="policy-date">Published Date</label>
 
               <input
+                id="policy-date"
                 type="date"
                 value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
+                onChange={(event) => setPublishedDate(event.target.value)}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label htmlFor="policy-description">Description</label>
 
             <textarea
+              id="policy-description"
               value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a short description"
-              rows="4"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="What is this policy about, in a sentence or two?"
+              rows="3"
             />
           </div>
 
           <div className="form-group">
-            <label>Upload Policy PDF *</label>
+            <label htmlFor="policy-pdf">Policy Document (PDF) *</label>
 
             <div className="upload-area">
               <input
+                id="policy-pdf"
                 type="file"
                 accept=".pdf,application/pdf"
                 onChange={handlePdfChange}
@@ -1292,104 +766,98 @@ export default function AddContent() {
               {pdfFile && (
                 <div className="file-status">
                   <strong>{pdfFile.name}</strong>
-                  <span>PDF ready for publishing</span>
+                  <span>Ready to publish</span>
                 </div>
               )}
             </div>
+            <p className="field-hint">PDF files only.</p>
           </div>
         </>
       );
     }
 
-    /* =======================================================
-       WELLNESS
-    ======================================================= */
-
+    /* WELLNESS */
     if (selectedPage === "wellness") {
       return (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>Video Title *</label>
+              <label htmlFor="wellness-title">Video Title *</label>
 
               <input
+                id="wellness-title"
                 type="text"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Enter wellness video title"
+                placeholder="e.g. 5-Minute Desk Stretches"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Published Date</label>
+              <label htmlFor="wellness-date">Published Date</label>
 
               <input
+                id="wellness-date"
                 type="date"
                 value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
+                onChange={(event) => setPublishedDate(event.target.value)}
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Category</label>
+              <label htmlFor="wellness-category">Category</label>
 
               <select
+                id="wellness-category"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
               >
                 <option value="">Select category</option>
-
-                <option value="Mental Health">
-                  Mental Health
-                </option>
-
-                <option value="Productivity">
-                  Productivity
-                </option>
-
-                <option value="Physical Care">
-                  Physical Care
-                </option>
+                <option value="Mental Health">Mental Health</option>
+                <option value="Productivity">Productivity</option>
+                <option value="Physical Care">Physical Care</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Video URL</label>
+              <label htmlFor="wellness-video-url">Video Link</label>
 
               <input
+                id="wellness-video-url"
                 type="url"
                 value={videoFile ? "" : videoUrl}
                 onChange={(event) => {
                   setVideoUrl(event.target.value);
                   setVideoFile(null);
                 }}
-                placeholder="Optional video URL"
+                placeholder="Paste a video link (optional if uploading a file)"
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label htmlFor="wellness-description">Description</label>
 
             <textarea
+              id="wellness-description"
               value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a short description for the video"
-              rows="4"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="A short, friendly summary of what this video covers"
+              rows="3"
             />
           </div>
 
           <div className="form-group">
-            <label>Upload Wellness Video</label>
+            <label htmlFor="wellness-video-file">
+              Or Upload a Video File
+            </label>
 
             <div className="upload-area">
               <input
+                id="wellness-video-file"
                 type="file"
                 accept="video/*"
                 onChange={handleVideoChange}
@@ -1398,7 +866,7 @@ export default function AddContent() {
               {videoFile && (
                 <div className="file-status">
                   <strong>{videoFile.name}</strong>
-                  <span>Video ready for publishing</span>
+                  <span>Ready to publish</span>
                 </div>
               )}
             </div>
@@ -1407,106 +875,87 @@ export default function AddContent() {
       );
     }
 
-    /* =======================================================
-       CALENDAR EVENT
-    ======================================================= */
-
+    /* CALENDAR EVENT */
     if (selectedPage === "calendar") {
       return (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>Event Title *</label>
+              <label htmlFor="event-title">Event Title *</label>
 
               <input
+                id="event-title"
                 type="text"
                 value={title}
-                onChange={(event) =>
-                  setTitle(event.target.value)
-                }
-                placeholder="Enter event title"
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="e.g. Quarterly Planning Meeting"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Date *</label>
+              <label htmlFor="event-date">Date *</label>
 
               <input
+                id="event-date"
                 type="date"
                 value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
+                onChange={(event) => setPublishedDate(event.target.value)}
+                required
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Start Time *</label>
+              <label htmlFor="event-start">Start Time *</label>
 
               <input
+                id="event-start"
                 type="time"
                 value={calendarStartTime}
-                onChange={(event) =>
-                  setCalendarStartTime(event.target.value)
-                }
+                onChange={(event) => setCalendarStartTime(event.target.value)}
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>End Time *</label>
+              <label htmlFor="event-end">End Time *</label>
 
               <input
+                id="event-end"
                 type="time"
                 value={calendarEndTime}
-                onChange={(event) =>
-                  setCalendarEndTime(event.target.value)
-                }
+                onChange={(event) => setCalendarEndTime(event.target.value)}
+                required
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Event Category *</label>
+              <label htmlFor="event-category">Event Category *</label>
 
               <select
+                id="event-category"
                 value={calendarCategory}
-                onChange={(event) =>
-                  setCalendarCategory(event.target.value)
-                }
+                onChange={(event) => setCalendarCategory(event.target.value)}
               >
-                <option value="Meeting">
-                  Meeting
-                </option>
-
-                <option value="Training">
-                  Training
-                </option>
-
-                <option value="Leave">
-                  Leave
-                </option>
-
-                <option value="Deadline">
-                  Deadline
-                </option>
-
-                <option value="Boardroom">
-                  Boardroom
-                </option>
+                <option value="Meeting">Meeting</option>
+                <option value="Training">Training</option>
+                <option value="Leave">Leave</option>
+                <option value="Deadline">Deadline</option>
+                <option value="Boardroom">Boardroom</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Quarter</label>
+              <label htmlFor="event-quarter">Quarter</label>
 
               <select
+                id="event-quarter"
                 value={calendarQuarter}
-                onChange={(event) =>
-                  setCalendarQuarter(event.target.value)
-                }
+                onChange={(event) => setCalendarQuarter(event.target.value)}
               >
                 <option value="Q1">Q1</option>
                 <option value="Q2">Q2</option>
@@ -1517,296 +966,104 @@ export default function AddContent() {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label htmlFor="event-description">Description</label>
 
             <textarea
+              id="event-description"
               value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a description for the calendar event"
-              rows="5"
-            />
-          </div>
-        </>
-      );
-    }
-
-    /* =======================================================
-       PROGRAMMES & UNITS
-    ======================================================= */
-
-    if (selectedPage === "programsUnits") {
-      return (
-        <>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Programme *</label>
-
-              <input
-                type="text"
-                value={programme}
-                onChange={(event) =>
-                  setProgramme(event.target.value)
-                }
-                placeholder="Enter programme"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Unit *</label>
-
-              <input
-                type="text"
-                value={unit}
-                onChange={(event) => setUnit(event.target.value)}
-                placeholder="Enter unit"
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Description</label>
-
-            <textarea
-              value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a short description"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Add any details staff should know before attending"
               rows="4"
             />
           </div>
-
-          <div className="form-group">
-            <label>Markdown Content *</label>
-
-            <textarea
-              className="markdown-editor"
-              value={markdown}
-              onChange={(event) =>
-                setMarkdown(event.target.value)
-              }
-              rows="16"
-            />
-          </div>
         </>
       );
     }
 
-    /* =======================================================
-       STAFF DIRECTORY
-    ======================================================= */
-
-    if (selectedPage === "staffDirectory") {
-      return (
-        <>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Full Name *</label>
-
-              <input
-                type="text"
-                value={staffName}
-                onChange={(event) =>
-                  setStaffName(event.target.value)
-                }
-                placeholder="Enter full name"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Position *</label>
-
-              <input
-                type="text"
-                value={staffPosition}
-                onChange={(event) =>
-                  setStaffPosition(event.target.value)
-                }
-                placeholder="Enter position"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Programme *</label>
-
-              <input
-                type="text"
-                value={staffProgramme}
-                onChange={(event) =>
-                  setStaffProgramme(event.target.value)
-                }
-                placeholder="Enter programme"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Email *</label>
-
-              <input
-                type="email"
-                value={staffEmail}
-                onChange={(event) =>
-                  setStaffEmail(event.target.value)
-                }
-                placeholder="Enter email address"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Telephone *</label>
-
-              <input
-                type="text"
-                value={staffTelephone}
-                onChange={(event) =>
-                  setStaffTelephone(event.target.value)
-                }
-                placeholder="Enter telephone number"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Published Date</label>
-
-              <input
-                type="date"
-                value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Description</label>
-
-            <textarea
-              value={staffDescription}
-              onChange={(event) =>
-                setStaffDescription(event.target.value)
-              }
-              placeholder="Enter staff description"
-              rows="5"
-            />
-          </div>
-        </>
-      );
-    }
-
-    /* =======================================================
-       NEWS & CIRCULARS
-    ======================================================= */
-
+    /* NEWS & CIRCULARS */
     if (selectedPage === "news") {
       return (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>Title *</label>
+              <label htmlFor="news-title">Title *</label>
 
               <input
+                id="news-title"
                 type="text"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Enter news title"
+                placeholder="e.g. Department Launches New Tourism Initiative"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Published Date</label>
+              <label htmlFor="news-date">Published Date</label>
 
               <input
+                id="news-date"
                 type="date"
                 value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
+                onChange={(event) => setPublishedDate(event.target.value)}
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Category *</label>
+              <label htmlFor="news-category">Category *</label>
 
               <select
+                id="news-category"
                 value={category}
-                onChange={(event) =>
-                  setCategory(event.target.value)
-                }
+                onChange={(event) => setCategory(event.target.value)}
+                required
               >
                 <option value="">Select category</option>
-
-                <option value="News">
-                  News
-                </option>
-
-                <option value="Announcement">
-                  Announcement
-                </option>
-
-                <option value="Department Update">
-                  Department Update
-                </option>
-
-                <option value="Newsletter">
-                  Newsletter
-                </option>
-
-                <option value="Circulars">
-                  Circulars
-                </option>
-
-                <option value="Other">
-                  Other
-                </option>
+                <option value="News">News</option>
+                <option value="Announcement">Announcement</option>
+                <option value="Department Update">Department Update</option>
+                <option value="Newsletter">Newsletter</option>
+                <option value="Circulars">Circulars</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Author</label>
+              <label htmlFor="news-author">Author</label>
 
               <input
+                id="news-author"
                 type="text"
                 value={author}
-                onChange={(event) =>
-                  setAuthor(event.target.value)
-                }
-                placeholder="Enter author"
+                onChange={(event) => setAuthor(event.target.value)}
+                placeholder="Who is this from?"
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Excerpt / Summary</label>
+            <label htmlFor="news-excerpt">Short Summary</label>
 
             <textarea
+              id="news-excerpt"
               value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a short summary"
-              rows="4"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="A one or two sentence summary shown in the news list"
+              rows="3"
             />
           </div>
 
           <div className="form-group">
-            <label>Image URL</label>
+            <label htmlFor="news-image">Image Link</label>
 
             <input
+              id="news-image"
               type="url"
               value={imageUrl}
-              onChange={(event) =>
-                setImageUrl(event.target.value)
-              }
-              placeholder="Optional image URL"
+              onChange={(event) => setImageUrl(event.target.value)}
+              placeholder="Optional - paste a link to a banner image"
             />
           </div>
 
@@ -1815,94 +1072,89 @@ export default function AddContent() {
               <input
                 type="checkbox"
                 checked={isFeatured}
-                onChange={(event) =>
-                  setIsFeatured(event.target.checked)
-                }
+                onChange={(event) => setIsFeatured(event.target.checked)}
               />
-
-              <span>Featured news article</span>
+              <span>Feature this on the News & Circulars page</span>
             </label>
           </div>
 
           <div className="form-group">
-            <label>Markdown Content *</label>
+            <label htmlFor="news-content">Full Story *</label>
 
-            <textarea
-              className="markdown-editor"
-              value={markdown}
-              onChange={(event) =>
-                setMarkdown(event.target.value)
-              }
-              rows="18"
+            <RichTextEditor
+              id="news-content"
+              label="Full story content"
+              value={content}
+              onChange={setContent}
+              placeholder="Write the full story here..."
+              required
             />
           </div>
         </>
       );
     }
 
-    /* =======================================================
-       MARKDOWN + PDF
-    ======================================================= */
-
+    /* KNOWLEDGE CENTRE (markdown-pdf) */
     if (selectedPageData.type === "markdown-pdf") {
       return (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>Title *</label>
+              <label htmlFor="kc-title">Title *</label>
 
               <input
+                id="kc-title"
                 type="text"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Enter title"
+                placeholder="e.g. Procurement Guidelines 2026"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Published Date</label>
+              <label htmlFor="kc-date">Published Date</label>
 
               <input
+                id="kc-date"
                 type="date"
                 value={publishedDate}
-                onChange={(event) =>
-                  setPublishedDate(event.target.value)
-                }
+                onChange={(event) => setPublishedDate(event.target.value)}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label htmlFor="kc-description">Description</label>
 
             <textarea
+              id="kc-description"
               value={description}
-              onChange={(event) =>
-                setDescription(event.target.value)
-              }
-              placeholder="Enter a short description"
-              rows="4"
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="A short description of this resource"
+              rows="3"
             />
           </div>
 
           <div className="form-group">
-            <label>Markdown Content *</label>
+            <label htmlFor="kc-content">Overview *</label>
 
-            <textarea
-              className="markdown-editor"
-              value={markdown}
-              onChange={(event) =>
-                setMarkdown(event.target.value)
-              }
-              rows="16"
+            <RichTextEditor
+              id="kc-content"
+              label="Resource overview"
+              value={content}
+              onChange={setContent}
+              placeholder="Summarize what's in this document..."
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Upload PDF *</label>
+            <label htmlFor="kc-pdf">Attach PDF *</label>
 
             <div className="upload-area">
               <input
+                id="kc-pdf"
                 type="file"
                 accept=".pdf,application/pdf"
                 onChange={handlePdfChange}
@@ -1911,7 +1163,7 @@ export default function AddContent() {
               {pdfFile && (
                 <div className="file-status">
                   <strong>{pdfFile.name}</strong>
-                  <span>PDF ready for publishing</span>
+                  <span>Ready to publish</span>
                 </div>
               )}
             </div>
@@ -1920,64 +1172,7 @@ export default function AddContent() {
       );
     }
 
-    /* =======================================================
-       MARKDOWN
-    ======================================================= */
-
-    return (
-      <>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Title *</label>
-
-            <input
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Enter title"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Published Date</label>
-
-            <input
-              type="date"
-              value={publishedDate}
-              onChange={(event) =>
-                setPublishedDate(event.target.value)
-              }
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Description</label>
-
-          <textarea
-            value={description}
-            onChange={(event) =>
-              setDescription(event.target.value)
-            }
-            placeholder="Enter a short description"
-            rows="4"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Markdown Content *</label>
-
-          <textarea
-            className="markdown-editor"
-            value={markdown}
-            onChange={(event) =>
-              setMarkdown(event.target.value)
-            }
-            rows="18"
-          />
-        </div>
-      </>
-    );
+    return null;
   };
 
   /* =========================================================
@@ -1992,27 +1187,27 @@ export default function AddContent() {
     return (
       <div className="content-section">
         <div className="form-group">
-          <label>Question *</label>
+          <label htmlFor="faq-question">Question *</label>
 
           <input
+            id="faq-question"
             type="text"
             value={faqQuestion}
-            onChange={(event) =>
-              setFaqQuestion(event.target.value)
-            }
-            placeholder="Enter frequently asked question"
+            onChange={(event) => setFaqQuestion(event.target.value)}
+            placeholder="e.g. How do I apply for an internship?"
+            required
           />
         </div>
 
         <div className="category-row">
           <div className="form-group">
-            <label>Category *</label>
+            <label htmlFor="faq-category">Category *</label>
 
             <select
+              id="faq-category"
               value={category}
-              onChange={(event) =>
-                setCategory(event.target.value)
-              }
+              onChange={(event) => setCategory(event.target.value)}
+              required
             >
               <option value="">Select category</option>
 
@@ -2027,9 +1222,7 @@ export default function AddContent() {
           <button
             type="button"
             className="new-category-button"
-            onClick={() =>
-              setShowCategoryInput(!showCategoryInput)
-            }
+            onClick={() => setShowCategoryInput(!showCategoryInput)}
           >
             + New Category
           </button>
@@ -2040,38 +1233,28 @@ export default function AddContent() {
             <input
               type="text"
               value={newCategory}
-              onChange={(event) =>
-                setNewCategory(event.target.value)
-              }
+              onChange={(event) => setNewCategory(event.target.value)}
               placeholder="Enter new category"
+              aria-label="New FAQ category name"
             />
 
-            <button
-              type="button"
-              onClick={handleAddCategory}
-            >
+            <button type="button" onClick={handleAddCategory}>
               Add Category
             </button>
           </div>
         )}
 
         <div className="form-group">
-          <label>Answer *</label>
+          <label htmlFor="faq-answer">Answer *</label>
 
-          <textarea
-            className="answer-editor"
+          <RichTextEditor
+            id="faq-answer"
+            label="FAQ answer"
             value={faqAnswer}
-            onChange={(event) =>
-              setFaqAnswer(event.target.value)
-            }
-            placeholder="Write the answer using Markdown if required"
-            rows="12"
+            onChange={setFaqAnswer}
+            placeholder="Write a clear, friendly answer..."
+            required
           />
-        </div>
-
-        <div className="faq-tip">
-          <strong>Tip:</strong> You can use Markdown formatting
-          inside your answer.
         </div>
       </div>
     );
@@ -2083,24 +1266,32 @@ export default function AddContent() {
 
   return (
     <div className="add-content-page">
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="content-card">
         <div className="content-section">
           <h1>Add Content</h1>
 
           <p>
-            Use this page to create and publish content across
-            the DEDaT Intranet.
+            Publish news, FAQs, knowledge resources, policies, wellness
+            content and calendar events across the DEDaT Intranet.
           </p>
         </div>
       </div>
 
-      {/* =====================================================
-          PAGE SELECTOR
-      ===================================================== */}
+      {/* QUICK LINKS TO OTHER ADMIN MODULES */}
+
+      <div className="content-card admin-quicklinks">
+        <span>Managing people or departments?</span>
+        <Link to="/admin/employees" className="admin-quicklink">
+          <FaUsers /> Employees & Staff Directory
+        </Link>
+        <Link to="/admin/departments" className="admin-quicklink">
+          <FaBuilding /> Departments & Programmes
+        </Link>
+      </div>
+
+      {/* PAGE SELECTOR */}
 
       <div className="content-layout">
         <div className="page-selector">
@@ -2112,6 +1303,7 @@ export default function AddContent() {
                 selectedPage === page.id ? "active" : ""
               }`}
               onClick={() => handlePageChange(page.id)}
+              aria-pressed={selectedPage === page.id}
             >
               <strong>{page.name}</strong>
 
@@ -2120,9 +1312,7 @@ export default function AddContent() {
           ))}
         </div>
 
-        {/* ===================================================
-            EDITOR
-        =================================================== */}
+        {/* EDITOR */}
 
         <div className="content-editor-area">
           <div className="content-card">
@@ -2132,38 +1322,46 @@ export default function AddContent() {
               <p>{selectedPageData.description}</p>
             </div>
 
-            {renderContentDetails()}
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handlePreview();
+              }}
+            >
+              {renderContentDetails()}
 
-            {renderFaqEditor()}
+              {renderFaqEditor()}
 
-            {/* =================================================
-                ACTION BAR
-            ================================================= */}
+              {/* ACTION BAR */}
 
-            <div className="action-bar">
-              <button
-                type="button"
-                className="preview-button"
-                onClick={handlePreview}
-              >
-                Preview
-              </button>
+              <div className="action-bar">
+                <button
+                  type="button"
+                  className="preview-button"
+                  onClick={handlePreview}
+                  disabled={isPublishing}
+                >
+                  Preview
+                </button>
 
-              <button
-                type="button"
-                className="publish-button"
-                onClick={handlePublish}
-              >
-                Publish
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className="publish-button"
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? "Publishing..." : "Publish"}
+                </button>
+              </div>
+            </form>
 
-            {/* =================================================
-                MESSAGE
-            ================================================= */}
+            {/* MESSAGE */}
 
             {message && (
-              <div className={`message ${messageType}`}>
+              <div
+                className={`message ${messageType}`}
+                role={messageType === "error" ? "alert" : "status"}
+              >
                 {message}
               </div>
             )}
@@ -2171,45 +1369,27 @@ export default function AddContent() {
         </div>
       </div>
 
-      {/* =====================================================
-          GUIDE
-      ===================================================== */}
-
-      {showGuide && (
-        <div className="modal-overlay">
-          <div className="preview-modal">
-            <h2>Content Guide</h2>
-
-            <p>
-              Use Markdown to format your content. You can use
-              headings, lists, links, bold text and other
-              Markdown features.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setShowGuide(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* =====================================================
-          PREVIEW MODAL
-      ===================================================== */}
+      {/* PREVIEW MODAL */}
 
       {showPreview && (
-        <div className="modal-overlay">
-          <div className="preview-modal">
+        <div
+          className="modal-overlay"
+          onClick={() => setShowPreview(false)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setShowPreview(false);
+          }}
+        >
+          <div
+            className="preview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="preview-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="content-section">
-              <h2>Preview</h2>
+              <h2 id="preview-modal-title">Preview</h2>
 
-              {selectedPage !== "faq" &&
-                selectedPage !== "programsUnits" &&
-                selectedPage !== "staffDirectory" &&
-                title && <h1>{title}</h1>}
+              {selectedPage !== "faq" && title && <h1>{title}</h1>}
 
               {description && <p>{description}</p>}
 
@@ -2251,8 +1431,9 @@ export default function AddContent() {
                 type="button"
                 className="publish-button"
                 onClick={handlePublish}
+                disabled={isPublishing}
               >
-                Publish
+                {isPublishing ? "Publishing..." : "Publish"}
               </button>
             </div>
           </div>

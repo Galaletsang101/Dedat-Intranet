@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import AuthRoutes from "./routes/authRoutes";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
 
 // Main pages
 import Dashboard from "./pages/Dashboard";
@@ -24,6 +25,13 @@ import KnowledgeCenter from "./pages/KnowledgeCenter";
 import FAQ from "./pages/FAQ";
 import Policies from "./pages/Policies";
 import AddContent from "./pages/AddContent";
+
+// Admin pages
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminEmployees from "./pages/admin/AdminEmployees";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDepartments from "./pages/admin/AdminDepartments";
 
 function App() {
   return (
@@ -61,7 +69,16 @@ function App() {
 
             <Route path="/policies" element={<Policies />} />
 
-            <Route path="add-content" element={<AddContent />} />
+            <Route element={<AdminRoute />}>
+              <Route path="add-content" element={<AddContent />} />
+
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOverview />} />
+                <Route path="employees" element={<AdminEmployees />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="departments" element={<AdminDepartments />} />
+              </Route>
+            </Route>
           </Route>
         </Route>
       </Routes>

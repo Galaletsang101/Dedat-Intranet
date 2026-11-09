@@ -213,16 +213,65 @@ export function isLoggedIn() {
 
 
 // ============================================================
-// RESET PASSWORD
+// IS ADMIN
+// ============================================================
+//
+// Convenience helper for the UI only (hiding/showing nav links, routing
+// non-admins away from admin pages). This is NOT a security boundary -
+// every admin-only backend endpoint re-checks the role itself.
+
+export function isAdmin() {
+
+  const user = getCurrentUser();
+
+  return user?.role === "Admin";
+
+}
+
+
+
+// ============================================================
+// FORGOT / RESET PASSWORD
 // ============================================================
 
+export async function forgotPassword(email) {
 
-// We will implement PostgreSQL password reset separately.
+  const response = await fetch(`${API_URL}/auth/forgot-password`, {
+    method: "POST",
 
-export async function resetPassword(email) {
+    headers: {
+      "Content-Type": "application/json"
+    },
 
-  throw new Error(
-    "Password reset is not available yet."
-  );
+    body: JSON.stringify({ email })
+  });
 
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to request password reset.");
+  }
+
+  return data;
+}
+
+export async function resetPassword(token, password) {
+
+  const response = await fetch(`${API_URL}/auth/reset-password`, {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify({ token, password })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to reset password.");
+  }
+
+  return data;
 }

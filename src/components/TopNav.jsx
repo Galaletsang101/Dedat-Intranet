@@ -69,6 +69,10 @@ function TopNav({ toggleMenu, menuOpen }) {
         <NavLink to="/knowledge-center">Knowledge Center</NavLink>
 
         <NavLink to="/dashboard">Dashboard</NavLink>
+
+        {user?.role === "Admin" && (
+          <NavLink to="/admin">Admin Center</NavLink>
+        )}
       </nav>
 
       {/* Profile */}

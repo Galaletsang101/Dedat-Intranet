@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/calendar.css";
 import { holidays } from "../data/holidays";
+import { authFetch } from "../services/apiClient";
 
 const Calendar = () => {
 
@@ -405,16 +406,11 @@ const Calendar = () => {
       // ======================================================
 
       const response =
-        await fetch(
-          "http://localhost:5000/api/calendar-events",
+        await authFetch(
+          "/calendar-events",
           {
 
             method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
 
             body:
               JSON.stringify({
