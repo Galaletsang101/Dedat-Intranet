@@ -19,6 +19,7 @@ import Home from "./pages/Homepage";
 import Calendar from "./pages/Calendar";
 import Wellness from "./pages/Wellness";
 import NewsCirculus from "./pages/NewsCirculus";
+import NewsArticle from "./pages/NewsArticle";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
@@ -58,6 +59,8 @@ function App() {
             <Route path="/calendar" element={<Calendar />} />
 
             <Route path="/news-circulus" element={<NewsCirculus />} />
+
+            <Route path="/news/:id" element={<NewsArticle />} />
 
             <Route path="/programs-units" element={<ProgramsUnits />} />
 

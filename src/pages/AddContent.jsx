@@ -7,9 +7,14 @@ import { createFaq } from "../services/faqsService";
 import { createDocument } from "../services/documentsService";
 import { createPolicy } from "../services/policiesService";
 import { createCirculus } from "../services/circulusService";
-import { createWellnessVideo } from "../services/wellnessService";
+import {
+  createWellnessVideo,
+  uploadWellnessVideoFile,
+} from "../services/wellnessService";
 import { authFetch, parseJsonResponse } from "../services/apiClient";
 import RichTextEditor from "../components/RichTextEditor";
+import NewsManager from "../components/admin/NewsManager";
+import WellnessManager from "../components/admin/WellnessManager";
 import "../styles/addContent.css";
 
 /* =========================================================
@@ -95,6 +100,7 @@ export default function AddContent() {
   const [publishedDate, setPublishedDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [status, setStatus] = useState("Published");
 
   const [content, setContent] = useState("");
 
@@ -110,7 +116,9 @@ export default function AddContent() {
   ========================================================= */
 
   const [videoFile, setVideoFile] = useState(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(null);
 
   /* =========================================================
      FAQ
@@ -177,6 +185,7 @@ export default function AddContent() {
     setPublishedDate("");
     setImageUrl("");
     setIsFeatured(false);
+    setStatus("Published");
 
     setContent("");
 
@@ -184,7 +193,9 @@ export default function AddContent() {
     setPdfUrl("");
 
     setVideoFile(null);
+    setVideoPreviewUrl("");
     setVideoUrl("");
+    setUploadProgress(null);
 
     setFaqQuestion("");
     setFaqAnswer("");
@@ -264,9 +275,13 @@ export default function AddContent() {
     }
 
     setVideoFile(file);
+    setVideoUrl("");
 
+    // This blob: URL is ONLY for an in-form preview in this browser tab -
+    // it is never sent to the backend or saved to the database. The real,
+    // permanent URL comes from uploadWellnessVideoFile() at publish time.
     const objectUrl = URL.createObjectURL(file);
-    setVideoUrl(objectUrl);
+    setVideoPreviewUrl(objectUrl);
 
     setMessage("");
     setMessageType("");
@@ -500,19 +515,20 @@ export default function AddContent() {
     }
 
     if (selectedPageData.type === "video") {
+      const previewSrc = videoPreviewUrl || videoUrl;
+
       return (
         <div className="preview-media">
-          {videoUrl ? (
+          {previewSrc ? (
             <video
-              src={videoUrl}
+              src={previewSrc}
               controls
               className="preview-video"
             />
           ) : (
             <div className="media-placeholder">
               <span>▶</span>
-              <p>Video uploaded and ready for preview.</p>
-              <small>{videoFile?.name}</small>
+              <p>No video selected yet.</p>
             </div>
           )}
         </div>
@@ -608,9 +624,14 @@ export default function AddContent() {
             publication_date: publishedDate || null,
             image_url: imageUrl.trim() || null,
             is_featured: isFeatured,
+            status,
           });
 
-          setMessage("News article published successfully.");
+          setMessage(
+            status === "Draft"
+              ? "News article saved as a draft."
+              : "News article published successfully."
+          );
         }
       } else if (selectedPage === "faq") {
         await createFaq({
@@ -652,14 +673,27 @@ export default function AddContent() {
 
         setMessage("Knowledge document published successfully.");
       } else if (selectedPage === "wellness") {
+        let finalVideoUrl = videoUrl.trim();
+
+        if (videoFile) {
+          setUploadProgress(0);
+          const uploadResult = await uploadWellnessVideoFile(
+            videoFile,
+            setUploadProgress
+          );
+          finalVideoUrl = uploadResult.url;
+          setUploadProgress(null);
+        }
+
         await createWellnessVideo({
           title: title.trim(),
           description: description.trim() || "",
           category: category || "Mental Health",
           duration: "",
           thumbnail: imageUrl.trim() || "",
-          video_url: videoUrl.trim(),
+          video_url: finalVideoUrl,
           featured: isFeatured,
+          status,
         });
 
         setMessage("Wellness video published successfully.");
@@ -870,6 +904,33 @@ export default function AddContent() {
                 </div>
               )}
             </div>
+            <p className="field-hint">
+              Up to 200MB. Uploaded files are stored and served directly by
+              the intranet - once published, the video plays for everyone.
+            </p>
+
+            {uploadProgress !== null && (
+              <div className="upload-progress">
+                <div
+                  className="upload-progress-bar"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+                <span>{uploadProgress}% uploaded</span>
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="wellness-status">Visibility</label>
+
+            <select
+              id="wellness-status"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <option value="Published">Published - visible to all staff</option>
+              <option value="Draft">Draft - only visible to Admins</option>
+            </select>
           </div>
         </>
       );
@@ -1076,6 +1137,19 @@ export default function AddContent() {
               />
               <span>Feature this on the News & Circulars page</span>
             </label>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="news-status">Visibility</label>
+
+            <select
+              id="news-status"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <option value="Published">Published - visible to all staff</option>
+              <option value="Draft">Draft - only visible to Admins</option>
+            </select>
           </div>
 
           <div className="form-group">
@@ -1366,6 +1440,9 @@ export default function AddContent() {
               </div>
             )}
           </div>
+
+          {selectedPage === "news" && <NewsManager />}
+          {selectedPage === "wellness" && <WellnessManager />}
         </div>
       </div>
 

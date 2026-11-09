@@ -4,8 +4,11 @@ Internal staff portal for the Northern Cape Department of Economic Development
 and Tourism. React (Vite) frontend, Express backend, PostgreSQL database.
 
 See [`docs/USER_FLOW_AND_ADMIN.md`](docs/USER_FLOW_AND_ADMIN.md) for the full
-route/endpoint map and [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) for how
-Admin access is configured, tested, and managed.
+route/endpoint map, [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) for how
+Admin access is configured, tested, and managed, and
+[`docs/NEWS_WELLNESS_GUIDE.md`](docs/NEWS_WELLNESS_GUIDE.md) for the full
+News article page, Wellness video upload/playback, and the centralized date
+formatting utility.
 
 ## Project layout
 
@@ -14,6 +17,8 @@ src/            React frontend (Vite, HashRouter)
 backend/        Express API (port 5000) + PostgreSQL access
 backend/database/migrations/   Versioned SQL migrations
 backend/scripts/               One-off provisioning/maintenance scripts
+backend/uploads/                Admin-uploaded Wellness video files (gitignored,
+                                 created automatically, served at /uploads/...)
 ```
 
 ## Setup
@@ -73,8 +78,10 @@ roles are enforced and how to manage other users.
 ## Testing
 
 ```
-cd backend && npm test   # Jest + Supertest - RBAC, auth, admin provisioning, news
-npm test                 # Vitest - auth/session helpers, route guards, admin UI
+cd backend && npm test   # Jest + Supertest - RBAC, auth, admin provisioning,
+                          # news/wellness publishing, video upload
+npm test                 # Vitest - auth/session helpers, route guards, admin UI,
+                          # date formatting, video source detection
 ```
 
 ## Admin Center

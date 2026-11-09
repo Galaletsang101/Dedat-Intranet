@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getDocuments } from "../services/documentsService";
+import { formatDate } from "../utils/dateUtils";
 import "../styles/knowledgecenter.css";
 
 import {
@@ -220,32 +221,6 @@ const KnowledgeCenter = () => {
 
     alert(
       "Please use the Add Content page to publish a Knowledge Centre resource."
-    );
-  };
-
-
-  // =========================================================
-  // FORMAT DATE
-  // =========================================================
-
-  const formatDate = (dateValue) => {
-    if (!dateValue) {
-      return "Today";
-    }
-
-    const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
-      return dateValue;
-    }
-
-    return date.toLocaleDateString(
-      "en-ZA",
-      {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }
     );
   };
 

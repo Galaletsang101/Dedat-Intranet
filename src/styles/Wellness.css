@@ -355,13 +355,34 @@ p {
 
 .video-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
 }
 
 .video-footer span {
     color: #999;
     font-weight: 600;
+}
+
+.wellness-video-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+}
+
+.wellness-skeleton-card {
+    height: 320px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: wellness-skeleton-pulse 1.4s ease infinite;
+}
+
+@keyframes wellness-skeleton-pulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 .watch-btn {
@@ -535,5 +556,64 @@ p {
     to {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE
+   This page had no breakpoints at all - fixed 70px side padding and a
+   fixed 320px search input caused horizontal overflow on any phone-width
+   viewport.
+========================================== */
+
+@media (max-width: 992px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 40px 24px;
+    }
+
+    .top-section {
+        padding: 0 24px;
+        margin-bottom: 40px;
+    }
+
+    .library {
+        padding: 0 24px 60px;
+    }
+
+    .library-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .library-actions {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .video-modal {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-card {
+        padding: 22px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
     }
 }

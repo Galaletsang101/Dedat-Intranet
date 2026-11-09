@@ -5,8 +5,12 @@ import {
   FaEnvelope,
   FaGlobe,
   FaPlay,
+  FaCalendarAlt,
 } from "react-icons/fa";
 
+import { getWellnessVideos } from "../services/wellnessService";
+import { formatDate } from "../utils/dateUtils";
+import VideoPlayer from "../components/VideoPlayer";
 
 import "../styles/wellness.css";
 
@@ -16,6 +20,8 @@ function Wellness() {
   // ===========================
 
   const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,38 +67,42 @@ function Wellness() {
     setSelectedVideo(null);
   };
 
-  // ===========================
-  // LOAD VIDEOS FROM FIRESTORE
-  // ===========================
+  useEffect(() => {
+    if (!selectedVideo) return undefined;
 
-const loadVideos = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/wellness");
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") closeVideo();
+    };
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch wellness videos");
-    }
-
-    const wellnessVideos = await response.json();
-
-    const formattedVideos = wellnessVideos.map((video) => ({
-      ...video,
-      video: video.video_url
-    }));
-
-    setVideos(formattedVideos);
-
-  } catch (error) {
-    console.error("Failed to load wellness videos:", error);
-  }
-};
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedVideo]);
 
   // ===========================
-  // PAGE LOAD
+  // LOAD VIDEOS
   // ===========================
 
   useEffect(() => {
-    loadVideos();
+    let isMounted = true;
+
+    setLoading(true);
+    setError("");
+
+    getWellnessVideos()
+      .then((data) => {
+        if (isMounted) setVideos(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error("Failed to load wellness videos:", err);
+        if (isMounted) setError("Unable to load wellness videos right now.");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -104,7 +114,7 @@ const loadVideos = async () => {
 
         <div className="hero-content">
 
-        
+
   <h1>
   <span style={{ color: "#5C5B5B" }}>
     Find your balance,
@@ -252,6 +262,18 @@ const loadVideos = async () => {
 
         </div>
 
+        {loading ? (
+          <div className="video-grid">
+            {[1, 2, 3].map((key) => (
+              <div className="video-card wellness-skeleton-card" key={key} />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="empty-state">
+            <h2>Something went wrong</h2>
+            <p>{error}</p>
+          </div>
+        ) : (
                 <div className="video-grid">
 
           {filteredVideos.length > 0 ? (
@@ -284,6 +306,7 @@ const loadVideos = async () => {
                   <button
                     className="play-button"
                     onClick={() => openVideo(video)}
+                    aria-label={`Play ${video.title || "video"}`}
                   >
                     <FaPlay />
                   </button>
@@ -307,6 +330,10 @@ const loadVideos = async () => {
 
                     <span className="duration">
                       {video.duration || "--"}
+                    </span>
+
+                    <span className="wellness-video-date">
+                      <FaCalendarAlt /> {formatDate(video.created_date)}
                     </span>
 
                     <button
@@ -339,6 +366,7 @@ const loadVideos = async () => {
           )}
 
         </div>
+        )}
 
       </section>
 
@@ -348,33 +376,30 @@ const loadVideos = async () => {
         <div
           className="video-modal"
           onClick={closeVideo}
+          role="presentation"
         >
 
           <div
             className="video-container"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={selectedVideo.title || "Wellness video"}
           >
 
             <button
               className="close-btn2"
               onClick={closeVideo}
+              aria-label="Close video"
             >
               ✕
             </button>
 
-            <video
-              controls
-              autoPlay
-              className="video-player"
-            >
-              <source
-                src={selectedVideo.video}
-                type="video/mp4"
-              />
-
-              Your browser does not support the video tag.
-
-            </video>
+            <VideoPlayer
+              src={selectedVideo.video_url}
+              title={selectedVideo.title}
+              poster={selectedVideo.thumbnail}
+            />
 
             <div className="video-details">
 
@@ -394,6 +419,10 @@ const loadVideos = async () => {
 
                 <span className="category">
                   {selectedVideo.category}
+                </span>
+
+                <span>
+                  {formatDate(selectedVideo.created_date)}
                 </span>
 
               </div>

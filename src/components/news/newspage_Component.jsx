@@ -1,162 +1,135 @@
 // src/components/news/NewsPage.jsx
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { 
-  Container, Row, Col, Nav, Navbar, Button, Badge, 
-  Form, InputGroup 
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Container, Row, Col, Badge,
 } from 'react-bootstrap';
 import {
-  FaSearch, FaBell, FaUserCircle, FaNewspaper, FaGavel,
-  FaCalendarAlt, FaUsers, FaFileAlt, FaDownload,
-  FaEye, FaArrowRight, FaClock, FaUser, FaBuilding,
-  FaComments, FaChartLine, FaTools, FaInfoCircle
+  FaSearch, FaGavel, FaFileAlt, FaDownload,
+  FaArrowRight, FaClock, FaExclamationTriangle,
 } from 'react-icons/fa';
-import { MdEmail, MdVerified } from 'react-icons/md';
+import { getNews } from "../../services/newsService";
+import { getCirculus } from "../../services/circulusService";
+import { formatDate, formatRelative } from "../../utils/dateUtils";
+import "../../styles/homepage.css";
 import './NewsPage.css';
-
-
-
-const newsletters = [
-  { id: 1, title: "January 2024", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyMWt37Gw_Su-ShdDe9vBf7Iu31UwOYcMA8QhzTII18AWfSBtOgFe5dqERJd5NhgUhmv2d7JAmBRsA8ls_2HfPxIiEwkdds2zUGW6PBN7lEmRf6k0KOj2--r_KAxW4sagLttyU4RbOooSMPOCCRQDyVmLhhrKwwtzBnovp5RlV19ygLAGFohOXBH0gP70B5Dfjt-4igQuIb9Wt6mgpIkgACUj7JxSbFYjIWtmRZGOrKcJNtLt35duKKHckmhVkEg-_LFpNZWWwA4U" },
-  { id: 2, title: "December 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBD8JvKBnRRDpqrhSUhH736LfYLgWB12TyJfUBOo6gfZyd1N9PvmJ00rY8kL8EA1Qh4vcrmHmMjXjJhJVXkK654h0PbZiwrRb_JiWk3pxs5PaFmEeCVtTpbVRCtdarqHllpX5O2O4O8Si9fuOTl9vAvy2IXOx7tKZZRAP4aZLeo4RtZS3Ja8aQATouyPL9GzxalHQwPnT8Ax71uJ0e-StjyMdGcHpICYev6i52zCu21iV1zjY_EOPNWTUdGPf5LqhKLiBVWr1f0iVI" },
-  { id: 3, title: "November 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBK7bMcK4K_zQocMW7nf67p2GDAwZahFyMRMzhyGeUfEvCgCYDTQD1fZy5aB1fX3TF2pF_NHVxSk0VFMuAz_HSl74UctMDVTv77ZMJdOfAlAqGaUe4mgIJgRTF3lyNZR7-bBLD0iKgY_1QkrRq3On-Bajzj-Ch9EwHegWjhRwO-OOVR9oC5_vZqdyuRYdoXttoJKvEH7QTI8Y-YiuQ6xtleK-w19wHiFaL0GCAsTOlPRGtBuECjUtl5TyL_6tiX3iZWnlCmVRlP_JI" },
-  { id: 4, title: "October 2023", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0IHurd4i9gkbt4NbiV6zOoQHexhdzbkzxuE2U58ykAPzlDGMLV4WzZnzqbKMxCdAUPQ0MF9U_huzXVPHHLkMqL4rftPzXTAd11ccSz2LNnmtVSSVgo4awgduPOGliz3KwP5WSGIesHmdgEiRZEQeiQHhZlBvuKTL75fXvT30DlatBXl6n_sqFc6xCMIDiuYZ39tAIvCzCtOA3X80HeOaMKxi6YNaFS8zOIan08p7rERX2qL_5hMPq0xuI1VgA1wWe-UgSSLLKU0" }
-];
 
 const categories = ['All', 'News', 'Circulars', 'Events', 'Training'];
 
-
 const NewsPage = () => {
-const [activeCategory, setActiveCategory] = useState('All');
-const [newsItems, setNewsItems] = useState([]);
-const [circulars, setCirculars] = useState([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newsItems, setNewsItems] = useState([]);
+  const [circulars, setCirculars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
- useEffect(() => {
-  const fetchNewsAndCirculars = async () => {
-    try {
-      // Fetch News
-      const newsResponse = await fetch(
-        'http://localhost:5000/api/news'
-      );
+  useEffect(() => {
+    let isMounted = true;
 
-      if (!newsResponse.ok) {
-        throw new Error('Failed to fetch news');
+    async function fetchNewsAndCirculars() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const [newsData, circularsData] = await Promise.all([
+          getNews(),
+          getCirculus().catch((err) => {
+            console.error('Failed to load circulars:', err);
+            return [];
+          }),
+        ]);
+
+        if (!isMounted) return;
+
+        setNewsItems(Array.isArray(newsData) ? newsData : []);
+        setCirculars(Array.isArray(circularsData) ? circularsData : []);
+      } catch (err) {
+        console.error('Error loading news:', err);
+        if (isMounted) setError('Unable to load news right now.');
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      const newsData = await newsResponse.json();
-
-      const formattedNews = newsData.map((item, index) => ({
-        id: item.id,
-        title: item.title,
-        excerpt: item.description,
-        content: item.content,
-        category: 'News',
-        date: new Date(item.publish_date).toLocaleDateString('en-ZA', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
-        readTime: '5 min read',
-        image: item.image_url,
-        isFeatured: index === 0
-      }));
-
-      setNewsItems(formattedNews);
-
-
-      // Fetch Circulus
-      const circularsResponse = await fetch(
-        'http://localhost:5000/api/circulus'
-      );
-
-      if (!circularsResponse.ok) {
-        throw new Error('Failed to fetch circulars');
-      }
-
-      const circularsData = await circularsResponse.json();
-
-      const formattedCirculars = circularsData.map((item) => ({
-        id: item.id,
-        title: item.tittle,
-        description: item.description,
-        date: item.date_published
-          ? new Date(item.date_published).toLocaleDateString('en-ZA', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric'
-            })
-          : 'No date',
-        circularNumber: item.circulus_number,
-        author: item.author,
-        fileUrl: item.file_url
-      }));
-
-      setCirculars(formattedCirculars);
-
-    } catch (err) {
-      console.error('Error loading news and circulars:', err);
-      setError('Unable to load news and circulars.');
-    } finally {
-      setLoading(false);
     }
-  };
 
-  fetchNewsAndCirculars();
-}, []);
+    fetchNewsAndCirculars();
 
-  const getCategoryColor = (category) => {
-    switch (category) {
-        case 'Training':
-            return 'var(--success)';
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-        case 'Campaign':
-            return 'var(--primary)';
+  const filteredNews = useMemo(() => {
+    return newsItems.filter((item) => {
+      const matchesCategory =
+        activeCategory === 'All' ||
+        (item.category || '').toLowerCase() === activeCategory.toLowerCase();
 
-        case 'News':
-            return 'var(--info)';
+      const matchesSearch =
+        !searchTerm ||
+        (item.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.excerpt || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-        case 'Circulars':
-            return 'var(--secondary)';
+      return matchesCategory && matchesSearch;
+    });
+  }, [newsItems, activeCategory, searchTerm]);
 
-        case 'Events':
-            return 'var(--accent)';
+  const featuredArticle =
+    filteredNews.find((item) => item.is_featured) || filteredNews[0] || null;
 
-        default:
-            return 'var(--secondary-light)';
-    }
-};
-if (loading) {
+  const gridArticles = featuredArticle
+    ? filteredNews.filter((item) => item.id !== featuredArticle.id)
+    : filteredNews;
+
+  if (loading) {
+    return (
+      <div className="news-page">
+        <Container className="py-5">
+          <div className="news-skeleton-hero" />
+          <Row className="g-4 mt-3">
+            {[1, 2, 3, 4].map((key) => (
+              <Col md={6} key={key}>
+                <div className="news-skeleton-card" />
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="news-page">
+        <Container className="py-5">
+          <p>{error}</p>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className="news-page">
-      <Container className="py-5">
-        <p>Loading news...</p>
-      </Container>
-    </div>
-  );
-}
-
-if (error) {
-  return (
-    <div className="news-page">
-      <Container className="py-5">
-        <p>{error}</p>
-      </Container>
-    </div>
-  );
-}
-  return (
-    <div className="news-page">
-    
-
       <Container fluid className="px-4 py-4">
         <div className="news-container">
-
-
           <Row className="g-4">
             {/* Main Content - 8 Columns */}
             <Col lg={8}>
+              {/* Search */}
+              <div className="news-search-row mb-3">
+                <div className="news-search-wrapper">
+                  <FaSearch className="news-search-icon" />
+                  <input
+                    type="text"
+                    className="news-search-input"
+                    placeholder="Search news and announcements..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    aria-label="Search news"
+                  />
+                </div>
+              </div>
+
               {/* Category Filters */}
               <div className="d-flex gap-2 mb-4 overflow-auto pb-2" style={{ flexWrap: 'nowrap' }}>
                 {categories.map(cat => (
@@ -170,145 +143,115 @@ if (error) {
                 ))}
               </div>
 
-              {/* Hero Section */}
-              {newsItems.filter(item => item.isFeatured).map(item => (
-                <div key={item.id} className="news-hero mb-4">
-                  <img src={item.image} alt={item.title} />
-                  <div className="news-hero-overlay">
-                    <Badge className="badge-featured mb-2">{item.category}</Badge>
-                    <h1>{item.title}</h1>
-                    <div className="d-flex align-items-center gap-3 meta-text">
-                      <span><FaClock className="me-1" /> {item.readTime}</span>
-                      <span>•</span>
-                      <span>{item.date}</span>
-                    </div>
-                  </div>
+              {!featuredArticle && gridArticles.length === 0 ? (
+                <div className="news-empty-state">
+                  <h4>No news articles yet</h4>
+                  <p>Check back soon, or try a different search/filter.</p>
                 </div>
-              ))}
-
-              {/* News Grid */}
-              <Row className="g-3 mb-4">
-                {newsItems.filter(item => !item.isFeatured).map(item => (
-                  <Col md={6} key={item.id}>
-                    <div className="news-card-item">
-                      <div className="card-img-wrapper">
-                        <img src={item.image} alt={item.title} />
-                        <Badge 
-                          className="card-category-badge" 
-                          style={{ backgroundColor: getCategoryColor(item.category) }}
-                        >
-                          {item.category}
-                        </Badge>
+              ) : (
+                <>
+                  {/* Hero Section */}
+                  {featuredArticle && (
+                    <Link
+                      to={`/news/${featuredArticle.id}`}
+                      className="news-hero mb-4 d-block"
+                    >
+                      <img
+                        src={featuredArticle.image_url || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80"}
+                        alt={featuredArticle.title}
+                      />
+                      <div className="news-hero-overlay">
+                        <Badge className="badge-featured mb-2">{featuredArticle.category || "News"}</Badge>
+                        <h1>{featuredArticle.title}</h1>
+                        {featuredArticle.excerpt && <p>{featuredArticle.excerpt}</p>}
+                        <div className="d-flex align-items-center gap-3 meta-text">
+                          <span><FaClock className="me-1" /> {formatRelative(featuredArticle.publication_date || featuredArticle.created_date)}</span>
+                          <span className="news-read-link text-white">
+                            Read Full Article <FaArrowRight className="ms-1" />
+                          </span>
+                        </div>
                       </div>
-                      <div className="card-body">
-                        <p className="text-muted small mb-1">{item.date}</p>
-                        <h5 className="card-title">{item.title}</h5>
-                        <p className="card-excerpt">{item.excerpt}</p>
-                      </div>
-                    </div>
-                  </Col>
-                ))}
-              </Row>
+                    </Link>
+                  )}
 
-{/* News Content - Markdown */}
-{newsItems.length > 0 && (
-  <div className="bg-white p-4 rounded-3 mb-4">
-    <h5>{newsItems[0].title}</h5>
-
-    <ReactMarkdown>
-      {newsItems[0].content}
-    </ReactMarkdown>
-  </div>
-)}
+                  {/* News Grid - matches Homepage "Latest Departmental News" cards */}
+                  <Row className="g-4 mb-4">
+                    {gridArticles.map(item => (
+                      <Col md={6} key={item.id}>
+                        <Link to={`/news/${item.id}`} className="news-card-link">
+                          <div className="news-card">
+                            <img
+                              src={item.image_url || "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"}
+                              alt={item.title}
+                            />
+                            <div className="news-body">
+                              <div className="news-category">{item.category || "News"}</div>
+                              <h5 className="news-title">{item.title}</h5>
+                              <p className="news-excerpt">{item.excerpt || "No summary available."}</p>
+                              <div className="d-flex justify-content-between align-items-center">
+                                <small className="text-muted">
+                                  {formatDate(item.publication_date || item.created_date)}
+                                </small>
+                                <span className="news-read-link">
+                                  Read Article <FaArrowRight className="ms-1" style={{ fontSize: '0.65rem' }} />
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </Col>
+                    ))}
+                  </Row>
+                </>
+              )}
 
               {/* Circulars Section */}
               <div className="bg-light p-4 rounded-3 mb-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="d-flex align-items-center gap-2" >
+                  <h5 className="d-flex align-items-center gap-2">
                     <FaGavel /> Official Circulars & Gazettes
                   </h5>
-                  <div className="position-relative">
-                    <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-2 text-secondary" style={{ fontSize: '0.75rem' }} />
-                    <input className="form-control form-control-sm ps-4" placeholder="Search gazettes..." style={{ width: '200px' }} />
-                  </div>
                 </div>
-                <div className="space-y-3">
+                <div>
                   {circulars.length === 0 ? (
-  <p className="text-muted">No circulars available.</p>
-) : (
-  circulars.map(circ => (
-    <div key={circ.id} className="circular-item">
-      <div className="d-flex align-items-center gap-3">
-        <div className="d-flex align-items-center justify-content-center">
-          <FaFileAlt />
-        </div>
+                    <p className="text-muted mb-0">No circulars available.</p>
+                  ) : (
+                    circulars.map(circ => (
+                      <div key={circ.id} className="circular-item">
+                        <div className="d-flex align-items-center gap-3">
+                          <div className="d-flex align-items-center justify-content-center">
+                            <FaFileAlt />
+                          </div>
 
-        <div>
-          <h6 className="circular-title">
-            {circ.title}
-          </h6>
+                          <div>
+                            <h6 className="circular-title">{circ.title}</h6>
 
-          <p className="circular-meta">
-            {circ.description}
-          </p>
+                            {circ.description && (
+                              <p className="circular-meta">{circ.description}</p>
+                            )}
 
-          <small className="text-muted">
-            {circ.circularNumber && `${circ.circularNumber} • `}
-            {circ.date}
-          </small>
-        </div>
-      </div>
-
-      <div className="d-flex gap-2 flex-shrink-0">
-
-        <button
-          className="btn btn-sm btn-outline-primary"
-          onClick={() => {
-            if (circ.fileUrl) {
-              window.open(circ.fileUrl, '_blank');
-            }
-          }}
-        >
-          View Summary
-        </button>
-
-        <button
-          className="btn btn-sm btn-primary"
-          onClick={() => {
-            if (circ.fileUrl) {
-              window.open(circ.fileUrl, '_blank');
-            }
-          }}
-        >
-          <FaDownload className="me-1" />
-          PDF
-        </button>
-
-      </div>
-    </div>
-  ))
-)}
-                </div>
-              </div>
-
-              {/* Newsletter Archive */}
-              <div>
-                <h5 className="mb-3" >Digital Newsletters</h5>
-                <Row className="g-3">
-                  {newsletters.map(item => (
-                    <Col xs={6} md={3} key={item.id}>
-                      <div className="newsletter-item">
-                        <div className="newsletter-cover">
-                          <img src={item.image} alt={item.title} />
-                          <div className="hover-overlay">
-                            <FaEye/>
+                            <small className="text-muted">
+                              {formatDate(circ.publication_date || circ.created_at)}
+                            </small>
                           </div>
                         </div>
-                        <p className="text-center small fw-semibold mt-2">{item.title}</p>
+
+                        <div className="d-flex gap-2 flex-shrink-0">
+                          <button
+                            className="btn btn-sm btn-primary"
+                            disabled={!circ.file_url}
+                            onClick={() => {
+                              if (circ.file_url) window.open(circ.file_url, '_blank');
+                            }}
+                          >
+                            <FaDownload className="me-1" />
+                            {circ.file_url ? "View PDF" : "No file"}
+                          </button>
+                        </div>
                       </div>
-                    </Col>
-                  ))}
-                </Row>
+                    ))
+                  )}
+                </div>
               </div>
             </Col>
 
@@ -317,9 +260,9 @@ if (error) {
               <div className="d-flex flex-column gap-4">
                 {/* Executive Corner */}
                 <div className="executive-corner">
-                  <img 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIuaCHIKONYb8pily3ScVoHCWW8PIgxECayfgVWNbYhWyy2kvRSLAnv9X9QbFwtdkcajMVCKUjS68PW_nXb8RiLSatjs_vqTOuONWWtG7IZbutf29NdqQJbuw2In3s4YTLu0tUt3bIDcsO9DhnVuObxCUp98jGD6aGU4NlVlhM6lIpzN06SeO1U_osGnh2wYv7awOCPMIMCjhpLW8N5a77-lrE9tAaCXN3y7ffTf-ml_1CPlms1ZaJyiXRIoHaahoZ9nlKQVhwUsA" 
-                    alt="MEC" 
+                  <img
+                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
+                    alt="MEC"
                     className="executive-image"
                   />
                   <div className="executive-body">
@@ -328,88 +271,27 @@ if (error) {
                       "Our collective efforts in digitizing the workplace are a testament to our commitment to efficiency and transparency for the people of Northern Cape."
                     </blockquote>
                     <div className="d-flex align-items-center gap-2">
-                      <div ></div>
                       <span className="fw-semibold">Hon. Abraham Vosloo</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Upcoming Events */}
-                <div className="sidebar-widget">
-                  <h6 className="widget-title d-flex justify-content-between align-items-center">
-                    Upcoming Highlights
-                    <FaCalendarAlt  />
-                  </h6>
-                  <div className="space-y-3">
-                    <div className="d-flex gap-3">
-                      <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold" >JAN</span>
-                        <span className="fw-bold">22</span>
-                      </div>
-                      <div>
-                        <h6 className="fw-semibold" >Departmental Town Hall</h6>
-                        <p className="small text-muted">09:00 AM • Main Atrium</p>
-                      </div>
-                    </div>
-                    <div className="d-flex gap-3">
-                      <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold" >JAN</span>
-                        <span className="fw-bold" >25</span>
-                      </div>
-                      <div>
-                        <h6 className="fw-semibold">Project Management Circle</h6>
-                        <p className="small text-muted">02:00 PM • Virtual (Teams)</p>
-                      </div>
-                    </div>
-                    <div className="d-flex gap-3">
-                      <div className="d-flex flex-column align-items-center justify-content-center" style={{ minWidth: '56px', height: '56px', background: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-                        <span className="small fw-bold">FEB</span>
-                        <span className="fw-bold">05</span>
-                      </div>
-                      <div>
-                        <h6 className="fw-semibold" >Regional Stakeholder Summit</h6>
-                        <p className="small text-muted">10:00 AM • Kimberley ICC</p>
-                      </div>
-                    </div>
-                  </div>
-                  <button className="btn btn-outline-primary w-100 mt-3">View All Events</button>
-                </div>
-
                 {/* Training Notices */}
                 <div className="sidebar-widget">
-                  <h6 className="widget-title">Active Training Sessions</h6>
-                  <div className="space-y-2">
-                    <div className="d-flex justify-content-between align-items-center p-2" >
-                      <span className="fw-semibold" >Data Ethics 101</span>
-                      <Badge >In Progress</Badge>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center p-2" >
-                      <span>Advanced Excel for HR</span>
-                      <Badge>Starting Soon</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Featured Campaign */}
-                <div className="position-relative rounded-3 overflow-hidden">
-                  <img 
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeORVV7ETsPlTyEXotjnt_0WofPtW3skpp7msQVgX77B9yCK2StEU58K0CjYaWRUQWE6YpXhqDzuvlGXnlBfOpvyhzEUp-Y1Sbry1jMP6YtKUtQ-xN93HCOSRIsuy20eF1ILQfDiTy7EJ2PeIaDAzuY5zTrW9cC5p89KfjbNlnZLQNSkkKAVtPScD8JN-bWUgjo1neGJ5tRDZNjMvXqgC5vx4h0jVyHW_oJXsw-VVqXaRhCuYWoc767Ro4kF18bsv97Yv_RIcljcw" 
-                    alt="Wellness Month" 
-                    className="w-100 h-100 object-fit-cover"
-                  />
-                  <div className="position-absolute inset-0 d-flex flex-column justify-content-end p-3" >
-                    <h6 className="text-white fw-bold">Wellness Month 2024</h6>
-                    <p className="text-white-50 small">Prioritizing your mental health in the workplace.</p>
-                  </div>
+                  <h6 className="widget-title d-flex justify-content-between align-items-center">
+                    Latest Updates
+                    <FaExclamationTriangle />
+                  </h6>
+                  <p className="small text-muted mb-0">
+                    Use the category filters to browse News, Circulars, Events
+                    and Training updates published by the department.
+                  </p>
                 </div>
               </div>
             </Col>
           </Row>
         </div>
       </Container>
-
-      
-      
     </div>
   );
 };

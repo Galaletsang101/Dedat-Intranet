@@ -6,6 +6,7 @@ import {
   FaUserClock,
 } from "react-icons/fa";
 import { getAdminStats } from "../../services/adminService";
+import { formatDate } from "../../utils/dateUtils";
 
 function AdminOverview() {
   const [stats, setStats] = useState(null);
@@ -129,7 +130,7 @@ function AdminOverview() {
                   <strong>{item.title}</strong>
                   <div style={{ fontSize: "var(--font-xs)", color: "var(--text-muted)" }}>
                     {item.category} ·{" "}
-                    {new Date(item.created_date).toLocaleDateString()}
+                    {formatDate(item.created_date)}
                   </div>
                 </li>
               ))}

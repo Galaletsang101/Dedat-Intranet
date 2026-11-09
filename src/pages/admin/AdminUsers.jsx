@@ -8,6 +8,7 @@ import {
 } from "../../services/adminService";
 import { getCurrentUser } from "../../services/authService";
 import AdminModal from "../../components/admin/AdminModal";
+import { formatDateTime } from "../../utils/dateUtils";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -184,9 +185,7 @@ function AdminUsers() {
                       )}
                     </td>
                     <td>
-                      {user.last_login_at
-                        ? new Date(user.last_login_at).toLocaleString()
-                        : "Never"}
+                      {formatDateTime(user.last_login_at, "Never")}
                     </td>
                     <td>
                       <div className="admin-row-actions">

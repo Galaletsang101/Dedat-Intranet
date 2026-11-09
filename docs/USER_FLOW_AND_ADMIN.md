@@ -92,7 +92,8 @@ except the nav button that links to `add-content`, are restricted by role.
 | `/profile` | `Profile` | View/edit the logged-in user's own profile |
 | `/wellness` | `Wellness` | Wellness videos list (`GET /api/wellness`) |
 | `/calendar` | `Calendar` | Calendar/boardroom bookings (`GET`/`POST /api/calendar-events`) |
-| `/news-circulus` | `NewsCirculus` | News & circulars feed (`GET /api/news`) |
+| `/news-circulus` | `NewsCirculus` | News & circulars feed (`GET /api/news`), styled to match the Homepage's news cards |
+| `/news/:id` | `NewsArticle` | Full article reading page (`GET /api/news/:id`) - see `NEWS_WELLNESS_GUIDE.md` |
 | `/programs-units` | `ProgramsUnits` | Programme/unit info - reads `GET /api/departments`, managed via Admin Center → Departments |
 | `/staff-directory` | `StaffDirectory` | Staff directory - reads `GET /api/employees`, managed via Admin Center → Employees |
 | `/knowledge-center` | `KnowledgeCenter` | Document/knowledge resources (`GET /api/documents`) |
@@ -193,8 +194,13 @@ The 6 remaining content types, all database-backed:
 | FAQ | `POST`/`PUT`/`DELETE /api/faqs` |
 | Policies | `POST`/`PUT`/`DELETE /api/policies` |
 | Knowledge Centre | `POST`/`PUT`/`DELETE /api/documents` |
-| Wellness | `POST /api/wellness` |
+| Wellness | `POST`/`PUT`/`DELETE /api/wellness`, `POST /api/wellness/upload` for real video file storage |
 | Calendar Event | `POST /api/calendar-events` (any logged-in staff member, not Admin-only) |
+
+News and Wellness both support a **Visibility** field (Published/Draft)
+and have a "Manage Existing..." table below their form for editing,
+publishing/unpublishing, and deleting content already created - see
+[`NEWS_WELLNESS_GUIDE.md`](NEWS_WELLNESS_GUIDE.md) §6.
 
 **Markdown is no longer shown to Admins.** Every long-text field (News full
 story, Knowledge Centre overview, FAQ answer) uses
@@ -280,10 +286,15 @@ POST /api/auth/register                   POST /api/auth/login
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/` | — | Health check: `{ message: "DEDAT Intranet Backend is running" }` |
-| `GET` | `/api/news` | — | List news, newest first |
-| `POST`/`PUT`/`DELETE` | `/api/news[/:id]` | **Admin** | Create/update/delete a news article |
-| `GET` | `/api/wellness` | — | List wellness videos |
-| `POST` | `/api/wellness` | **Admin** | Create wellness video |
+| `GET` | `/api/news` | — | List **Published** news, newest first |
+| `GET` | `/api/news/:id` | — / **Admin for Drafts** | Single article (backs the full-article page); a Draft 404s for non-admins |
+| `POST`/`PUT`/`DELETE` | `/api/news[/:id]` | **Admin** | Create/update/delete a news article; `status: 'Draft'\|'Published'` |
+| `GET` | `/api/admin/news` | **Admin** | All articles including Drafts (Add Content's management list) |
+| `GET` | `/api/wellness` | — | List **Published** wellness videos |
+| `GET` | `/api/wellness/:id` | — / **Admin for Drafts** | Single video; a Draft 404s for non-admins |
+| `POST`/`PUT`/`DELETE` | `/api/wellness[/:id]` | **Admin** | Create/update/delete a wellness video; `status: 'Draft'\|'Published'` |
+| `POST` | `/api/wellness/upload` | **Admin** | Uploads a video file (multipart, max 200MB, video/* only) to local disk storage, returns a real playable URL |
+| `GET` | `/api/admin/wellness` | **Admin** | All videos including Drafts (Add Content's management list) |
 | `GET` | `/api/calendar-events` | — | List calendar events, ascending by start time |
 | `POST` | `/api/calendar-events` | **Any logged-in user** | Create event; blocks overlapping `Boardroom` bookings |
 | `GET` | `/api/documents[/:id]` | — | List/get knowledge-centre documents |

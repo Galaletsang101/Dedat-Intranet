@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { formatDate } from "../utils/dateUtils";
 
 import {
     getCurrentUser,
@@ -244,11 +245,7 @@ function Profile() {
                         </strong>
 
                         <span>
-                            {profile.created_date
-                                ? new Date(
-                                    profile.created_date
-                                ).toLocaleDateString()
-                                : "N/A"}
+                            {formatDate(profile.created_date, "N/A")}
                         </span>
 
                     </div>

@@ -6,14 +6,7 @@
  * =========================================================
  */
 
-import {
-  STORAGE_KEYS,
-  defaultCirculus,
-  readCollection,
-} from "./contentStorage.js";
-import { authFetch, parseJsonResponse } from "./apiClient.js";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { authFetch, parseJsonResponse, API_BASE } from "./apiClient.js";
 
 /*
  * =========================================================
@@ -22,46 +15,8 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
  */
 
 export async function getCirculus() {
-  try {
-    const response = await fetch(`${API_BASE}/circulus`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      return await response.json();
-    }
-
-    const errorText = await response.text();
-
-    console.error(
-      `Circulus API error (${response.status}): ${errorText}`
-    );
-  } catch (error) {
-    console.error("Failed to fetch circulus from API:", error);
-  }
-
-  return readCollection(STORAGE_KEYS.circulus, defaultCirculus);
-}
-
-/*
- * =========================================================
- * GET SINGLE CIRCULUS
- * =========================================================
- */
-
-export async function getCirculusById(id) {
-  const items = readCollection(
-    STORAGE_KEYS.circulus,
-    defaultCirculus
-  );
-
-  return (
-    items.find((item) => String(item.id) === String(id)) ||
-    null
-  );
+  const response = await fetch(`${API_BASE}/circulus`);
+  return parseJsonResponse(response, "Failed to fetch circulars.");
 }
 
 /*

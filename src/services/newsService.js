@@ -9,49 +9,38 @@
  * =========================================================
  */
 
-import {
-  STORAGE_KEYS,
-  defaultNews,
-  readCollection,
-} from "./contentStorage.js";
-import { authFetch, parseJsonResponse } from "./apiClient.js";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { authFetch, parseJsonResponse, API_BASE } from "./apiClient.js";
+import { getToken } from "./authService.js";
 
 /*
  * =========================================================
- * GET ALL NEWS
+ * GET ALL NEWS (Published only - the public listing)
  * =========================================================
  */
 
 export async function getNews() {
-  try {
-    const response = await fetch(`${API_BASE}/news`);
-
-    if (response.ok) {
-      return await response.json();
-    }
-
-    const errorText = await response.text();
-    console.error(
-      `News API error (${response.status}): ${errorText}`
-    );
-  } catch (error) {
-    console.error("Failed to fetch news from API:", error);
-  }
-
-  return readCollection(STORAGE_KEYS.news, defaultNews);
+  const response = await fetch(`${API_BASE}/news`);
+  return parseJsonResponse(response, "Failed to fetch news.");
 }
 
 /*
  * =========================================================
- * GET SINGLE NEWS
+ * GET SINGLE NEWS ARTICLE (backs the full-article reading page)
+ *
+ * Sends the current token if there is one, so an Admin previewing a
+ * Draft article they're still writing can open it; published articles
+ * are visible to anyone.
  * =========================================================
  */
 
 export async function getNewsById(id) {
-  const news = readCollection(STORAGE_KEYS.news, defaultNews);
-  return news.find((item) => String(item.id) === String(id)) || null;
+  const token = getToken();
+
+  const response = await fetch(`${API_BASE}/news/${id}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  return parseJsonResponse(response, "Failed to fetch news article.");
 }
 
 /*
@@ -72,6 +61,7 @@ export async function createNews(newsData) {
       publication_date: newsData.publication_date || null,
       image_url: newsData.image_url || "",
       is_featured: newsData.is_featured ?? false,
+      status: newsData.status || "Published",
     }),
   });
 
@@ -96,6 +86,7 @@ export async function updateNews(id, newsData) {
       publication_date: newsData.publication_date || null,
       image_url: newsData.image_url || "",
       is_featured: newsData.is_featured ?? false,
+      status: newsData.status || "Published",
     }),
   });
 
@@ -114,4 +105,15 @@ export async function deleteNews(id) {
   });
 
   return parseJsonResponse(response, "Failed to delete news.");
+}
+
+/*
+ * =========================================================
+ * ADMIN: ALL NEWS, INCLUDING DRAFTS
+ * =========================================================
+ */
+
+export async function getAdminNews() {
+  const response = await authFetch("/admin/news");
+  return parseJsonResponse(response, "Failed to fetch news.");
 }

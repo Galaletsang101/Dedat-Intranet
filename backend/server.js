@@ -4,6 +4,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
 const pool = require("./db");
 require("dotenv").config();
 
@@ -15,6 +18,35 @@ const PORT = 5000;
 const VALID_ROLES = ["Employee", "Admin"];
 const RESET_TOKEN_TTL_HOURS = 2;
 const INVITE_TOKEN_TTL_HOURS = 48;
+
+// ============================================================
+// FILE UPLOADS (Wellness videos)
+// ============================================================
+
+const UPLOADS_ROOT = path.join(__dirname, "uploads");
+const VIDEO_UPLOAD_DIR = path.join(UPLOADS_ROOT, "videos");
+fs.mkdirSync(VIDEO_UPLOAD_DIR, { recursive: true });
+
+const MAX_VIDEO_UPLOAD_BYTES = 200 * 1024 * 1024; // 200MB
+
+const videoStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, VIDEO_UPLOAD_DIR),
+    filename: (req, file, cb) => {
+        const safeExt = path.extname(file.originalname).toLowerCase().slice(0, 10);
+        cb(null, `${crypto.randomUUID()}${safeExt}`);
+    },
+});
+
+const uploadVideo = multer({
+    storage: videoStorage,
+    limits: { fileSize: MAX_VIDEO_UPLOAD_BYTES },
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith("video/")) {
+            return cb(new Error("Only video files are allowed."));
+        }
+        cb(null, true);
+    },
+});
 
 // ============================================================
 // PASSWORD RESET EMAIL CONFIGURATION
@@ -62,6 +94,7 @@ function hashToken(token) {
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(UPLOADS_ROOT));
 
 app.get("/", (req, res) => {
     res.json({
@@ -73,15 +106,64 @@ app.get("/", (req, res) => {
 // NEWS
 // ============================================================
 
+async function isAdminRequest(req) {
+    try {
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        if (!token) return false;
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const result = await pool.query(
+            "SELECT role, is_active FROM users WHERE id = $1",
+            [decoded.id]
+        );
+
+        return (
+            result.rows.length > 0 &&
+            result.rows[0].is_active &&
+            result.rows[0].role === "Admin"
+        );
+    } catch {
+        return false;
+    }
+}
+
 app.get("/api/news", async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM news ORDER BY created_date DESC"
+            "SELECT * FROM news WHERE status = 'Published' ORDER BY publication_date DESC NULLS LAST, created_date DESC"
         );
         res.json(result.rows);
     } catch (error) {
         console.error("Error fetching news:", error);
         res.status(500).json({ error: "Failed to fetch news" });
+    }
+});
+
+// Single article - backs the full-article reading page. Published
+// articles are public; Draft articles are only visible to Admins
+// (previewing their own unpublished work).
+app.get("/api/news/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await pool.query("SELECT * FROM news WHERE id = $1", [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "News article not found" });
+        }
+
+        const article = result.rows[0];
+
+        if (article.status !== "Published" && !(await isAdminRequest(req))) {
+            // 404, not 403 - don't reveal that a draft with this id exists.
+            return res.status(404).json({ error: "News article not found" });
+        }
+
+        res.json(article);
+    } catch (error) {
+        console.error("Error fetching news article:", error);
+        res.status(500).json({ error: "Failed to fetch news article" });
     }
 });
 
@@ -96,6 +178,7 @@ app.post("/api/news", authenticateToken, requireAdmin, async (req, res) => {
             publication_date,
             image_url,
             is_featured,
+            status,
         } = req.body;
 
         if (!title || !title.trim()) {
@@ -111,9 +194,9 @@ app.post("/api/news", authenticateToken, requireAdmin, async (req, res) => {
         const result = await pool.query(
             `INSERT INTO news (
                 title, excerpt, content_markdown, category, author,
-                publication_date, image_url, is_featured, created_date, updated_at
+                publication_date, image_url, is_featured, status, created_date, updated_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
             RETURNING *`,
             [
                 title.trim(),
@@ -124,6 +207,7 @@ app.post("/api/news", authenticateToken, requireAdmin, async (req, res) => {
                 publication_date || null,
                 image_url || "",
                 is_featured ?? false,
+                status === "Draft" ? "Draft" : "Published",
             ]
         );
 
@@ -146,6 +230,7 @@ app.put("/api/news/:id", authenticateToken, requireAdmin, async (req, res) => {
             publication_date,
             image_url,
             is_featured,
+            status,
         } = req.body;
 
         if (!title || !title.trim()) {
@@ -156,8 +241,8 @@ app.put("/api/news/:id", authenticateToken, requireAdmin, async (req, res) => {
             `UPDATE news
              SET title = $1, excerpt = $2, content_markdown = $3, category = $4,
                  author = $5, publication_date = $6, image_url = $7,
-                 is_featured = $8, updated_at = NOW()
-             WHERE id = $9
+                 is_featured = $8, status = $9, updated_at = NOW()
+             WHERE id = $10
              RETURNING *`,
             [
                 title.trim(),
@@ -168,6 +253,7 @@ app.put("/api/news/:id", authenticateToken, requireAdmin, async (req, res) => {
                 publication_date || null,
                 image_url || "",
                 is_featured ?? false,
+                status === "Draft" ? "Draft" : "Published",
                 id,
             ]
         );
@@ -221,8 +307,9 @@ app.get("/api/wellness", async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT id, title, description, category, duration, thumbnail,
-                    video_url, featured, created_date
+                    video_url, featured, status, created_date
              FROM wellness_videos
+             WHERE status = 'Published'
              ORDER BY created_date DESC`
         );
         res.json(result.rows);
@@ -231,6 +318,64 @@ app.get("/api/wellness", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch wellness videos" });
     }
 });
+
+app.get(
+    "/api/wellness/:id",
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const result = await pool.query(
+                "SELECT * FROM wellness_videos WHERE id = $1",
+                [id]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Wellness video not found" });
+            }
+
+            const video = result.rows[0];
+
+            if (video.status !== "Published" && !(await isAdminRequest(req))) {
+                return res.status(404).json({ error: "Wellness video not found" });
+            }
+
+            res.json(video);
+        } catch (error) {
+            console.error("Error fetching wellness video:", error);
+            res.status(500).json({ error: "Failed to fetch wellness video" });
+        }
+    }
+);
+
+// Admin-only: uploads an actual video file to local disk storage and
+// returns a real, playable URL - replaces the previous frontend behavior
+// of saving a blob: object URL (valid only in the uploading browser tab)
+// directly into video_url, which meant uploaded videos broke for every
+// other viewer and even for the admin after a page refresh.
+app.post(
+    "/api/wellness/upload",
+    authenticateToken,
+    requireAdmin,
+    (req, res) => {
+        uploadVideo.single("video")(req, res, (err) => {
+            if (err) {
+                const message =
+                    err.code === "LIMIT_FILE_SIZE"
+                        ? "Video file is too large (max 200MB)."
+                        : err.message || "Failed to upload video.";
+                return res.status(400).json({ error: message });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ error: "No video file was provided." });
+            }
+
+            const url = `${req.protocol}://${req.get("host")}/uploads/videos/${req.file.filename}`;
+            res.status(201).json({ url });
+        });
+    }
+);
 
 app.post(
     "/api/wellness",
@@ -246,6 +391,7 @@ app.post(
                 thumbnail,
                 video_url,
                 featured,
+                status,
             } = req.body;
 
             if (!title || !title.trim()) {
@@ -254,20 +400,28 @@ app.post(
                     .json({ error: "Wellness video title is required" });
             }
 
+            if (!video_url || !video_url.trim()) {
+                return res
+                    .status(400)
+                    .json({ error: "A video URL or uploaded video file is required" });
+            }
+
             const result = await pool.query(
                 `INSERT INTO wellness_videos
-                    (title, description, category, duration, thumbnail, video_url, featured)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    (title, description, category, duration, thumbnail, video_url,
+                     featured, status, created_date, updated_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
                  RETURNING id, title, description, category, duration, thumbnail,
-                           video_url, featured, created_date`,
+                           video_url, featured, status, created_date`,
                 [
                     title.trim(),
                     description || "",
                     category || "Mental Health",
                     duration || "",
                     thumbnail || "",
-                    video_url || "",
+                    video_url.trim(),
                     featured ?? false,
+                    status === "Draft" ? "Draft" : "Published",
                 ]
             );
 
@@ -275,6 +429,96 @@ app.post(
         } catch (error) {
             console.error("Create wellness video API error:", error);
             res.status(500).json({ error: "Failed to create wellness video" });
+        }
+    }
+);
+
+app.put(
+    "/api/wellness/:id",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const {
+                title,
+                description,
+                category,
+                duration,
+                thumbnail,
+                video_url,
+                featured,
+                status,
+            } = req.body;
+
+            if (!title || !title.trim()) {
+                return res
+                    .status(400)
+                    .json({ error: "Wellness video title is required" });
+            }
+
+            if (!video_url || !video_url.trim()) {
+                return res
+                    .status(400)
+                    .json({ error: "A video URL or uploaded video file is required" });
+            }
+
+            const result = await pool.query(
+                `UPDATE wellness_videos
+                 SET title = $1, description = $2, category = $3, duration = $4,
+                     thumbnail = $5, video_url = $6, featured = $7, status = $8,
+                     updated_at = NOW()
+                 WHERE id = $9
+                 RETURNING *`,
+                [
+                    title.trim(),
+                    description || "",
+                    category || "Mental Health",
+                    duration || "",
+                    thumbnail || "",
+                    video_url.trim(),
+                    featured ?? false,
+                    status === "Draft" ? "Draft" : "Published",
+                    id,
+                ]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Wellness video not found" });
+            }
+
+            res.json(result.rows[0]);
+        } catch (error) {
+            console.error("Error updating wellness video:", error);
+            res.status(500).json({ error: "Failed to update wellness video" });
+        }
+    }
+);
+
+app.delete(
+    "/api/wellness/:id",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const result = await pool.query(
+                "DELETE FROM wellness_videos WHERE id = $1 RETURNING *",
+                [id]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Wellness video not found" });
+            }
+
+            res.json({
+                message: "Wellness video deleted successfully",
+                video: result.rows[0],
+            });
+        } catch (error) {
+            console.error("Error deleting wellness video:", error);
+            res.status(500).json({ error: "Failed to delete wellness video" });
         }
     }
 );
@@ -1434,6 +1678,37 @@ app.get("/api/users", async (req, res) => {
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ error: "Failed to fetch users" });
+    }
+});
+
+// ============================================================
+// ADMIN: CONTENT MANAGEMENT (News + Wellness, including drafts)
+// The public GET /api/news and /api/wellness only ever return
+// status = 'Published'. These two endpoints are how the Admin content
+// list sees drafts too, so there's somewhere to manage them.
+// ============================================================
+
+app.get("/api/admin/news", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM news ORDER BY created_date DESC"
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching admin news list:", error);
+        res.status(500).json({ error: "Failed to fetch news" });
+    }
+});
+
+app.get("/api/admin/wellness", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM wellness_videos ORDER BY created_date DESC"
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching admin wellness list:", error);
+        res.status(500).json({ error: "Failed to fetch wellness videos" });
     }
 });
 

@@ -1,6 +1,7 @@
 // src/pages/Homepage.jsx
 import React, { useState, useEffect } from 'react';
 import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import {
   Container, Row, Col, Nav, Navbar, Carousel, Button,
   Badge, Modal
@@ -38,58 +39,7 @@ import '../../styles/updatesModal.css';
 
 import { getNews } from "../../services/newsService";
 import { getCirculus } from "../../services/circulusService";
-
-// ============================================================
-// PROFESSIONAL CAROUSEL IMAGES - FALLBACK
-// ============================================================
-
-const carouselItems = [
-  {
-    id: 1,
-    title: "New Industrial Hub Launched in Upington",
-    excerpt: "MEC highlights the project's role in creating 5,000 local jobs over three years, fostering economic growth and infrastructure development.",
-    category: "Infrastructure",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab",
-    time: "2 hours ago"
-  },
-  {
-    id: 2,
-    title: "Tourism Recovery Programme Exceeds Targets",
-    excerpt: "The Northern Cape welcomed over 1.2 million visitors in Q1 2026, surpassing pre-pandemic levels and boosting local economy.",
-    category: "Tourism",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
-    time: "5 hours ago"
-  },
-  {
-    id: 3,
-    title: "Skills Development Programme Exceeds Targets",
-    excerpt: "Over 200 staff members completed the advanced project management course, with 95% passing rate across all districts.",
-    category: "Skills Development",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=80",
-    time: "1 day ago"
-  }
-];
-
-// ============================================================
-// NEWS ITEMS - FALLBACK
-// ============================================================
-
-const newsItems = [
-  {
-    id: 1,
-    title: "Enhanced Data Protection for E-Gov Services",
-    excerpt: "New encryption protocols implemented across all provincial digital portals to safeguard citizen data.",
-    category: "Cybersecurity",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"
-  },
-  {
-    id: 2,
-    title: "Internal Training Programme Exceeds Targets",
-    excerpt: "Over 200 staff members completed the advanced project management course with 95% passing rate.",
-    category: "Skills Development",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80"
-  }
-];
+import { formatDate, formatRelative } from "../../utils/dateUtils";
 
 // ============================================================
 // CALENDAR EVENTS
@@ -111,31 +61,6 @@ const calendarEvents = [
     month: "OCT",
     time: "All Day - Virtual Meeting",
     expiry: "MANDATORY ATTENDANCE"
-  }
-];
-
-// ============================================================
-// CIRCULARS - FALLBACK
-// ============================================================
-
-const circulars = [
-  {
-    id: 1,
-    title: "Circular No. 12 of 2024: New Recruitment Protocols",
-    classification: "U",
-    time: "Posted 2 hours ago"
-  },
-  {
-    id: 2,
-    title: "Information Security Guidelines - Update",
-    classification: "I",
-    time: "Posted Yesterday"
-  },
-  {
-    id: 3,
-    title: "Budget Adjustment for Q3 2026",
-    classification: "C",
-    time: "Posted 3 days ago"
   }
 ];
 
@@ -208,9 +133,10 @@ const Homepage = () => {
   // DATABASE CONTENT
   // ============================================================
 
-  const [homepageNews, setHomepageNews] = useState(newsItems);
-  const [homepageCirculars, setHomepageCirculars] = useState(circulars);
-  const [homepageCarousel, setHomepageCarousel] = useState(carouselItems);
+  const [homepageNews, setHomepageNews] = useState([]);
+  const [homepageCirculars, setHomepageCirculars] = useState([]);
+  const [homepageCarousel, setHomepageCarousel] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(true);
 
   // ============================================================
   // LOAD NEWS AND CIRCULUS FROM POSTGRESQL
@@ -354,6 +280,8 @@ const Homepage = () => {
           "Failed to load homepage circulus:",
           error
         );
+      } finally {
+        setNewsLoading(false);
       }
     };
 
@@ -507,58 +435,67 @@ const Homepage = () => {
               HERO CAROUSEL
           ====================================================== */}
 
-          <Carousel
-            className="hero-carousel mb-4"
-            activeIndex={currentSlide}
-            onSelect={(index) => setCurrentSlide(index)}
-            indicators={true}
-            controls={true}
-            interval={5000}
-          >
+          {newsLoading ? (
+            <div className="homepage-hero-skeleton mb-4" />
+          ) : homepageCarousel.length === 0 ? (
+            <div className="homepage-hero-empty mb-4">
+              <FaNewspaper />
+              <p>No news has been published yet. Check back soon.</p>
+            </div>
+          ) : (
+            <Carousel
+              className="hero-carousel mb-4"
+              activeIndex={currentSlide}
+              onSelect={(index) => setCurrentSlide(index)}
+              indicators={true}
+              controls={true}
+              interval={5000}
+            >
 
-            {homepageCarousel.map((item) => (
+              {homepageCarousel.map((item) => (
 
-              <Carousel.Item key={item.id}>
+                <Carousel.Item key={item.id}>
 
-                <img
-                  src={item.image}
-                  alt={item.title}
-                />
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                  />
 
-                <Carousel.Caption className="text-md-left">
+                  <Carousel.Caption className="text-md-left">
 
-                  <Badge className="badge-featured mb-2">
-                    {item.category}
-                  </Badge>
+                    <Badge className="badge-featured mb-2">
+                      {item.category}
+                    </Badge>
 
-                  <h2>
-                    {item.title}
-                  </h2>
+                    <h2>
+                      {item.title}
+                    </h2>
 
-                  <p>
-                    {item.excerpt}
-                  </p>
+                    <p>
+                      {item.excerpt}
+                    </p>
 
-                  <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex align-items-center gap-3">
 
-                    <Button className="btn-read">
-                      Read Full Article
-                      <FaArrowRight className="ms-2" />
-                    </Button>
+                      <Link to={`/news/${item.id}`} className="btn btn-read">
+                        Read Full Article
+                        <FaArrowRight className="ms-2" />
+                      </Link>
 
-                    <span className="text-white-50">
-                      {item.time}
-                    </span>
+                      <span className="text-white-50">
+                        {item.time}
+                      </span>
 
-                  </div>
+                    </div>
 
-                </Carousel.Caption>
+                  </Carousel.Caption>
 
-              </Carousel.Item>
+                </Carousel.Item>
 
-            ))}
+              ))}
 
-          </Carousel>
+            </Carousel>
+          )}
 
           <Row className="g-4">
 
@@ -626,16 +563,27 @@ const Homepage = () => {
 
                   </h4>
 
-                  <Button
-                    variant="link"
+                  <Link
+                    to="/news-circulus"
                     className="text-decoration-none section-action"
                   >
                     Explore Archive
                     <FaArrowRight className="ms-1" />
-                  </Button>
+                  </Link>
 
                 </div>
 
+                {newsLoading ? (
+                  <Row className="g-4">
+                    {[1, 2].map((key) => (
+                      <Col md={6} key={key}>
+                        <div className="homepage-news-skeleton" />
+                      </Col>
+                    ))}
+                  </Row>
+                ) : homepageNews.length === 0 ? (
+                  <p className="text-muted mb-0">No news has been published yet.</p>
+                ) : (
                 <Row className="g-4">
 
                   {homepageNews.map((item) => (
@@ -645,6 +593,7 @@ const Homepage = () => {
                       key={item.id}
                     >
 
+                      <Link to={`/news/${item.id}`} className="news-card-link">
                       <div className="news-card">
 
                         <img
@@ -666,10 +615,7 @@ const Homepage = () => {
                             {item.excerpt}
                           </p>
 
-                          <a
-                            href="#"
-                            className="news-read-link"
-                          >
+                          <span className="news-read-link">
                             Read Article
                             <FaArrowRight
                               className="ms-1"
@@ -677,17 +623,18 @@ const Homepage = () => {
                                 fontSize: '0.65rem'
                               }}
                             />
-                          </a>
+                          </span>
 
                         </div>
 
                       </div>
+                      </Link>
 
                     </Col>
 
                   ))}
-
                 </Row>
+                )}
 
               </section>
 
@@ -1064,36 +1011,8 @@ const Homepage = () => {
 // HELPER FUNCTIONS
 // ============================================================
 
-function formatDate(dateValue) {
-  if (!dateValue) {
-    return "";
-  }
-
-  const date = new Date(dateValue);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return date.toLocaleDateString("en-ZA", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  });
-}
-
 function getPostedTime(dateValue) {
-  if (!dateValue) {
-    return "Recently posted";
-  }
-
-  const date = new Date(dateValue);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Recently posted";
-  }
-
-  return `Posted ${formatDate(dateValue)}`;
+  return `Posted ${formatRelative(dateValue, "recently")}`;
 }
 
 function getClassificationFromCategory(category) {

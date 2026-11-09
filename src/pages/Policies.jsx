@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { formatDate } from "../utils/dateUtils";
 import "../styles/policies.css";
 
 /*
@@ -188,19 +189,7 @@ function Policies() {
           version:
             "1.0",
 
-          date:
-            policy.publication_date
-              ? new Date(
-                  policy.publication_date
-                ).toLocaleDateString(
-                  "en-ZA",
-                  {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  }
-                )
-              : "N/A",
+          date: formatDate(policy.publication_date, "N/A"),
 
           status:
             policy.status || "Unknown",
