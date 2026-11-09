@@ -38,160 +38,13 @@ import '../../styles/updatesModal.css';
 
 import { getNews } from "../../services/newsService";
 import { getCirculus } from "../../services/circulusService";
-
-// ============================================================
-// PROFESSIONAL CAROUSEL IMAGES - FALLBACK
-// ============================================================
-
-const carouselItems = [
-  {
-    id: 1,
-    title: "New Industrial Hub Launched in Upington",
-    excerpt: "MEC highlights the project's role in creating 5,000 local jobs over three years, fostering economic growth and infrastructure development.",
-    category: "Infrastructure",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab",
-    time: "2 hours ago"
-  },
-  {
-    id: 2,
-    title: "Tourism Recovery Programme Exceeds Targets",
-    excerpt: "The Northern Cape welcomed over 1.2 million visitors in Q1 2026, surpassing pre-pandemic levels and boosting local economy.",
-    category: "Tourism",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
-    time: "5 hours ago"
-  },
-  {
-    id: 3,
-    title: "Skills Development Programme Exceeds Targets",
-    excerpt: "Over 200 staff members completed the advanced project management course, with 95% passing rate across all districts.",
-    category: "Skills Development",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&q=80",
-    time: "1 day ago"
-  }
-];
-
-// ============================================================
-// NEWS ITEMS - FALLBACK
-// ============================================================
-
-const newsItems = [
-  {
-    id: 1,
-    title: "Enhanced Data Protection for E-Gov Services",
-    excerpt: "New encryption protocols implemented across all provincial digital portals to safeguard citizen data.",
-    category: "Cybersecurity",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"
-  },
-  {
-    id: 2,
-    title: "Internal Training Programme Exceeds Targets",
-    excerpt: "Over 200 staff members completed the advanced project management course with 95% passing rate.",
-    category: "Skills Development",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=80"
-  }
-];
-
-// ============================================================
-// CALENDAR EVENTS
-// ============================================================
-
-const calendarEvents = [
-  {
-    id: 1,
-    title: "Skills Development Workshop",
-    date: "24",
-    month: "OCT",
-    time: "09:00 AM - Boardroom 3",
-    expiry: "EXPIRES SOON (Apply by 16:00)"
-  },
-  {
-    id: 2,
-    title: "Quarterly Performance Review",
-    date: "26",
-    month: "OCT",
-    time: "All Day - Virtual Meeting",
-    expiry: "MANDATORY ATTENDANCE"
-  }
-];
-
-// ============================================================
-// CIRCULARS - FALLBACK
-// ============================================================
-
-const circulars = [
-  {
-    id: 1,
-    title: "Circular No. 12 of 2024: New Recruitment Protocols",
-    classification: "U",
-    time: "Posted 2 hours ago"
-  },
-  {
-    id: 2,
-    title: "Information Security Guidelines - Update",
-    classification: "I",
-    time: "Posted Yesterday"
-  },
-  {
-    id: 3,
-    title: "Budget Adjustment for Q3 2026",
-    classification: "C",
-    time: "Posted 3 days ago"
-  }
-];
-
-// ============================================================
-// EXPIRING DOCUMENTS
-// ============================================================
-
-const expiringDocuments = [
-  {
-    id: 1,
-    title: "Tourism Policy Update v2",
-    expiry: "Expires in 12 days",
-    urgency: "urgent"
-  },
-  {
-    id: 2,
-    title: "Annual Procurement Plan 2025/26",
-    expiry: "Expires in 28 days",
-    urgency: "warning"
-  }
-];
+import { getCalendarEvents } from "../../services/calendarService";
+import { getDocuments } from "../../services/documentsService";
+import { getSiteContent } from "../../services/siteContentService";
 
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
-
-const latestUpdates = [
-  {
-    id: 1,
-    icon: FaNewspaper,
-    title: "New Department News",
-    description: "New Industrial Hub project announcement has been published.",
-    type: "News"
-  },
-  {
-    id: 2,
-    icon: FaCalendarAlt,
-    title: "Upcoming Calendar Event",
-    description: "Quarterly Performance Review scheduled for 26 October.",
-    type: "Calendar"
-  },
-  {
-    id: 3,
-    icon: FaFileAlt,
-    title: "New HR Circulus Available",
-    description: "Updated Information Security Guidelines have been uploaded.",
-    type: "Circular"
-  },
-  {
-    id: 4,
-    icon: FaUserCircle,
-    title: "Appointment Update",
-    description: "New acting appointments have been announced.",
-    type: "HR"
-  }
-];
 
 const Homepage = () => {
 
@@ -208,9 +61,13 @@ const Homepage = () => {
   // DATABASE CONTENT
   // ============================================================
 
-  const [homepageNews, setHomepageNews] = useState(newsItems);
-  const [homepageCirculars, setHomepageCirculars] = useState(circulars);
-  const [homepageCarousel, setHomepageCarousel] = useState(carouselItems);
+  const [homepageNews, setHomepageNews] = useState([]);
+  const [homepageCirculars, setHomepageCirculars] = useState([]);
+  const [homepageCarousel, setHomepageCarousel] = useState([]);
+  const [homepageEvents, setHomepageEvents] = useState([]);
+  const [homepageDocuments, setHomepageDocuments] = useState([]);
+  const [homeContent, setHomeContent] = useState(null);
+  const [homeLoading, setHomeLoading] = useState(true);
 
   // ============================================================
   // LOAD NEWS AND CIRCULUS FROM POSTGRESQL
@@ -251,11 +108,9 @@ const Homepage = () => {
               excerpt:
                 item.excerpt ||
                 item.summary ||
-                "No summary available.",
+                "",
               category: item.category || "News",
-              image:
-                item.image_url ||
-                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"
+              image: item.image_url || ""
             }))
           );
 
@@ -281,11 +136,9 @@ const Homepage = () => {
                 excerpt:
                   heroNews.excerpt ||
                   heroNews.summary ||
-                  "Read the latest departmental news.",
+                  "",
                 category: heroNews.category || "News",
-                image:
-                  heroNews.image_url ||
-                  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
+                image: heroNews.image_url || "",
                 time: heroNews.publication_date
                   ? `Published ${formatDate(heroNews.publication_date)}`
                   : "Latest News"
@@ -355,25 +208,103 @@ const Homepage = () => {
           error
         );
       }
+
+      try {
+        const events = await getCalendarEvents();
+        setHomepageEvents(events.slice(0, 4).map((event) => {
+          const start = new Date(event.start_time);
+          const end = event.end_time ? new Date(event.end_time) : null;
+          return {
+            id: event.id,
+            title: event.title,
+            date: start.toLocaleDateString("en-ZA", { day: "2-digit" }),
+            month: start.toLocaleDateString("en-ZA", { month: "short" }).toUpperCase(),
+            time: `${start.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}${end ? ` - ${end.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}` : ""}`,
+            expiry: event.category || "",
+          };
+        }));
+      } catch (error) {
+        console.error("Failed to load homepage calendar events:", error);
+      }
+
+      try {
+        const documents = await getDocuments();
+        setHomepageDocuments(documents.slice(0, 4).map((document) => ({
+          id: document.id,
+          title: document.title,
+          expiry: document.review_date
+            ? `Review date: ${formatDate(document.review_date)}`
+            : "",
+          urgency: "warning",
+        })));
+      } catch (error) {
+        console.error("Failed to load homepage documents:", error);
+      }
+      try {
+        const page = await getSiteContent("home");
+        setHomeContent(page);
+        const announcements = page?.content?.announcements || [];
+        if (announcements.length) {
+          setHomepageNews((current) => [
+            ...announcements.map((item, index) => ({
+              id: `announcement-${index}`,
+              title: item.title,
+              excerpt: item.description || item.markdown || "",
+              category: "Announcement",
+              image: "",
+            })),
+            ...current,
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to load homepage section content:", error);
+      }
+      setHomeLoading(false);
     };
 
     loadHomepageContent();
   }, []);
 
+  const latestUpdates = [
+    ...homepageNews.map((item) => ({
+      id: `news-${item.id}`,
+      icon: FaNewspaper,
+      title: item.title,
+      description: item.excerpt,
+      type: item.category,
+    })),
+    ...homepageEvents.map((item) => ({
+      id: `event-${item.id}`,
+      icon: FaCalendarAlt,
+      title: item.title,
+      description: `${item.date} ${item.month} · ${item.time}`,
+      type: "Calendar",
+    })),
+    ...homepageCirculars.map((item) => ({
+      id: `circular-${item.id}`,
+      icon: FaFileAlt,
+      title: item.title,
+      description: item.time,
+      type: "Circular",
+    })),
+  ].slice(0, 4);
+  const pageContent = homeContent?.content || {};
+
   // ============================================================
   // QUICK ACCESS ITEMS
   // ============================================================
 
-  const quickAccessItems = [
-    { icon: FaHeadset, label: "IT Support" },
-    { icon: FaDoorOpen, label: "Boardrooms" },
-    { icon: FaSearchPlus, label: "Search Employees" },
-    { icon: FaEnvelope, label: "Groupwise" },
-    { icon: FaFileAlt, label: "SAES eFiling" },
-    { icon: FaCalendarAlt, label: "E-Leave" },
-    { icon: FaPaperPlane, label: "E-Submission" },
-    { icon: FaShieldAlt, label: "Cybersecurity" }
-  ];
+  const quickAccessItems = pageContent.quick_access || [];
+  const quickAccessIcons = {
+    support: <FaHeadset />,
+    boardroom: <FaDoorOpen />,
+    employee: <FaSearchPlus />,
+    email: <FaEnvelope />,
+    document: <FaFileAlt />,
+    calendar: <FaCalendarAlt />,
+    submission: <FaPaperPlane />,
+    security: <FaShieldAlt />,
+  };
 
   // ============================================================
   // CLASSIFICATION BADGE
@@ -516,14 +447,11 @@ const Homepage = () => {
             interval={5000}
           >
 
-            {homepageCarousel.map((item) => (
+            {homepageCarousel.length ? homepageCarousel.map((item) => (
 
               <Carousel.Item key={item.id}>
 
-                <img
-                  src={item.image}
-                  alt={item.title}
-                />
+                {item.image && <img src={item.image} alt={item.title} />}
 
                 <Carousel.Caption className="text-md-left">
 
@@ -556,7 +484,13 @@ const Homepage = () => {
 
               </Carousel.Item>
 
-            ))}
+            )) : (
+              <Carousel.Item>
+                <div className="hero-carousel-empty">
+                  <h2>{homeLoading ? "Loading latest news..." : "No news has been published yet."}</h2>
+                </div>
+              </Carousel.Item>
+            )}
 
           </Carousel>
 
@@ -593,7 +527,7 @@ const Homepage = () => {
                       <div className="quick-access-card">
 
                         <div className="icon-wrapper">
-                          <item.icon />
+                          {quickAccessIcons[item.icon] || <FaFileAlt />}
                         </div>
 
                         <span className="card-label">
@@ -605,6 +539,7 @@ const Homepage = () => {
                     </Col>
 
                   ))}
+                  {!quickAccessItems.length && <p>No quick-access links have been published.</p>}
 
                 </Row>
 
@@ -638,7 +573,7 @@ const Homepage = () => {
 
                 <Row className="g-4">
 
-                  {homepageNews.map((item) => (
+                  {homepageNews.length ? homepageNews.map((item) => (
 
                     <Col
                       md={6}
@@ -647,10 +582,7 @@ const Homepage = () => {
 
                       <div className="news-card">
 
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                        />
+                        {item.image && <img src={item.image} alt={item.title} />}
 
                         <div className="news-body">
 
@@ -685,6 +617,18 @@ const Homepage = () => {
 
                     </Col>
 
+                  )) : <p>{homeLoading ? "Loading news..." : "No news articles are available."}</p>}
+
+                  {(pageContent.announcements || []).map((item, index) => (
+                    <Col md={6} key={`announcement-${index}`}>
+                      <div className="news-card">
+                        <div className="news-body">
+                          <div className="news-category">Announcement</div>
+                          <h5 className="news-title">{item.title}</h5>
+                          <p className="news-excerpt">{item.description || item.markdown || ""}</p>
+                        </div>
+                      </div>
+                    </Col>
                   ))}
 
                 </Row>
@@ -715,7 +659,7 @@ const Homepage = () => {
                       </Button>
 
                       <span className="calendar-month">
-                        October 2026
+                        {new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" })}
                       </span>
 
                       <Button
@@ -731,7 +675,7 @@ const Homepage = () => {
 
                   <Row className="g-3">
 
-                    {calendarEvents.map((event) => (
+                    {homepageEvents.length ? homepageEvents.map((event) => (
 
                       <Col
                         md={6}
@@ -763,19 +707,10 @@ const Homepage = () => {
                             </div>
 
                             <div
-                              className={
-                                event.expiry.includes('EXPIRES')
-                                  ? "event-expiry urgent"
-                                  : "event-expiry"
-                              }
+                              className="event-expiry"
                             >
 
-                              <FaClock
-                                style={{
-                                  fontSize: '0.6rem'
-                                }}
-                              />
-
+                              <FaClock style={{ fontSize: '0.6rem' }} />
                               {event.expiry}
 
                             </div>
@@ -786,7 +721,7 @@ const Homepage = () => {
 
                       </Col>
 
-                    ))}
+                    )) : <p>{homeLoading ? "Loading events..." : "No upcoming events are available."}</p>}
 
                   </Row>
 
@@ -816,22 +751,18 @@ const Homepage = () => {
                   }}
                 >
 
-                  <img
-                    src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80"
-                    alt="Northern Cape Landscape"
-                    className="mec-image"
-                  />
+                  {pageContent.vision_image && <img src={pageContent.vision_image} alt={pageContent.vision_title || "Department vision"} className="mec-image" />}
 
                   <div
                     className="position-absolute bottom-0 start-0 p-3 w-100"
                   >
 
                     <Badge className="mec-badge">
-                      Our Vision
+                      {pageContent.vision_label || "Our Vision"}
                     </Badge>
 
                     <h6 className="text-white mt-1">
-                      Radical Economic Transformation
+                      {pageContent.vision_title || "Vision"}
                     </h6>
 
                   </div>
@@ -840,11 +771,7 @@ const Homepage = () => {
 
                 <div className="mec-body d-flex align-items-center gap-3">
 
-                  <img
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&q=80"
-                    alt="MEC"
-                    className="expert-avatar"
-                  />
+                  {pageContent.mec_image && <img src={pageContent.mec_image} alt={pageContent.mec_name || "Department representative"} className="expert-avatar" />}
 
                   <div className="flex-grow-1">
 
@@ -854,11 +781,11 @@ const Homepage = () => {
                         fontSize: '0.8rem'
                       }}
                     >
-                      MEC's Welcome
+                      {pageContent.mec_name || "Department message"}
                     </div>
 
                     <div className="mec-quote">
-                      "Building a prosperous future together..."
+                      {pageContent.mec_message || ""}
                     </div>
 
                   </div>
@@ -899,7 +826,7 @@ const Homepage = () => {
 
                 <div className="bg-white p-3 rounded-3 border">
 
-                  {expiringDocuments.map((doc) => (
+                  {homepageDocuments.length ? homepageDocuments.map((doc) => (
 
                     <div
                       key={doc.id}
@@ -924,7 +851,7 @@ const Homepage = () => {
 
                     </div>
 
-                  ))}
+                  )) : <p>{homeLoading ? "Loading documents..." : "No documents are available for review."}</p>}
 
                 </div>
 
@@ -957,7 +884,7 @@ const Homepage = () => {
 
                   </div>
 
-                  {homepageCirculars.map((circular) => (
+                  {homepageCirculars.length ? homepageCirculars.map((circular) => (
 
                     <div
                       key={circular.id}
@@ -991,7 +918,7 @@ const Homepage = () => {
 
                     </div>
 
-                  ))}
+                  )) : <p>{homeLoading ? "Loading circulars..." : "No circulars are available."}</p>}
 
                   <Button
                     variant="link"
@@ -1016,33 +943,29 @@ const Homepage = () => {
 
                   <div className="d-flex align-items-center gap-3 mb-3">
 
-                    <img
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80"
-                      alt="Expert"
-                      className="expert-avatar"
-                    />
+                    {pageContent.expert_image && <img src={pageContent.expert_image} alt={pageContent.expert_name || "Staff expert"} className="expert-avatar" />}
 
                     <div>
 
                       <div className="expert-name">
-                        Thandiwe Molefe
+                        {pageContent.expert_name || "Staff expert"}
                       </div>
 
                       <div className="expert-title">
-                        Senior Economist
+                        {pageContent.expert_title || ""}
                       </div>
 
                     </div>
 
                   </div>
 
-                  <button className="btn-contact">
+                  {pageContent.expert_email && <a className="btn-contact" href={`mailto:${pageContent.expert_email}`}>
 
                     <FaStar className="me-2" />
 
                     Contact Expert
 
-                  </button>
+                  </a>}
 
                 </div>
 

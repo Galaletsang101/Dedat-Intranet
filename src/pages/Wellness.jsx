@@ -6,6 +6,8 @@ import {
   FaGlobe,
   FaPlay,
 } from "react-icons/fa";
+import { getWellnessVideos } from "../services/wellnessService";
+import { getSiteContent } from "../services/siteContentService";
 
 
 import "../styles/wellness.css";
@@ -19,12 +21,12 @@ function Wellness() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [contactContent, setContactContent] = useState(null);
 
   const categories = [
     "All",
-    "Mental Health",
-    "Productivity",
-    "Physical Care",
+    ...new Set(videos.map((video) => video.category).filter(Boolean)),
   ];
 
   // ===========================
@@ -67,13 +69,7 @@ function Wellness() {
 
 const loadVideos = async () => {
   try {
-    const response = await fetch("http://localhost:5000/api/wellness");
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch wellness videos");
-    }
-
-    const wellnessVideos = await response.json();
+    const wellnessVideos = await getWellnessVideos();
 
     const formattedVideos = wellnessVideos.map((video) => ({
       ...video,
@@ -81,9 +77,15 @@ const loadVideos = async () => {
     }));
 
     setVideos(formattedVideos);
-
+    try {
+      setContactContent(await getSiteContent("wellness"));
+    } catch (contentError) {
+      console.error("Failed to load wellness contact information:", contentError);
+    }
   } catch (error) {
     console.error("Failed to load wellness videos:", error);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -105,17 +107,10 @@ const loadVideos = async () => {
         <div className="hero-content">
 
         
-  <h1>
-  <span style={{ color: "#5C5B5B" }}>
-    Find your balance,
-  </span>
-  <span> anytime, anywhere.</span>
-</h1>
+  <h1>{contactContent?.title || "Employee Health and Wellness"}</h1>
 
 <p style={{ color: "#666666" }}>
-  Welcome to your dedicated Employee Health and Wellness
-  space where you can discover wellness resources,
-  webinars and support whenever you need them.
+  {contactContent?.description || "Wellness information will appear here when published."}
 </p>
 
         </div>
@@ -131,7 +126,7 @@ const loadVideos = async () => {
         <div className="contact-card hover-shadow transition">
 
           <h2 style={{ color: "#5C5B5B" }}>
-            Lyra Contact Details
+            {contactContent?.content?.contact_heading || "Wellness contacts"}
           </h2>
 
           <div className="contact-item">
@@ -145,7 +140,7 @@ const loadVideos = async () => {
               <small>Phone Support</small>
 
               <h3 style={{ color: "#5C5B5B" }}>
-                1-800-LYRA-HELP
+                {contactContent?.content?.phone || "Not provided"}
               </h3>
 
             </div>
@@ -163,7 +158,7 @@ const loadVideos = async () => {
               <small>Email</small>
 
               <h3 style={{ color: "#5C5B5B" }}>
-                support@lyrahealth.com
+                {contactContent?.content?.email || "Not provided"}
               </h3>
 
             </div>
@@ -181,11 +176,11 @@ const loadVideos = async () => {
               <small>Website</small>
 
               <a
-                href="https://www.lyrahealth.com"
+                href={contactContent?.content?.website || undefined}
                 target="_blank"
                 rel="noreferrer"
               >
-                www.lyrahealth.com
+                {contactContent?.content?.website || "Not provided"}
               </a>
 
             </div>
@@ -205,11 +200,11 @@ const loadVideos = async () => {
           <div>
 
             <h2 style={{ color: "#5C5B5B" }}>
-              Webinar Library
+              {contactContent?.content?.library_heading || "Wellness Library"}
             </h2>
 
             <p style= {{color: "#666666"}}
->              Browse all employee wellness webinars.
+>              {contactContent?.content?.library_description || "Browse available employee wellness resources."}
             </p>
 
           </div>
@@ -254,7 +249,9 @@ const loadVideos = async () => {
 
                 <div className="video-grid">
 
-          {filteredVideos.length > 0 ? (
+          {loading ? (
+            <p>Loading wellness resources...</p>
+          ) : filteredVideos.length > 0 ? (
 
             filteredVideos.map((video) => (
 
@@ -270,7 +267,7 @@ const loadVideos = async () => {
                   <img
                     src={
                       video.thumbnail ||
-                      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900"
+                      ""
                     }
                     alt={video.title}
                   />

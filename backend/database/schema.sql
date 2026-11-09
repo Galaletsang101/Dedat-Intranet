@@ -112,3 +112,36 @@ CREATE TABLE IF NOT EXISTS circulus (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS site_content (
+    slug TEXT PRIMARY KEY,
+    title TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    image_url TEXT NOT NULL DEFAULT '',
+    content JSONB NOT NULL DEFAULT '{}'::JSONB,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO calendar_events (title, description, start_time, end_time, category)
+SELECT holiday.title, 'Public holiday', holiday.start_time, holiday.end_time, 'Holiday'
+FROM (VALUES
+    ('New Year''s Day', TIMESTAMPTZ '2026-01-01 00:00:00+02', TIMESTAMPTZ '2026-01-01 23:59:00+02'),
+    ('Human Rights Day', TIMESTAMPTZ '2026-03-21 00:00:00+02', TIMESTAMPTZ '2026-03-21 23:59:00+02'),
+    ('Good Friday', TIMESTAMPTZ '2026-04-03 00:00:00+02', TIMESTAMPTZ '2026-04-03 23:59:00+02'),
+    ('Family Day', TIMESTAMPTZ '2026-04-06 00:00:00+02', TIMESTAMPTZ '2026-04-06 23:59:00+02'),
+    ('Freedom Day', TIMESTAMPTZ '2026-04-27 00:00:00+02', TIMESTAMPTZ '2026-04-27 23:59:00+02'),
+    ('Workers'' Day', TIMESTAMPTZ '2026-05-01 00:00:00+02', TIMESTAMPTZ '2026-05-01 23:59:00+02'),
+    ('Youth Day', TIMESTAMPTZ '2026-06-16 00:00:00+02', TIMESTAMPTZ '2026-06-16 23:59:00+02'),
+    ('National Women''s Day', TIMESTAMPTZ '2026-08-09 00:00:00+02', TIMESTAMPTZ '2026-08-09 23:59:00+02'),
+    ('Heritage Day', TIMESTAMPTZ '2026-09-24 00:00:00+02', TIMESTAMPTZ '2026-09-24 23:59:00+02'),
+    ('Day of Reconciliation', TIMESTAMPTZ '2026-12-16 00:00:00+02', TIMESTAMPTZ '2026-12-16 23:59:00+02'),
+    ('Christmas Day', TIMESTAMPTZ '2026-12-25 00:00:00+02', TIMESTAMPTZ '2026-12-25 23:59:00+02'),
+    ('Day of Goodwill', TIMESTAMPTZ '2026-12-26 00:00:00+02', TIMESTAMPTZ '2026-12-26 23:59:00+02')
+) AS holiday(title, start_time, end_time)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM calendar_events existing
+    WHERE existing.category = 'Holiday'
+      AND existing.title = holiday.title
+      AND existing.start_time = holiday.start_time
+);

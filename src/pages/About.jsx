@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaEye,
   FaRocket,
@@ -20,162 +20,51 @@ import {
 } from "react-icons/fa";
 
 import "../styles/about.css";
+import { getSiteContent } from "../services/siteContentService";
 
-const values = [
-  {
-    icon: <FaHeart />,
-    title: "Batho Pele",
-    text: "Putting people first in everything we do, ensuring accessibility and high-quality service for all citizens.",
-  },
-  {
-    icon: <FaUserShield />,
-    title: "Integrity",
-    text: "Maintaining the highest ethical standards and honesty in our operations and decision-making processes.",
-  },
-  {
-    icon: <FaBalanceScale />,
-    title: "Accountability",
-    text: "Taking full responsibility for our actions and the outcomes of our strategic initiatives and programs.",
-  },
-  {
-    icon: <FaEye />,
-    title: "Transparency",
-    text: "Ensuring openness in all departmental activities, making information accessible to stakeholders and the public.",
-  },
-];
-
-const goals = [
-  {
-    icon: <FaBriefcase />,
-    title: "Job Creation",
-    text: "Facilitating sustainable employment opportunities through sectoral intervention and large-scale projects.",
-    link: "View Roadmap",
-  },
-  {
-    icon: <FaStore />,
-    title: "SMME Support",
-    text: "Empowering small and medium enterprises with tools, funding access, and mentorship for long-term growth.",
-    link: "Support Hub",
-  },
-  {
-    icon: <FaMapMarkedAlt />,
-    title: "Tourism Promotion",
-    text: "Positioning the Northern Cape as a premier global travel destination through strategic marketing and events.",
-    link: "Marketing Toolkit",
-  },
-  {
-    icon: <FaCoins />,
-    title: "Trade & Investment",
-    text: "Attracting foreign direct investment and expanding export opportunities for local provincial industries.",
-    link: "Investor Portal",
-  },
-];
-
-const executives = [
-  {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCoZGc-umvsIYHbfvAaFT1oXe-inSdprn4r7EOIcFnwbVDKeEuI4DtbW1woegbBh-cxyf3RUpi25Z_nSzQsPlMRUSd13lLdwAw3tHQRhinReHlbUainfyuvrjQnSgYmD91cktwoWA-8KPTw0Xfv6z6R7w2zB3cJkZwYOvZeSq8IX_M-DEunzocmcR17H1R1Ao1eAzTNF9w4VWPyKZhfHqNd_FoCUS3uKcIUDv0M0irFqETr3Iv_2jWS89aAInRgHUuQdEtqQdaTDkw",
-    role: "MEC",
-    name: "Hon. Nomsa Maseko",
-    position: "Member of the Executive Council",
-  },
-  {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9fSG1jT3SDeABbFX3Ui4bq0O2lZ00OAMoOvfmNZCBAg4HukrpVI-TQ4u3wifmDGzmaeRVq0mVC6IPj8-WclC_248CHfPKNrUWBXLlv0nber8Qv_G0cygb04SupwpXduYFU14wNFeox9EI-eFhmLmE-wkBwOySB5CYh8xfAhrzIDNFp-pn-I5noz2rLp1Ycp0vw46YQK4tsk511TBElB4z5TLfUc334OwM82jmEYat1-JHz1VTOfny6Had2o8h2m0Ge9Jn5kh-tbI",
-    role: "HOD",
-    name: "Mr. Sipho Dlamini",
-    position: "Head of Department",
-  },
-  {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCv7BV6dn7T7GAsePpgTsEbLfeOWzvwgipZNjMtVt6yGVuyxNRyPgKARB1uFprOluZb0pkoKEJmPQMjIPm_bap1L5GqPEYVVuMZEUDzns603gMlPQsCf1AGXffzc8Xi1VQ4GoE3-KIe4EiLnQjIzSHXeTaovml683rbiO7mqLj9fHQoDgUueJo7mASs68NpWEJlxh0O4Rr94JcY-XCWHS5lA58CgUh49zsp93TdL9KR0pO9J4PZPrN_wwgC-CN5XJd5hMpfiVkTCKE",
-    role: "CFO",
-    name: "Ms. Sarah Jacobs",
-    position: "Chief Financial Officer",
-  },
-];
-
-const programmes = [
-  {
-    number: "PROGRAMME 1",
-    title: "Administration",
-    items: [
-      "Financial Management",
-      "Corporate Services",
-      "Strategy & Planning",
-    ],
-  },
-  {
-    number: "PROGRAMME 2",
-    title: "Economic Dev.",
-    items: [
-      "Business Regulation",
-      "Trade & Investment",
-      "SMME Support",
-    ],
-  },
-  {
-    number: "PROGRAMME 3",
-    title: "Tourism",
-    items: [
-      "Tourism Planning",
-      "Tourism Marketing",
-      "Research & Statistics",
-    ],
-  },
-];
-
-const milestones = [
-  {
-    year: "1994",
-    title: "Department Establishment",
-    text: "Formation of the provincial economic portfolio following South Africa's transition to democracy, focusing on reconstruction and development.",
-  },
-  {
-    year: "2010",
-    title: "Tourism Master Plan Launch",
-    text: "A comprehensive 20-year strategy initiated to capitalize on the Northern Cape’s unique natural assets and heritage sites.",
-  },
-  {
-    year: "2018",
-    title: "Special Economic Zone Activation",
-    text: "Launch of the Upington Industrial Park and Special Economic Zone, attracting over R2bn in initial investment pledges.",
-  },
-  {
-    year: "2024",
-    title: "New Growth Strategy",
-    text: "Adoption of the 2024-2030 Integrated Economic Growth Strategy with a primary focus on green energy and digital transformation.",
-  },
-];
-
-const reports = [
-  {
-    icon: <FaFilePdf />,
-    title: "Annual Report 2023/24",
-    text: "Financial audited statements and performance metrics for the last fiscal year.",
-  },
-  {
-    icon: <FaChartLine />,
-    title: "APP 2024/25",
-    text: "Annual Performance Plan detailing departmental targets and service delivery goals.",
-  },
-  {
-    icon: <FaChartLine />,
-    title: "Strategic Plan 2020-25",
-    text: "Long-term vision and framework for socio-economic transformation in the province.",
-  },
-];
+const iconMap = {
+  heart: <FaHeart />,
+  integrity: <FaUserShield />,
+  accountability: <FaBalanceScale />,
+  transparency: <FaEye />,
+  briefcase: <FaBriefcase />,
+  store: <FaStore />,
+  tourism: <FaMapMarkedAlt />,
+  investment: <FaCoins />,
+  report: <FaFilePdf />,
+  chart: <FaChartLine />,
+};
 
 function About() {
+  const [page, setPage] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSiteContent("about")
+      .then(setPage)
+      .catch((error) => {
+        console.error("Failed to load About content:", error);
+        setLoadError(error.message || "Unable to load department information.");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const content = page?.content || {};
+  const values = content.values || [];
+  const goals = content.goals || [];
+  const executives = content.executives || [];
+  const programmes = content.programmes || [];
+  const milestones = content.milestones || [];
+  const reports = content.reports || [];
+
   return (
     <div className="about-page">
+      {loading && <p role="status">Loading department information...</p>}
+      {loadError && <p role="alert">{loadError}</p>}
       {/* Hero */}
       <section className="about-hero">
-        <img
-          className="about-hero-image"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyTfTlwJ_IZIWcUO_K9u-e_SUgRTuJ9X9sysVli3W1gd_AZDMIsqd3-UzgMFRzWtsXRQ7Z27ASJrnzVegJMp5ty1VO4MAAAvIGR3jP6eTCgksNCqQo4yXfdSOako_kDxbm8it8eVTspHWHJCXsFiKZtSUEiUb5Dn-nba7E5O2ji8k54UUxrG86tzb-C4cnoyvfnbXcesGVqt57pF0tCbAcNs_oZNcofwN0v0Rh6nCj5x0FIjUGthN4KBDq480W4qHN3Ma3Fw34OQg"
-          alt="Northern Cape landscape"
-        />
+        {page?.image_url && <img className="about-hero-image" src={page.image_url} alt={page.title || "Department"} />}
 
         <div className="about-hero-overlay" />
 
@@ -184,11 +73,10 @@ function About() {
             Government of the Northern Cape
           </span>
 
-          <h1>About NCDEDAT</h1>
+          <h1>{page?.title || "About the Department"}</h1>
 
           <p className="about-hero-description">
-            Driving Economic Growth and Sustainable Tourism in the Northern
-            Cape.
+            {page?.description || "Department information will appear here when published."}
           </p>
 
           <div className="vision-mission">
@@ -199,8 +87,7 @@ function About() {
               </div>
 
               <p>
-                A prosperous province with sustainable economic growth and
-                tourism.
+                {content.vision || ""}
               </p>
             </div>
 
@@ -211,8 +98,7 @@ function About() {
               </div>
 
               <p>
-                To create an enabling environment for economic growth and
-                tourism development.
+                {content.mission || ""}
               </p>
             </div>
           </div>
@@ -224,10 +110,9 @@ function About() {
         <div className="about-container">
           <div className="section-heading">
             <div>
-              <h2>Values &amp; Culture</h2>
+              <h2>{content.values_heading || "Values & Culture"}</h2>
               <p>
-                The core principles that guide our service delivery and
-                departmental integrity.
+                {content.values_description || ""}
               </p>
             </div>
 
@@ -237,7 +122,7 @@ function About() {
           <div className="values-list">
             {values.map((value) => (
               <div className="value-card" key={value.title}>
-                <div className="value-icon">{value.icon}</div>
+                <div className="value-icon">{iconMap[value.icon] || <FaHeart />}</div>
                 <h4>{value.title}</h4>
                 <p>{value.text}</p>
               </div>
@@ -250,17 +135,16 @@ function About() {
       <section className="strategic-section">
         <div className="about-container">
           <div className="center-heading">
-            <h2>Strategic Goals</h2>
+            <h2>{content.goals_heading || "Strategic Goals"}</h2>
             <p>
-              Our roadmap for transforming the Northern Cape into a leading
-              economic and tourism hub in Southern Africa.
+              {content.goals_description || ""}
             </p>
           </div>
 
           <div className="goals-list">
             {goals.map((goal) => (
               <div className="goal-card" key={goal.title}>
-                <div className="goal-icon">{goal.icon}</div>
+                <div className="goal-icon">{iconMap[goal.icon] || <FaBriefcase />}</div>
 
                 <h3>{goal.title}</h3>
 
@@ -295,15 +179,15 @@ function About() {
                   <p>{person.position}</p>
 
                   <div className="executive-actions">
-                    <button type="button" className="primary-button">
+                    {person.email && <a className="primary-button" href={`mailto:${person.email}`}>
                       <FaEnvelope />
                       Email
-                    </button>
+                    </a>}
 
-                    <button type="button" className="outline-button">
+                    {person.phone && <a className="outline-button" href={`tel:${person.phone}`}>
                       <FaPhone />
                       Phone
-                    </button>
+                    </a>}
                   </div>
                 </div>
               </div>
@@ -317,14 +201,11 @@ function About() {
         <div className="about-container">
           <div className="center-heading organisation-heading">
             <h2>Organisational Structure</h2>
-            <p>
-              Hierarchical overview of departmental programmes and reporting
-              lines.
-            </p>
+            <p>{content.organisation_description || ""}</p>
           </div>
 
           <div className="organisation-tree">
-            <div className="hod-box">Head of Department (HOD)</div>
+            {content.hod && <div className="hod-box">{content.hod}</div>}
 
             <div className="tree-line" />
 
@@ -338,7 +219,7 @@ function About() {
                     <h3>{programme.title}</h3>
 
                     <ul>
-                      {programme.items.map((item) => (
+                      {(programme.items || []).map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
@@ -375,7 +256,7 @@ function About() {
       <section className="reports-section">
         <div className="about-container">
           <div className="reports-heading">
-            <h2>Governance &amp; Reports</h2>
+            <h2>{content.reports_heading || "Governance & Reports"}</h2>
 
             <button type="button" className="archive-button">
               View Archive
@@ -386,16 +267,16 @@ function About() {
           <div className="reports-list">
             {reports.map((report) => (
               <div className="report-card" key={report.title}>
-                <div className="report-icon">{report.icon}</div>
+                <div className="report-icon">{iconMap[report.icon] || <FaFilePdf />}</div>
 
                 <div>
                   <h3>{report.title}</h3>
                   <p>{report.text}</p>
 
-                  <button type="button" className="download-button">
+                  {report.file_url && <a className="download-button" href={report.file_url} target="_blank" rel="noreferrer">
                     <FaDownload />
                     Download PDF
-                  </button>
+                  </a>}
                 </div>
               </div>
             ))}

@@ -6,6 +6,12 @@ import { createDocument } from "../services/documentsService";
 import { createPolicy } from "../services/policiesService";
 import { createCirculus } from "../services/circulusService";
 import { createWellnessVideo } from "../services/wellnessService";
+import { createCalendarEvent } from "../services/calendarService";
+import {
+  listAdminContent,
+  upsertSiteContent,
+} from "../services/adminContentService";
+import AdminContentManager from "../components/AdminContentManager";
 import "../styles/addContent.css";
 
 /* =========================================================
@@ -102,18 +108,6 @@ Add contact information if required.
 `;
 
 /* =========================================================
-   FAQ CATEGORIES
-========================================================= */
-
-const DEFAULT_CATEGORIES = [
-  "General & Mandate",
-  "Youth & Internship Programs",
-  "Tourism & Tour Guide Registration",
-  "Business Support & Procurement",
-  "Consumer Rights",
-];
-
-/* =========================================================
    COMPONENT
 ========================================================= */
 
@@ -145,6 +139,7 @@ export default function AddContent() {
 
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfFileUrl, setPdfFileUrl] = useState("");
 
   /* =========================================================
      VIDEO
@@ -152,6 +147,7 @@ export default function AddContent() {
 
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
+  const [videoSourceUrl, setVideoSourceUrl] = useState("");
 
   /* =========================================================
      FAQ
@@ -159,10 +155,6 @@ export default function AddContent() {
 
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
-
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
-  const [newCategory, setNewCategory] = useState("");
-  const [showCategoryInput, setShowCategoryInput] = useState(false);
 
   /* =========================================================
      PROGRAMMES & UNITS
@@ -229,9 +221,11 @@ export default function AddContent() {
 
     setPdfFile(null);
     setPdfUrl("");
+    setPdfFileUrl("");
 
     setVideoFile(null);
     setVideoUrl("");
+    setVideoSourceUrl("");
 
     setFaqQuestion("");
     setFaqAnswer("");
@@ -257,9 +251,6 @@ export default function AddContent() {
     setShowGuide(false);
     setShowPreview(false);
 
-    setShowCategoryInput(false);
-    setNewCategory("");
-
     setMessage("");
     setMessageType("");
   };
@@ -283,9 +274,11 @@ export default function AddContent() {
 
     setPdfFile(null);
     setPdfUrl("");
+    setPdfFileUrl("");
 
     setVideoFile(null);
     setVideoUrl("");
+    setVideoSourceUrl("");
 
     setFaqQuestion("");
     setFaqAnswer("");
@@ -305,9 +298,6 @@ export default function AddContent() {
     setCalendarEndTime("");
     setCalendarCategory("Meeting");
     setCalendarQuarter("Q1");
-
-    setShowCategoryInput(false);
-    setNewCategory("");
 
     setShowPreview(false);
     setMessage("");
@@ -369,41 +359,6 @@ export default function AddContent() {
   };
 
   /* =========================================================
-     ADD FAQ CATEGORY
-  ========================================================= */
-
-  const handleAddCategory = () => {
-    const trimmedCategory = newCategory.trim();
-
-    if (!trimmedCategory) {
-      setMessage("Please enter a category name.");
-      setMessageType("error");
-      return;
-    }
-
-    if (
-      categories.some(
-        (existingCategory) =>
-          existingCategory.toLowerCase() ===
-          trimmedCategory.toLowerCase()
-      )
-    ) {
-      setMessage("This category already exists.");
-      setMessageType("error");
-      return;
-    }
-
-    setCategories([...categories, trimmedCategory]);
-    setCategory(trimmedCategory);
-
-    setNewCategory("");
-    setShowCategoryInput(false);
-
-    setMessage("");
-    setMessageType("");
-  };
-
-  /* =========================================================
      VALIDATION
   ========================================================= */
 
@@ -446,8 +401,8 @@ export default function AddContent() {
         return false;
       }
 
-      if (!pdfFile && !pdfUrl) {
-        setMessage("Please upload a PDF file.");
+      if (!pdfFileUrl.trim()) {
+        setMessage("Enter a persistent PDF URL. A local file is only previewed in this browser.");
         setMessageType("error");
         return false;
       }
@@ -467,8 +422,8 @@ export default function AddContent() {
         return false;
       }
 
-      if (!pdfFile && !pdfUrl) {
-        setMessage("Please upload a PDF file.");
+      if (!pdfFileUrl.trim()) {
+        setMessage("Enter a persistent PDF URL. A local file is only previewed in this browser.");
         setMessageType("error");
         return false;
       }
@@ -578,8 +533,8 @@ export default function AddContent() {
         return false;
       }
 
-      if (!videoFile && !videoUrl.trim()) {
-        setMessage("Please upload a video or provide a video URL.");
+      if (!videoSourceUrl.trim()) {
+        setMessage("Enter a persistent video URL. A local file is only previewed in this browser.");
         setMessageType("error");
         return false;
       }
@@ -712,10 +667,10 @@ export default function AddContent() {
             </div>
           )}
 
-          {pdfUrl && (
+          {(pdfUrl || pdfFileUrl) && (
             <div className="preview-pdf">
               <iframe
-                src={pdfUrl}
+                src={pdfUrl || pdfFileUrl}
                 title={title || "PDF Preview"}
                 width="100%"
                 height="500"
@@ -798,10 +753,7 @@ export default function AddContent() {
   ========================================================= */
 
   const handlePublish = async () => {
-    console.log("PUBLISH CLICKED - selectedPage:", selectedPage);
-
     if (!validateForm()) {
-      console.log("VALIDATION FAILED");
       return;
     }
 
@@ -820,7 +772,7 @@ export default function AddContent() {
             category: "Circulars",
             author: author.trim() || "",
             publication_date: publishedDate || null,
-            file_url: pdfUrl || imageUrl.trim() || "",
+            file_url: pdfFileUrl.trim() || imageUrl.trim() || "",
             status: "published",
           });
 
@@ -880,7 +832,7 @@ export default function AddContent() {
           question: faqQuestion.trim(),
           answer: faqAnswer,
           category: category.trim() || "General",
-          keyword: "",
+          keywords: "",
           status: "published",
         });
 
@@ -916,7 +868,7 @@ export default function AddContent() {
           publication_date: publishedDate || null,
           review_date: publishedDate || null,
           status: "published",
-          file_url: pdfUrl || "",
+          file_url: pdfFileUrl.trim(),
         });
 
         setMessage("Policy published successfully.");
@@ -952,7 +904,7 @@ export default function AddContent() {
           review_date: publishedDate || null,
           version_number: "1.0",
           status: "published",
-          file_url: pdfUrl || "",
+          file_url: pdfFileUrl.trim(),
         });
 
         setMessage("Knowledge document published successfully.");
@@ -977,30 +929,16 @@ export default function AddContent() {
     ======================================================= */
 
     if (selectedPage === "wellness") {
-      console.log("WELLNESS PUBLISH BUTTON REACHED");
-
       try {
-        console.log("WELLNESS DATA BEFORE API:", {
-          title: title.trim(),
-          description: description.trim() || "",
-          category: category || "Mental Health",
-          duration: "",
-          thumbnail: imageUrl.trim() || "",
-          video_url: videoUrl.trim(),
-          featured: isFeatured,
-        });
-
         await createWellnessVideo({
           title: title.trim(),
           description: description.trim() || "",
           category: category || "Mental Health",
           duration: "",
           thumbnail: imageUrl.trim() || "",
-          video_url: videoUrl.trim(),
+          video_url: videoSourceUrl.trim(),
           featured: isFeatured,
         });
-
-        console.log("WELLNESS API REQUEST COMPLETED");
 
         setMessage("Wellness video published successfully.");
         setMessageType("success");
@@ -1030,40 +968,14 @@ export default function AddContent() {
 
     if (selectedPage === "calendar") {
       try {
-        const startTime =
-          `${publishedDate} ${calendarStartTime}:00`;
-
-        const endTime =
-          `${publishedDate} ${calendarEndTime}:00`;
-
-        const response = await fetch(
-          "http://localhost:5000/api/calendar-events",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-              title: title.trim(),
-              description: description.trim() || "",
-              start_time: startTime,
-              end_time: endTime,
-              category: calendarCategory,
-              quarter: calendarQuarter,
-            }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error ||
-              "Failed to create calendar event."
-          );
-        }
+        await createCalendarEvent({
+          title: title.trim(),
+          description: description.trim() || "",
+          start_time: new Date(`${publishedDate}T${calendarStartTime}`).toISOString(),
+          end_time: new Date(`${publishedDate}T${calendarEndTime}`).toISOString(),
+          category: calendarCategory,
+          quarter: calendarQuarter,
+        });
 
         setMessage("Calendar event created successfully.");
         setMessageType("success");
@@ -1092,133 +1004,67 @@ export default function AddContent() {
       return;
     }
 
-    /* =======================================================
-       OTHER PAGES
+    if (selectedPage === "staffDirectory") {
+      setMessage("Use Manage published content → Staff directory to add or edit employee records.");
+      setMessageType("error");
+      return;
+    }
 
-       These still use the temporary localStorage system
-       until their backend/API integrations are completed.
-    ======================================================= */
+    try {
+      const slug = selectedPage === "programsUnits" ? "programmes" : selectedPage;
+      const existing = await listAdminContent("site");
+      const current = existing.find((section) => section.slug === slug);
+      const previousContent = current?.content || {};
+      let content;
 
-    const content = {
-      id: Date.now(),
+      if (selectedPage === "programsUnits") {
+        content = {
+          ...previousContent,
+          units: [
+            ...(previousContent.units || []),
+            {
+              title: unit.trim(),
+              programme: programme.trim(),
+              description: description.trim(),
+              details: markdown,
+              status: "Active",
+              statusType: "green",
+              tags: [],
+              icon: "document",
+              iconBg: "bg-blue",
+            },
+          ],
+        };
+      } else {
+        content = {
+          ...previousContent,
+          announcements: [
+            ...(previousContent.announcements || []),
+            {
+              title: title.trim(),
+              description: description.trim(),
+              markdown,
+              created_at: new Date().toISOString(),
+            },
+          ],
+        };
+      }
 
-      page: selectedPage,
-
-      pageName: selectedPageData.name,
-
-      type: selectedPageData.type,
-
-      title:
-        selectedPage === "faq"
-          ? faqQuestion
-          : selectedPage === "programsUnits"
-          ? unit
-          : selectedPage === "staffDirectory"
-          ? staffName
-          : title,
-
-      description,
-
-      category:
-        selectedPage === "faq"
-          ? category
-          : selectedPage === "wellness"
-          ? category || "Mental Health"
-          : category,
-
-      author:
-        selectedPage === "news"
-          ? author
-          : "",
-
-      publishedDate,
-
-      markdown:
-        selectedPage === "dashboard" ||
-        selectedPage === "homepage" ||
-        selectedPage === "knowledge" ||
-        selectedPage === "news" ||
-        selectedPage === "programsUnits"
-          ? markdown
-          : "",
-
-      faq:
-        selectedPage === "faq"
-          ? {
-              question: faqQuestion,
-              answer: faqAnswer,
-              category,
-            }
-          : null,
-
-      pdf:
-        selectedPage === "policies" ||
-        selectedPage === "knowledge"
-          ? {
-              name: pdfFile?.name || "",
-              url: pdfUrl || "",
-              type: pdfFile?.type || "application/pdf",
-            }
-          : null,
-
-      video:
-        selectedPage === "wellness"
-          ? {
-              name: videoFile?.name || "",
-              url: videoUrl || "",
-              type: videoFile?.type || "",
-            }
-          : null,
-
-      programme:
-        selectedPage === "programsUnits"
-          ? {
-              programme,
-              unit,
-            }
-          : null,
-
-      staff:
-        selectedPage === "staffDirectory"
-          ? {
-              name: staffName,
-              position: staffPosition,
-              programme: staffProgramme,
-              email: staffEmail,
-              telephone: staffTelephone,
-              description: staffDescription,
-            }
-          : null,
-
-      createdAt: new Date().toISOString(),
-    };
-
-    const existingContent = JSON.parse(
-      localStorage.getItem("dedatPublishedContent") || "[]"
-    );
-
-    const updatedContent = [...existingContent, content];
-
-    localStorage.setItem(
-      "dedatPublishedContent",
-      JSON.stringify(updatedContent)
-    );
-
-    window.dispatchEvent(new Event("dedatContentUpdated"));
-
-    setMessage(
-      `${selectedPageData.name} content published successfully.`
-    );
-
-    setMessageType("success");
-
-    setShowPreview(false);
-
-    setActiveStep(1);
-
-    setTimeout(() => {
-      resetForm();
-    }, 1200);
+      await upsertSiteContent(slug, {
+        title: title.trim() || current?.title || selectedPageData.name,
+        description: description.trim() || current?.description || "",
+        image_url: imageUrl.trim() || current?.image_url || "",
+        content,
+      });
+      setMessage(`${selectedPageData.name} section saved to PostgreSQL.`);
+      setMessageType("success");
+      setShowPreview(false);
+      setActiveStep(1);
+      setTimeout(resetForm, 1200);
+    } catch (error) {
+      setMessage(error.message || "Failed to save website section.");
+      setMessageType("error");
+    }
   };
 
   /* =========================================================
@@ -1280,7 +1126,7 @@ export default function AddContent() {
           </div>
 
           <div className="form-group">
-            <label>Upload Policy PDF *</label>
+            <label>PDF File (local selection is preview only)</label>
 
             <div className="upload-area">
               <input
@@ -1292,10 +1138,20 @@ export default function AddContent() {
               {pdfFile && (
                 <div className="file-status">
                   <strong>{pdfFile.name}</strong>
-                  <span>PDF ready for publishing</span>
+                  <span>Preview only; enter a persistent URL below.</span>
                 </div>
               )}
             </div>
+          </div>
+          <div className="form-group">
+            <label>Persistent PDF URL *</label>
+            <input
+              type="url"
+              value={pdfFileUrl}
+              onChange={(event) => setPdfFileUrl(event.target.value)}
+              placeholder="https://..."
+              required
+            />
           </div>
         </>
       );
@@ -1358,16 +1214,18 @@ export default function AddContent() {
             </div>
 
             <div className="form-group">
-              <label>Video URL</label>
+              <label>Video URL *</label>
 
               <input
                 type="url"
-                value={videoFile ? "" : videoUrl}
+                value={videoSourceUrl}
                 onChange={(event) => {
+                  setVideoSourceUrl(event.target.value);
                   setVideoUrl(event.target.value);
                   setVideoFile(null);
                 }}
-                placeholder="Optional video URL"
+                placeholder="https://..."
+                required
               />
             </div>
           </div>
@@ -1398,7 +1256,7 @@ export default function AddContent() {
               {videoFile && (
                 <div className="file-status">
                   <strong>{videoFile.name}</strong>
-                  <span>Video ready for publishing</span>
+                  <span>Preview only; the persistent URL above is saved.</span>
                 </div>
               )}
             </div>
@@ -1899,7 +1757,7 @@ export default function AddContent() {
           </div>
 
           <div className="form-group">
-            <label>Upload PDF *</label>
+            <label>PDF File (local selection is preview only)</label>
 
             <div className="upload-area">
               <input
@@ -1911,10 +1769,20 @@ export default function AddContent() {
               {pdfFile && (
                 <div className="file-status">
                   <strong>{pdfFile.name}</strong>
-                  <span>PDF ready for publishing</span>
+                  <span>Preview only; enter a persistent URL below.</span>
                 </div>
               )}
             </div>
+          </div>
+          <div className="form-group">
+            <label>Persistent PDF URL *</label>
+            <input
+              type="url"
+              value={pdfFileUrl}
+              onChange={(event) => setPdfFileUrl(event.target.value)}
+              placeholder="https://..."
+              required
+            />
           </div>
         </>
       );
@@ -2004,56 +1872,16 @@ export default function AddContent() {
           />
         </div>
 
-        <div className="category-row">
-          <div className="form-group">
-            <label>Category *</label>
-
-            <select
-              value={category}
-              onChange={(event) =>
-                setCategory(event.target.value)
-              }
-            >
-              <option value="">Select category</option>
-
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="button"
-            className="new-category-button"
-            onClick={() =>
-              setShowCategoryInput(!showCategoryInput)
-            }
-          >
-            + New Category
-          </button>
+        <div className="form-group">
+          <label>Category *</label>
+          <input
+            type="text"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            placeholder="Enter FAQ category"
+            required
+          />
         </div>
-
-        {showCategoryInput && (
-          <div className="new-category-box">
-            <input
-              type="text"
-              value={newCategory}
-              onChange={(event) =>
-                setNewCategory(event.target.value)
-              }
-              placeholder="Enter new category"
-            />
-
-            <button
-              type="button"
-              onClick={handleAddCategory}
-            >
-              Add Category
-            </button>
-          </div>
-        )}
 
         <div className="form-group">
           <label>Answer *</label>
@@ -2119,6 +1947,8 @@ export default function AddContent() {
             </button>
           ))}
         </div>
+
+        <AdminContentManager />
 
         {/* ===================================================
             EDITOR

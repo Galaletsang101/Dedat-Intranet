@@ -24,9 +24,7 @@
  * =========================================================
  */
 
-const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "http://localhost:5000/api";
+import { apiRequest } from "./api.js";
 
 
 // =========================================================
@@ -34,22 +32,7 @@ const API_BASE =
 // =========================================================
 
 export async function getDocuments() {
-    const response = await fetch(
-        `${API_BASE}/documents`
-    );
-
-    const data = await response
-        .json()
-        .catch(() => []);
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error ||
-            "Failed to fetch documents."
-        );
-    }
-
-    return data;
+    return apiRequest("/documents");
 }
 
 
@@ -58,22 +41,7 @@ export async function getDocuments() {
 // =========================================================
 
 export async function getDocumentById(id) {
-    const response = await fetch(
-        `${API_BASE}/documents/${id}`
-    );
-
-    const data = await response
-        .json()
-        .catch(() => null);
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error ||
-            "Failed to fetch document."
-        );
-    }
-
-    return data;
+    return apiRequest(`/documents/${id}`);
 }
 
 
@@ -82,15 +50,8 @@ export async function getDocumentById(id) {
 // =========================================================
 
 export async function createDocument(documentData) {
-    const response = await fetch(
-        `${API_BASE}/documents`,
-        {
+    return apiRequest("/documents", {
             method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-            },
-
             body: JSON.stringify({
                 title:
                     documentData.title ||
@@ -135,21 +96,7 @@ export async function createDocument(documentData) {
                     documentData.file_url ||
                     "",
             }),
-        }
-    );
-
-    const data = await response
-        .json()
-        .catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error ||
-            "Failed to create document."
-        );
-    }
-
-    return data;
+        });
 }
 
 
@@ -161,15 +108,8 @@ export async function updateDocument(
     id,
     documentData
 ) {
-    const response = await fetch(
-        `${API_BASE}/documents/${id}`,
-        {
+    return apiRequest(`/admin/content/documents/${id}`, {
             method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json",
-            },
-
             body: JSON.stringify({
                 title:
                     documentData.title ||
@@ -214,21 +154,7 @@ export async function updateDocument(
                     documentData.file_url ||
                     "",
             }),
-        }
-    );
-
-    const data = await response
-        .json()
-        .catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error ||
-            "Failed to update document."
-        );
-    }
-
-    return data;
+        });
 }
 
 
@@ -237,23 +163,7 @@ export async function updateDocument(
 // =========================================================
 
 export async function deleteDocument(id) {
-    const response = await fetch(
-        `${API_BASE}/documents/${id}`,
-        {
-            method: "DELETE",
-        }
-    );
-
-    const data = await response
-        .json()
-        .catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(
-            data?.error ||
-            "Failed to delete document."
-        );
-    }
-
-    return data;
+    return apiRequest(`/admin/content/documents/${id}`, {
+        method: "DELETE",
+    });
 }

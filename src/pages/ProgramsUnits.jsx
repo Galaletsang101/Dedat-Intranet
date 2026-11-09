@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/programs.css";
+import { getSiteContent } from "../services/siteContentService";
 
 
 const ProgramsUnits = () => {
@@ -10,83 +11,22 @@ const navigate = useNavigate();
 
 
 const [showContact, setShowContact] = useState(false);
+const [page, setPage] = useState(null);
+const [loadError, setLoadError] = useState("");
+const [loading, setLoading] = useState(true);
 
+useEffect(() => {
+  getSiteContent("programmes")
+    .then(setPage)
+    .catch((error) => {
+      console.error("Failed to load programme content:", error);
+      setLoadError(error.message || "Unable to load programmes and units.");
+    })
+    .finally(() => setLoading(false));
+}, []);
 
-
-const units = [
-
-
-{
-icon:"M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8",
-iconBg:"bg-blue",
-status:"Active Unit",
-statusType:"green",
-title:"Administration",
-description:"Ensuring strategic leadership, sound financial management, and corporate support services for the department.",
-tags:["128 Docs","3 Notices"]
-},
-
-
-
-{
-icon:"M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10",
-iconBg:"bg-orange",
-status:"Stable",
-statusType:"gray",
-title:"Integrated Economic Development",
-description:"Promoting and facilitating economic development through enterprise support and regional industry growth initiatives.",
-tags:["84 Docs","Updated"]
-},
-
-
-
-{
-icon:"M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z",
-iconBg:"bg-green",
-status:"Urgent Review",
-statusType:"red",
-title:"Trade & Sector Development",
-description:"Enhancing trade competitiveness and developing key economic sectors including mining, energy, and agriculture.",
-tags:["15 Regions","5 New"]
-},
-
-
-
-{
-icon:"M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
-iconBg:"bg-blue",
-status:"Regulated",
-statusType:"green",
-title:"Consumer Protection & Regulation",
-description:"Ensuring fair trade practices and protecting consumer rights while streamlining business regulation frameworks.",
-tags:["Compliance","45 Forms"]
-},
-
-
-
-{
-icon:"M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z",
-iconBg:"bg-orange",
-status:"Planning",
-statusType:"gray",
-title:"Economic Planning",
-description:"Providing economic intelligence, research, and strategic planning to inform provincial policy decisions.",
-tags:["Data Sets","Quarterly Reports"]
-},
-
-
-
-{
-icon:"M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9",
-iconBg:"bg-green",
-status:"High Growth",
-statusType:"green",
-title:"Tourism",
-description:"Developing and promoting Northern Cape as a premier tourism destination through sustainable marketing.",
-tags:["Tourism Routes","Media Kit"]
-}
-
-];
+const units = page?.content?.units || [];
+const contact = page?.content?.contact || {};
 return (
 
 <section className="programmes-section">
@@ -102,7 +42,7 @@ return (
 
 <h1 className="page-title">
 
-Programmes & Units
+{page?.title || "Programmes & Units"}
 
 </h1>
 
@@ -111,8 +51,7 @@ Programmes & Units
 
 <p className="page-description">
 
-Central hub for the Northern Cape Department of Economic Development and Tourism.
-Access departmental resources, specialized toolkits, and collaboration workspaces.
+{page?.description || "Programme information will appear here when published."}
 
 </p>
 
@@ -129,7 +68,11 @@ Access departmental resources, specialized toolkits, and collaboration workspace
 
 
 
-<div className="units-grid">
+{loading && <p role="status">Loading programmes and units...</p>}
+{loadError && <p role="alert">{loadError}</p>}
+{!loading && !loadError && units.length === 0 ? (
+  <p>No programmes or units have been published.</p>
+) : !loading && units.length > 0 ? <div className="units-grid">
 
 
 {
@@ -155,7 +98,7 @@ setShowContact={setShowContact}
 }
 
 
-</div>
+</div> : null}
 
 
 
@@ -173,7 +116,7 @@ setShowContact={setShowContact}
 
 <h2 className="portal-title">
 
-Departmental Knowledge Portal
+{page?.content?.portal_heading || "Departmental Knowledge Portal"}
 
 </h2>
 
@@ -198,7 +141,7 @@ Total Assets
 
 <h2>
 
-{units.length * 238}
+{page?.content?.total_assets ?? "—"}
 
 </h2>
 
@@ -259,7 +202,7 @@ Knowledge Shares
 
 <h2>
 
-{units.length * 52}
+{page?.content?.knowledge_shares ?? "—"}
 
 </h2>
 
@@ -300,7 +243,7 @@ Need Workspace Support?
 
 <p>
 
-Contact IT Support unit for portal assistance.
+{page?.content?.support_description || "Support information will appear here when published."}
 
 </p>
 
@@ -405,7 +348,7 @@ Contact the relevant departmental unit.
 
 <p>
 
-📧 Email: support@nc-dedat.gov.za
+{contact.email && <>📧 Email: {contact.email}</>}
 
 </p>
 
@@ -413,7 +356,7 @@ Contact the relevant departmental unit.
 
 <p>
 
-☎ Phone: +27 53 839 4000
+{contact.phone && <>☎ Phone: {contact.phone}</>}
 
 </p>
 

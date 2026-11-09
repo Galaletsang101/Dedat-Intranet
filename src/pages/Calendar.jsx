@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import "../styles/calendar.css";
-import { holidays } from "../data/holidays";
+import { createCalendarEvent, getCalendarEvents } from "../services/calendarService";
 
 const Calendar = () => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -48,21 +50,8 @@ const Calendar = () => {
 
     try {
 
-      const response = await fetch(
-        "http://localhost:5000/api/calendar-events"
-      );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          "Failed to fetch calendar events"
-        );
-
-      }
-
-
-      const data = await response.json();
+      setLoadError("");
+      const data = await getCalendarEvents();
 
 
       const loadedEvents = data.map((event) => {
@@ -123,6 +112,9 @@ const Calendar = () => {
         "Error loading calendar events:",
         error
       );
+      setLoadError(error.message || "Unable to load calendar events.");
+    } finally {
+      setLoading(false);
 
     }
 
@@ -404,73 +396,14 @@ const Calendar = () => {
       // SEND TO BACKEND
       // ======================================================
 
-      const response =
-        await fetch(
-          "http://localhost:5000/api/calendar-events",
-          {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-
-            body:
-              JSON.stringify({
-
-                title:
-                  eventData.title.trim(),
-
-                description:
-                  eventData.description,
-
-                start_time:
-                  startTime,
-
-                end_time:
-                  endTime,
-
-                category:
-                  "Boardroom",
-
-                quarter:
-                  eventData.quarter,
-
-              }),
-
-          }
-        );
-
-
-      // ======================================================
-      // READ BACKEND RESPONSE
-      // ======================================================
-
-      const responseData =
-        await response.json();
-
-
-      console.log(
-        "BACKEND RESPONSE:",
-        responseData
-      );
-
-
-      // ======================================================
-      // HANDLE ERROR
-      // ======================================================
-
-      if (!response.ok) {
-
-        throw new Error(
-
-          responseData.error ||
-          "Failed to save boardroom booking"
-
-        );
-
-      }
+      const responseData = await createCalendarEvent({
+        title: eventData.title.trim(),
+        description: eventData.description,
+        start_time: new Date(`${selectedDate}T${eventData.time}`).toISOString(),
+        end_time: new Date(`${selectedDate}T${eventData.endTime}`).toISOString(),
+        category: "Boardroom",
+        quarter: eventData.quarter,
+      });
 
 
       // ======================================================
@@ -604,19 +537,10 @@ const Calendar = () => {
       `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
 
-    return [
-
-      ...events.filter(
+    return events.filter(
         (event) =>
           event.date === date
-      ),
-
-      ...holidays.filter(
-        (holiday) =>
-          holiday.date === date
-      ),
-
-    ];
+      );
 
   };
 
@@ -639,8 +563,7 @@ const Calendar = () => {
             );
 
 
-        const categoryMatch =
-          filters[event.category];
+        const categoryMatch = filters[event.category] !== false;
 
 
         return (
@@ -774,6 +697,8 @@ const Calendar = () => {
   return (
 
     <div className="calendar-page">
+      {loading && <p>Loading calendar events...</p>}
+      {loadError && <p role="alert">{loadError}</p>}
 
 
       {/* SEARCH */}

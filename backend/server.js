@@ -61,6 +61,34 @@ function authenticateToken(req, res, next) {
     }
 }
 
+function requireAdmin(req, res, next) {
+    authenticateToken(req, res, () => {
+        if (String(req.user.role || "").toLowerCase() !== "admin") {
+            return res.status(403).json({ error: "Administrator access is required." });
+        }
+        next();
+    });
+}
+
+function requireAdminOrBoardroomBooking(req, res, next) {
+    authenticateToken(req, res, () => {
+        if (
+            String(req.user.role || "").toLowerCase() === "admin" ||
+            req.body.category === "Boardroom"
+        ) {
+            return next();
+        }
+        return res.status(403).json({ error: "Administrator access is required." });
+    });
+}
+
+function validateNumericId(req, res, next) {
+    if (!/^\d+$/.test(req.params.id)) {
+        return res.status(400).json({ error: "Record identifier must be numeric." });
+    }
+    next();
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -70,7 +98,7 @@ app.get("/", (req, res) => {
     });
 });
 
-app.get("/api/news", async (req, res) => {
+app.get("/api/news", authenticateToken, async (req, res) => {
     try {
       const result = await pool.query(
     "SELECT * FROM news ORDER BY created_date DESC"
@@ -89,7 +117,7 @@ app.get("/api/news", async (req, res) => {
 // CREATE NEWS
 // ============================================================
 
-app.post("/api/news", async (req, res) => {
+app.post("/api/news", requireAdmin, async (req, res) => {
     try {
         const {
             title,
@@ -156,7 +184,7 @@ app.post("/api/news", async (req, res) => {
 // WELLNESS VIDEOS
 // ============================================================
 
-app.get("/api/wellness", async (req, res) => {
+app.get("/api/wellness", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT
@@ -188,39 +216,11 @@ app.get("/api/wellness", async (req, res) => {
 // WELLNESS VIDEOS
 // ============================================================
 
-app.get("/api/wellness", async (req, res) => {
-    try {
-        const result = await pool.query(
-            `SELECT
-                id,
-                title,
-                description,
-                category,
-                duration,
-                thumbnail,
-                video_url,
-                featured,
-                created_date
-             FROM wellness_videos
-             ORDER BY created_date DESC`
-        );
-
-        res.json(result.rows);
-
-    } catch (error) {
-        console.error("Wellness API error:", error);
-
-        res.status(500).json({
-            error: "Failed to fetch wellness videos"
-        });
-    }
-});
-
 // ============================================================
 // CREATE WELLNESS VIDEO
 // ============================================================
 
-app.post("/api/wellness", async (req, res) => {
+app.post("/api/wellness", requireAdmin, async (req, res) => {
     try {
         const {
             title,
@@ -232,8 +232,9 @@ app.post("/api/wellness", async (req, res) => {
             featured
         } = req.body;
 
-        // Check what the frontend is sending
-        console.log("WELLNESS POST DATA:", req.body);
+        if (!title || !title.trim()) {
+            return res.status(400).json({ error: "Wellness video title is required." });
+        }
 
         const result = await pool.query(
             `INSERT INTO wellness_videos
@@ -287,7 +288,7 @@ app.post("/api/wellness", async (req, res) => {
 // ============================================================
 
 // GET calendar events
-app.get("/api/calendar-events", async (req, res) => {
+app.get("/api/calendar-events", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             "SELECT * FROM calendar_events ORDER BY start_time ASC"
@@ -309,7 +310,7 @@ app.get("/api/calendar-events", async (req, res) => {
 // CREATE CALENDAR EVENT
 // ============================================================
 
-app.post("/api/calendar-events", async (req, res) => {
+app.post("/api/calendar-events", requireAdminOrBoardroomBooking, async (req, res) => {
     try {
         const {
             title,
@@ -321,14 +322,20 @@ app.post("/api/calendar-events", async (req, res) => {
         } = req.body;
 
         // Check required fields
-        if (!title || !start_time || !end_time) {
+        if (!title || !title.trim() || !start_time || !end_time) {
             return res.status(400).json({
                 error: "Title, start time and end time are required"
             });
         }
 
         // Make sure the end time is after the start time
-        if (new Date(end_time) <= new Date(start_time)) {
+        const startDate = new Date(start_time);
+        const endDate = new Date(end_time);
+        if (
+            Number.isNaN(startDate.getTime()) ||
+            Number.isNaN(endDate.getTime()) ||
+            endDate <= startDate
+        ) {
             return res.status(400).json({
                 error: "End time must be after start time"
             });
@@ -405,11 +412,12 @@ app.post("/api/calendar-events", async (req, res) => {
 // ============================================================
 
 // GET all documents
-app.get("/api/documents", async (req, res) => {
+app.get("/api/documents", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT *
              FROM documents
+             WHERE LOWER(status) = 'published'
              ORDER BY created_at DESC`
         );
 
@@ -426,14 +434,14 @@ app.get("/api/documents", async (req, res) => {
 
 
 // GET single document
-app.get("/api/documents/:id", async (req, res) => {
+app.get("/api/documents/:id", authenticateToken, validateNumericId, async (req, res) => {
     try {
         const { id } = req.params;
 
         const result = await pool.query(
             `SELECT *
              FROM documents
-             WHERE id = $1`,
+             WHERE id = $1 AND LOWER(status) = 'published'`,
             [id]
         );
 
@@ -456,7 +464,7 @@ app.get("/api/documents/:id", async (req, res) => {
 
 
 // CREATE document
-app.post("/api/documents", async (req, res) => {
+app.post("/api/documents", requireAdmin, async (req, res) => {
     try {
         const {
             title,
@@ -530,7 +538,7 @@ app.post("/api/documents", async (req, res) => {
 
 
 // UPDATE document
-app.put("/api/documents/:id", async (req, res) => {
+app.put("/api/documents/:id", validateNumericId, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -602,7 +610,7 @@ app.put("/api/documents/:id", async (req, res) => {
 
 
 // DELETE document
-app.delete("/api/documents/:id", async (req, res) => {
+app.delete("/api/documents/:id", validateNumericId, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -637,10 +645,10 @@ app.delete("/api/documents/:id", async (req, res) => {
 
 
 // GET policies
-app.get("/api/policies", async (req, res) => {
+app.get("/api/policies", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM policies ORDER BY created_at DESC"
+            "SELECT * FROM policies WHERE LOWER(status) = 'published' ORDER BY created_at DESC"
         );
 
         res.json(result.rows);
@@ -653,7 +661,7 @@ app.get("/api/policies", async (req, res) => {
 });
 
 // CREATE policy
-app.post("/api/policies", async (req, res) => {
+app.post("/api/policies", requireAdmin, async (req, res) => {
     try {
         const {
             title,
@@ -667,7 +675,7 @@ app.post("/api/policies", async (req, res) => {
             file_url
         } = req.body;
 
-        if (!title) {
+        if (!title || !title.trim()) {
             return res.status(400).json({
                 error: "Policy title is required"
             });
@@ -715,10 +723,10 @@ app.post("/api/policies", async (req, res) => {
 // =========================================================
 
 // GET FAQs
-app.get("/api/faqs", async (req, res) => {
+app.get("/api/faqs", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM faqs ORDER BY created_at DESC"
+            "SELECT * FROM faqs WHERE LOWER(status) = 'published' ORDER BY created_at DESC"
         );
 
         res.json(result.rows);
@@ -733,7 +741,7 @@ app.get("/api/faqs", async (req, res) => {
 
 
 // POST FAQ
-app.post("/api/faqs", async (req, res) => {
+app.post("/api/faqs", requireAdmin, async (req, res) => {
     try {
         const {
             question,
@@ -744,7 +752,11 @@ app.post("/api/faqs", async (req, res) => {
         } = req.body;
 
         // Validate required fields
-        if (!question || !answer || !category) {
+        if (
+            !question || !question.trim() ||
+            !answer || !answer.trim() ||
+            !category || !category.trim()
+        ) {
             return res.status(400).json({
                 error: "Question, answer, and category are required."
             });
@@ -785,10 +797,10 @@ app.post("/api/faqs", async (req, res) => {
 });
 
 // GET circulus
-app.get("/api/circulus", async (req, res) => {
+app.get("/api/circulus", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM circulus ORDER BY publication_date DESC"
+            "SELECT * FROM circulus WHERE LOWER(status) = 'published' ORDER BY publication_date DESC"
         );
 
         res.json(result.rows);
@@ -804,7 +816,7 @@ app.get("/api/circulus", async (req, res) => {
 // CREATE CIRCULUS
 // ============================================================
 
-app.post("/api/circulus", async (req, res) => {
+app.post("/api/circulus", requireAdmin, async (req, res) => {
     try {
         const {
             title,
@@ -859,7 +871,7 @@ app.post("/api/circulus", async (req, res) => {
 });
 
 // GET users
-app.get("/api/users", async (req, res) => {
+app.get("/api/users", requireAdmin, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT first_name, surname, email, programme, subprogramme, position, created_date
@@ -873,6 +885,35 @@ app.get("/api/users", async (req, res) => {
         res.status(500).json({
             error: "Failed to fetch users"
         });
+    }
+});
+
+app.get("/api/staff", authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT id, first_name, surname, email, programme, subprogramme, position
+             FROM employees
+             ORDER BY surname ASC, first_name ASC`
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching staff directory:", error);
+        res.status(500).json({ error: "Failed to fetch staff directory" });
+    }
+});
+
+app.get("/api/site-content/:slug", authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT slug, title, description, image_url, content, updated_at
+             FROM site_content
+             WHERE slug = $1`,
+            [req.params.slug]
+        );
+        res.json(result.rows[0] || null);
+    } catch (error) {
+        console.error("Error fetching site content:", error);
+        res.status(500).json({ error: "Failed to fetch site content" });
     }
 });
 
@@ -1103,6 +1144,15 @@ app.put(
 
         const userId = req.params.id;
 
+        if (
+            String(req.user.role || "").toLowerCase() !== "admin" &&
+            String(req.user.id) !== String(userId)
+        ) {
+            return res.status(403).json({
+                error: "You can only update your own profile."
+            });
+        }
+
         const {
             first_name,
             surname,
@@ -1185,6 +1235,244 @@ app.put(
     }
 });
 
+const adminContentResources = {
+    news: {
+        table: "news",
+        key: "id",
+        fields: ["title", "excerpt", "content_markdown", "category", "author", "publication_date", "image_url", "is_featured"],
+        required: ["title"],
+        order: "created_date DESC",
+        touch: "updated_at",
+    },
+    wellness: {
+        table: "wellness_videos",
+        key: "id",
+        fields: ["title", "description", "category", "duration", "thumbnail", "video_url", "featured"],
+        required: ["title"],
+        order: "created_date DESC",
+    },
+    calendar: {
+        table: "calendar_events",
+        key: "id",
+        fields: ["title", "description", "start_time", "end_time", "category", "quarter"],
+        required: ["title", "start_time", "end_time"],
+        order: "start_time ASC",
+    },
+    documents: {
+        table: "documents",
+        key: "id",
+        fields: ["title", "description", "category", "keywords", "knowledge_owner", "publication_date", "review_date", "version_number", "status", "file_url"],
+        required: ["title"],
+        order: "created_at DESC",
+    },
+    policies: {
+        table: "policies",
+        key: "id",
+        fields: ["title", "policy_number", "description", "category", "author", "publication_date", "review_date", "status", "file_url"],
+        required: ["title"],
+        order: "created_at DESC",
+    },
+    faqs: {
+        table: "faqs",
+        key: "id",
+        fields: ["question", "answer", "category", "keywords", "status"],
+        required: ["question", "answer", "category"],
+        order: "created_at DESC",
+        touch: "updated_at",
+    },
+    circulus: {
+        table: "circulus",
+        key: "id",
+        fields: ["title", "description", "category", "author", "publication_date", "file_url", "status"],
+        required: ["title"],
+        order: "created_at DESC",
+        touch: "updated_at",
+    },
+    site: {
+        table: "site_content",
+        key: "slug",
+        fields: ["slug", "title", "description", "image_url", "content"],
+        required: ["slug", "title"],
+        order: "slug ASC",
+        touch: "updated_at",
+    },
+    employees: {
+        table: "employees",
+        key: "id",
+        fields: ["id", "first_name", "surname", "email", "programme", "subprogramme", "position"],
+        required: ["id", "first_name", "surname"],
+        order: "surname ASC, first_name ASC",
+    },
+};
+
+app.get("/api/admin/content/:collection", requireAdmin, async (req, res) => {
+    const resource = adminContentResources[req.params.collection];
+    if (!resource) {
+        return res.status(404).json({ error: "Unknown content collection." });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT * FROM ${resource.table} ORDER BY ${resource.order}`
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error(`Error fetching admin content ${req.params.collection}:`, error);
+        res.status(500).json({ error: "Failed to fetch content." });
+    }
+});
+
+app.post("/api/admin/content/:collection", requireAdmin, async (req, res) => {
+    const resource = adminContentResources[req.params.collection];
+    if (!resource) {
+        return res.status(404).json({ error: "Unknown content collection." });
+    }
+
+    const body = req.body && typeof req.body === "object" ? req.body : {};
+    const fields = resource.fields.filter((field) =>
+        Object.prototype.hasOwnProperty.call(body, field)
+    );
+    const missing = resource.required.some((field) => {
+        const value = body[field];
+        return value === undefined || value === null || String(value).trim() === "";
+    });
+    if (missing) {
+        return res.status(400).json({ error: "Required content fields are missing." });
+    }
+    if (fields.length === 0) {
+        return res.status(400).json({ error: "No editable content fields were provided." });
+    }
+    if (req.params.collection === "calendar") {
+        const start = new Date(body.start_time);
+        const end = new Date(body.end_time);
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+            return res.status(400).json({ error: "Event end time must be after its valid start time." });
+        }
+    }
+    if (req.params.collection === "site" && String(body.slug).length > 100) {
+        return res.status(400).json({ error: "Section key must be 100 characters or fewer." });
+    }
+    if (
+        req.params.collection === "site" &&
+        body.content !== undefined &&
+        (typeof body.content !== "object" || body.content === null || Array.isArray(body.content))
+    ) {
+        return res.status(400).json({ error: "Section content must be a JSON object." });
+    }
+    if (req.params.collection === "employees" && !/^\d+$/.test(String(body.id))) {
+        return res.status(400).json({ error: "Employee ID must be numeric." });
+    }
+
+    try {
+        const values = fields.map((field) => body[field]);
+        const placeholders = fields.map((_, index) => `$${index + 1}`);
+        const result = await pool.query(
+            `INSERT INTO ${resource.table} (${fields.join(", ")})
+             VALUES (${placeholders.join(", ")})
+             RETURNING *`,
+            values
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(409).json({ error: "A record with that identifier already exists." });
+        }
+        console.error(`Error creating admin content ${req.params.collection}:`, error);
+        res.status(500).json({ error: "Failed to create content." });
+    }
+});
+
+app.put("/api/admin/content/:collection/:id", requireAdmin, async (req, res) => {
+    const resource = adminContentResources[req.params.collection];
+    if (!resource) {
+        return res.status(404).json({ error: "Unknown content collection." });
+    }
+    const id = req.params.id;
+    if (resource.key === "id" && !/^\d+$/.test(id)) {
+        return res.status(400).json({ error: "Content identifier is invalid." });
+    }
+
+    const body = req.body && typeof req.body === "object" ? req.body : {};
+    const fields = resource.fields.filter((field) =>
+        field !== resource.key &&
+        Object.prototype.hasOwnProperty.call(body, field)
+    );
+    if (fields.length === 0) {
+        return res.status(400).json({ error: "No editable content fields were provided." });
+    }
+    if (resource.required.some((field) =>
+        fields.includes(field) && String(body[field] ?? "").trim() === ""
+    )) {
+        return res.status(400).json({ error: "Required content fields cannot be empty." });
+    }
+    if (
+        req.params.collection === "site" &&
+        body.content !== undefined &&
+        (typeof body.content !== "object" || body.content === null || Array.isArray(body.content))
+    ) {
+        return res.status(400).json({ error: "Section content must be a JSON object." });
+    }
+    if (req.params.collection === "calendar" && (fields.includes("start_time") || fields.includes("end_time"))) {
+        const start = new Date(body.start_time);
+        const end = new Date(body.end_time);
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+            return res.status(400).json({ error: "Update both event times and ensure the end is after the start." });
+        }
+    }
+
+    try {
+        const values = fields.map((field) => body[field]);
+        const updates = fields.map((field, index) => `${field} = $${index + 1}`);
+        if (resource.touch) {
+            updates.push(`${resource.touch} = NOW()`);
+        }
+        values.push(id);
+        const result = await pool.query(
+            `UPDATE ${resource.table}
+             SET ${updates.join(", ")}
+             WHERE ${resource.key} = $${values.length}
+             RETURNING *`,
+            values
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Content record not found." });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(`Error updating admin content ${req.params.collection}:`, error);
+        res.status(500).json({ error: "Failed to update content." });
+    }
+});
+
+app.delete("/api/admin/content/:collection/:id", requireAdmin, async (req, res) => {
+    const resource = adminContentResources[req.params.collection];
+    if (!resource) {
+        return res.status(404).json({ error: "Unknown content collection." });
+    }
+    const id = req.params.id;
+    if (resource.key === "id" && !/^\d+$/.test(id)) {
+        return res.status(400).json({ error: "Content identifier is invalid." });
+    }
+
+    try {
+        const result = await pool.query(
+            `DELETE FROM ${resource.table}
+             WHERE ${resource.key} = $1
+             RETURNING *`,
+            [id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Content record not found." });
+        }
+        res.json({ message: "Content deleted successfully.", record: result.rows[0] });
+    } catch (error) {
+        if (error.code === "23503") {
+            return res.status(409).json({ error: "This staff record is linked to an account and cannot be deleted." });
+        }
+        console.error(`Error deleting admin content ${req.params.collection}:`, error);
+        res.status(500).json({ error: "Failed to delete content." });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`DEDAT backend running on http://localhost:${PORT}`);

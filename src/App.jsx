@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import AuthRoutes from "./routes/authRoutes";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
 
 // Main pages
 import Dashboard from "./pages/Dashboard";
@@ -61,7 +62,9 @@ function App() {
 
             <Route path="/policies" element={<Policies />} />
 
-            <Route path="add-content" element={<AddContent />} />
+            <Route element={<AdminRoute />}>
+              <Route path="add-content" element={<AddContent />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

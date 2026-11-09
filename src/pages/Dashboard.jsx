@@ -1,5 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../services/authService";
+import { getNews } from "../services/newsService";
+import { getCirculus } from "../services/circulusService";
+import { getCalendarEvents } from "../services/calendarService";
+import { getWellnessVideos } from "../services/wellnessService";
+import { getDocuments } from "../services/documentsService";
+import { getSiteContent } from "../services/siteContentService";
 import "../styles/dashboard.css";
 import {
   HiCalendar,
@@ -22,102 +29,6 @@ import {
   HiClock,
 } from "react-icons/hi";
 
-const quickActions = [
-  {
-    title: "Apply for Leave",
-    desc: "Track and request time off",
-    icon: <HiCalendar />,
-    accent: "light",
-    
-  },
-  {
-    title: "Submit Forms",
-    desc: "Claims, travel & procurement",
-    icon: <HiDocumentText />,
-    accent: "light",
-   
-  },
-  {
-    title: "HR Templates",
-    desc: "Letters, logs & checklists",
-    icon: <HiTemplate />,
-    accent: "light",
-    
-  },
-  {
-    title: "Contact HR",
-    desc: "Support & inquiries",
-    icon: <HiUserGroup />,
-    accent: "secondary",
-    
-  },
-];
-
-const hrServices = [
-  { title: "Leave Management", desc: "View balances and historical applications.", icon: <HiCalendar /> },
-  { title: "PMDS", desc: "Performance management and assessments.", icon: <HiChartBar /> },
-  { title: "Payroll Links", desc: "Access e-payslips and tax certificates.", icon: <HiCreditCard /> },
-  { title: "Labour Relations", desc: "Policies, grievance forms, and support.", icon: <HiUsers /> },
-  { title: "Ethics Management", desc: "Disclosure of interest and code of conduct.", icon: <HiShieldCheck /> },
-];
-
-const wellnessResources = [
-  { title: "FAMSA Partnership", desc: "Confidential counseling & support.", icon: <HiHeart /> },
-  { title: "Health Circulars", desc: "Stay updated on health protocols.", icon: <HiDocumentText /> },
-  { title: "First Aid", desc: "Emergency support and basic first aid guidance.", icon: <HiHeart /> },
-];
-
-const notices = [
-  {
-    tag: "Acting Appointment",
-    title: "Ms. Nomvula Dube",
-    desc: "Acting Director: Tourism Development effective 01 Nov.",
-  },
-  {
-    tag: "New Appointment",
-    title: "Mr. Kevin Smith",
-    desc: "Welcome our new IT Security Specialist.",
-  },
-  {
-    tag: "Bereavement",
-    title: "Memorial Service: L. Mofokeng",
-    desc: "Thursday, 14:00 at Main Hall.",
-  },
-];
-
-const learningResources = [
-  { title: "Zoom/Teams Guides", desc: "Troubleshooting & basics.", icon: <HiVideoCamera /> },
-  { title: "Training Resources", desc: "Departmental manuals & SOPs.", icon: <HiBookOpen /> },
-  { title: "E-learning Modules", desc: "Mandatory compliance courses.", icon: <HiDesktopComputer /> },
-];
-
-const communications = [
-  {
-    tag: "Communiqué",
-    title: "Quarterly Performance Review: Q3 Outcomes",
-    desc: "Detailed report on departmental targets and achievements across all districts.",
-    time: "2 hours ago",
-  },
-  {
-    tag: "Workshop",
-    title: "Mandatory Ethics & Anti-Corruption Training",
-    desc: "All staff members are required to attend the upcoming compliance session via Zoom.",
-    time: "5 hours ago",
-  },
-  {
-    tag: "IT Announcement",
-    title: "Server Maintenance: Scheduled Downtime",
-    desc: "The e-Leave system will be unavailable this Friday from 18:00 for critical updates.",
-    time: "Yesterday",
-  },
-  {
-    tag: "Statistics",
-    title: "Provincial Economic Snapshot - October",
-    desc: "Key indicators on tourism growth and SMME support across the Northern Cape.",
-    time: "2 days ago",
-  },
-];
-
 function Dashboard() {
   const navigate = useNavigate();
   const [showArchive, setShowArchive] = useState(false);
@@ -127,6 +38,76 @@ function Dashboard() {
   const [grievance, setGrievance] = useState("");
   const [suggestionMessage, setSuggestionMessage] = useState("");
   const [grievanceMessage, setGrievanceMessage] = useState("");
+  const [user] = useState(getCurrentUser);
+  const [notices, setNotices] = useState([]);
+  const [communications, setCommunications] = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState([]);
+  const [wellnessResources, setWellnessResources] = useState([]);
+  const [learningResources, setLearningResources] = useState([]);
+  const [dashboardContent, setDashboardContent] = useState(null);
+  const [loadingContent, setLoadingContent] = useState(true);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      const results = await Promise.allSettled([
+        getNews(),
+        getCirculus(),
+        getCalendarEvents(),
+        getWellnessVideos(),
+        getDocuments(),
+        getSiteContent("dashboard"),
+      ]);
+      const [news, circulus, events, videos, documents, page] = results;
+      if (news.status === "fulfilled") {
+        setCommunications(news.value.map((item) => ({
+          tag: item.category || "News",
+          title: item.title,
+          desc: item.excerpt || "",
+          time: item.publication_date
+            ? new Date(item.publication_date).toLocaleDateString()
+            : "",
+        })));
+      } else {
+        console.error("Failed to load dashboard news:", news.reason);
+      }
+      if (circulus.status === "fulfilled") {
+        setNotices(circulus.value.map((item) => ({
+          tag: item.category || "Circular",
+          title: item.title,
+          desc: item.description || "",
+        })));
+      } else {
+        console.error("Failed to load dashboard circulars:", circulus.reason);
+      }
+      if (events.status === "fulfilled") {
+        setCalendarEvents(events.value);
+      } else {
+        console.error("Failed to load dashboard events:", events.reason);
+      }
+      if (videos.status === "fulfilled") {
+        setWellnessResources(videos.value.map((item) => ({
+          title: item.title,
+          desc: item.description || "",
+          icon: <HiHeart />,
+        })));
+      } else {
+        console.error("Failed to load dashboard wellness content:", videos.reason);
+      }
+      if (documents.status === "fulfilled") {
+        setLearningResources(documents.value.map((item) => ({
+          title: item.title,
+          desc: item.description || "",
+          icon: <HiBookOpen />,
+        })));
+      } else {
+        console.error("Failed to load dashboard documents:", documents.reason);
+      }
+      if (page.status === "fulfilled") setDashboardContent(page.value);
+      else console.error("Failed to load dashboard section:", page.reason);
+      setLoadingContent(false);
+    };
+    loadContent();
+  }, []);
 
   const handleAction = (action) => {
     if (!action) return;
@@ -159,24 +140,31 @@ function Dashboard() {
     setShowGrievanceForm(false);
   };
 
-  const archivedNotices = [
-    {
-      tag: "Archived",
-      title: "Policy Update: Leave Guidelines",
-      desc: "Review the updated leave procedures published last month.",
-    },
-    {
-      tag: "Archived",
-      title: "HR Workshop Reminder",
-      desc: "Attendance is required for the annual wellness and compliance workshop.",
-    },
+  const content = dashboardContent?.content || {};
+  const quickActions = content.quick_actions || [];
+  const hrServices = content.hr_services || [];
+  const allNotices = [
+    ...notices,
+    ...(content.announcements || []),
   ];
+  const archivedNotices = content.archive || [];
+  const iconMap = {
+    calendar: <HiCalendar />,
+    document: <HiDocumentText />,
+    template: <HiTemplate />,
+    users: <HiUsers />,
+    chart: <HiChartBar />,
+    shield: <HiShieldCheck />,
+    heart: <HiHeart />,
+    video: <HiVideoCamera />,
+    book: <HiBookOpen />,
+  };
 
   return (
     <div className="dashboard-page">
       <section className="dashboard-hero">
-        <h1>Welcome back, Thabo</h1>
-        <p>Your central hub for DEDaT departmental services and professional resources.</p>
+        <h1>Welcome back, {user?.first_name || "colleague"}</h1>
+        <p>{dashboardContent?.description || "Dashboard information will appear here when published."}</p>
       </section>
 
       <section className="dashboard-quick-actions">
@@ -191,9 +179,10 @@ function Dashboard() {
               <h3>{item.title}</h3>
               <p>{item.desc}</p>
             </div>
-            <span className="dashboard-action-icon">{item.icon}</span>
+            <span className="dashboard-action-icon">{iconMap[item.icon]}</span>
           </button>
         ))}
+        {!quickActions.length && <p>{loadingContent ? "Loading dashboard links..." : "No dashboard links have been published."}</p>}
       </section>
 
       {/* ROW 1: HR Services & Payroll (Left) | Employee Notices (Right) */}
@@ -209,11 +198,12 @@ function Dashboard() {
           <div className="dashboard-service-grid">
             {hrServices.map((item, index) => (
               <div key={index} className="dashboard-service-card">
-                <div className="dashboard-service-icon">{item.icon}</div>
+                <div className="dashboard-service-icon">{iconMap[item.icon]}</div>
                 <h4>{item.title}</h4>
                 <p>{item.desc}</p>
               </div>
             ))}
+            {!hrServices.length && <p>{loadingContent ? "Loading HR services..." : "No HR service information has been published."}</p>}
           </div>
         </section>
 
@@ -226,13 +216,14 @@ function Dashboard() {
               </div>
             </div>
             <div className="dashboard-notice-list">
-              {notices.map((item, index) => (
+              {allNotices.map((item, index) => (
                 <div key={index} className="dashboard-notice-item">
                   <span className="dashboard-notice-tag">{item.tag}</span>
                   <h4>{item.title}</h4>
-                  <p>{item.desc}</p>
+                  <p>{item.desc || item.description || ""}</p>
                 </div>
               ))}
+              {notices.length === 0 && !loadingContent && <p>No employee notices are available.</p>}
               {showArchive && archivedNotices.map((item, index) => (
                 <div key={`archive-${index}`} className="dashboard-notice-item dashboard-archive-item">
                   <span className="dashboard-notice-tag">{item.tag}</span>
@@ -258,7 +249,7 @@ function Dashboard() {
             </div>
           </div>
           <p className="dashboard-section-copy">
-            Prioritizing the health and mental well-being of our dedicated staff across the province.
+          {content.wellness_description || "Wellness resources will appear here when published."}
           </p>
           <div className="dashboard-resource-list">
             {wellnessResources.map((item, index) => (
@@ -273,28 +264,19 @@ function Dashboard() {
           </div>
         </section>
 
-        <section className="dashboard-card dashboard-card-spotlight">
-          <div className="dashboard-spotlight-banner">
-            <div className="dashboard-spotlight-badge">
-              <HiStar />
-              Staff Spotlight
+        {content.staff_spotlight && (
+          <section className="dashboard-card dashboard-card-spotlight">
+            <div className="dashboard-spotlight-banner">
+              <div className="dashboard-spotlight-badge"><HiStar />{content.staff_spotlight.heading || "Staff Spotlight"}</div>
             </div>
-          </div>
-          <div className="dashboard-spotlight-body">
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              alt="Sarah Johnson"
-              className="dashboard-avatar"
-            />
-            <h3>Sarah Johnson</h3>
-            <p className="dashboard-spotlight-role">Excellence in Service Delivery</p>
-            <blockquote>“Sarah consistently goes above and beyond to support the SMME development project.”</blockquote>
-            <div className="dashboard-tags">
-              <span>Long Service</span>
-              <span>Innovation Award</span>
+            <div className="dashboard-spotlight-body">
+              {content.staff_spotlight.image && <img src={content.staff_spotlight.image} alt={content.staff_spotlight.name || "Staff spotlight"} className="dashboard-avatar" />}
+              <h3>{content.staff_spotlight.name}</h3>
+              <p className="dashboard-spotlight-role">{content.staff_spotlight.position}</p>
+              <blockquote>{content.staff_spotlight.description}</blockquote>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
 
       {/* ROW 3: Department Notices (Left) | Learning Centre (Right) */}
@@ -307,28 +289,23 @@ function Dashboard() {
             </div>
           </div>
           <div className="dashboard-department-list">
-            <div className="dashboard-department-item">
-              <div className="dashboard-date-pill">
-                <span>OCT</span>
-                <strong>28</strong>
-              </div>
-              <div>
-                <span className="dashboard-status urgent">Urgent</span>
-                <h4>System Migration Downtime</h4>
-                <p>Internal database will be offline for 4 hours starting at 18:00.</p>
-              </div>
-            </div>
-            <div className="dashboard-department-item">
-              <div className="dashboard-date-pill">
-                <span>OCT</span>
-                <strong>30</strong>
-              </div>
-              <div>
-                <span className="dashboard-status info">Information</span>
-                <h4>New Parking Policy</h4>
-                <p>Please review updated parking allocations for Head Office.</p>
-              </div>
-            </div>
+            {calendarEvents.map((event) => {
+              const date = new Date(event.start_time);
+              return (
+                <div className="dashboard-department-item" key={event.id}>
+                  <div className="dashboard-date-pill">
+                    <span>{date.toLocaleDateString("en-ZA", { month: "short" }).toUpperCase()}</span>
+                    <strong>{date.toLocaleDateString("en-ZA", { day: "2-digit" })}</strong>
+                  </div>
+                  <div>
+                    <span className="dashboard-status info">{event.category}</span>
+                    <h4>{event.title}</h4>
+                    <p>{event.description || ""}</p>
+                  </div>
+                </div>
+              );
+            })}
+            {!loadingContent && calendarEvents.length === 0 && <p>No department events are available.</p>}
           </div>
         </section>
 
@@ -349,13 +326,6 @@ function Dashboard() {
                 </div>
               </div>
             ))}
-          </div>
-          <div className="dashboard-progress-card">
-            <h4>My Progress</h4>
-            <div className="dashboard-progress-bar">
-              <div></div>
-            </div>
-            <p>75% of Digital Literacy complete</p>
           </div>
         </section>
       </div>
@@ -379,6 +349,7 @@ function Dashboard() {
               </small>
             </article>
           ))}
+          {!loadingContent && communications.length === 0 && <p>No communications have been published.</p>}
         </div>
       </section>
 

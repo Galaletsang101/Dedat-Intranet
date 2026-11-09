@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getFaqs } from "../services/faqsService";
 import "../styles/faq.css";
 
 export default function FAQ() {
@@ -12,15 +13,7 @@ export default function FAQ() {
 
   const loadFAQs = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/faqs");
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch FAQs");
-      }
-
-      const data = await response.json();
-
-      setFaqs(data);
+      setFaqs(await getFaqs());
     } catch (error) {
       console.error("Error loading FAQs:", error);
       setError("Unable to load FAQs.");

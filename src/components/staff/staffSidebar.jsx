@@ -20,29 +20,18 @@ const getNewSkillClass = (skill) => {
 };
 
 const StaffSidebar = ({ recentSkills = [] }) => {
-  const expertOfWeek = {
-    name: "Dr. Nomsa Dlamini",
-    title: "Chief Director: Economic Planning",
-    quote: "Specializing in provincial economic research, policy development, and the knowledge economy agenda.",
-    avatar: "https://ui-avatars.com/api/?name=Nomsa+Dlamini&background=d85f06&color=fff&size=88&font-size=0.5"
-  };
-
   return (
     <div className="staff-sidebar">
       {/* Expert of the Week */}
       <div className="staff-sidebar-card expert-week">
         <div className="expert-week-header">
           <FaStar className="expert-week-icon" />
-          <h4 className="expert-week-title">Expert of the Week</h4>
+          <h4 className="expert-week-title">Staff Directory</h4>
         </div>
         <div className="expert-week-body">
-          <img src={expertOfWeek.avatar} alt={expertOfWeek.name} className="expert-week-avatar" />
-          <h5 className="expert-week-name">{expertOfWeek.name}</h5>
-          <p className="expert-week-title-text">{expertOfWeek.title}</p>
-          <p className="expert-week-quote">"{expertOfWeek.quote}"</p>
-          <button className="staff-btn staff-btn-primary staff-btn-block">
-            <FaUser className="staff-btn-icon" /> View Full Profile
-          </button>
+          <p className="expert-week-quote">
+            Staff contact details are retrieved from the department employee directory.
+          </p>
         </div>
       </div>
 

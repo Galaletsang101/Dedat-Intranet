@@ -1,6 +1,6 @@
 // src/components/staff/StaffDirectory.jsx
 import React, { useState, useEffect } from 'react';
-import { getStaff, getDepartments, getSkills, getRecentSkills } from '../../services/staffServices';
+import { getStaff, getDepartments } from '../../services/staffServices';
 import StaffCard from '../staff/staffCard';
 import StaffSidebar from '../staff/StaffSidebar';
 import '../../styles/StaffDirectory.css';
@@ -11,11 +11,7 @@ const StaffDirectory = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    department: 'all',
-    skill: 'all',
-    mentorOnly: false
-  });
+  const [filters, setFilters] = useState({ department: 'all' });
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 0,
@@ -24,20 +20,12 @@ const StaffDirectory = () => {
     hasPrev: false
   });
   const [departments, setDepartments] = useState([]);
-  const [skills, setSkills] = useState([]);
-  const [recentSkills, setRecentSkills] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [depts, skillList, recent] = await Promise.all([
-          getDepartments(),
-          getSkills(),
-          getRecentSkills()
-        ]);
+        const depts = await getDepartments();
         setDepartments(depts);
-        setSkills(skillList);
-        setRecentSkills(recent);
       } catch (error) {
         console.error('Error loading filter data:', error);
       }
@@ -51,8 +39,6 @@ const StaffDirectory = () => {
       const result = await getStaff({
         search: searchTerm,
         department: filters.department,
-        skill: filters.skill,
-        mentorOnly: filters.mentorOnly
       }, page, ITEMS_PER_PAGE);
       
       setStaff(result.data);
@@ -74,11 +60,7 @@ const StaffDirectory = () => {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setFilters({
-      department: 'all',
-      skill: 'all',
-      mentorOnly: false
-    });
+    setFilters({ department: 'all' });
   };
 
   const handlePageChange = (page) => {
@@ -88,7 +70,6 @@ const StaffDirectory = () => {
   };
 
   const totalStaff = pagination.totalItems;
-  const totalMentors = staff.filter(s => s.isMentor).length;
   const totalDepartments = departments.length;
 
   return (
@@ -107,16 +88,8 @@ const StaffDirectory = () => {
             <span className="staff-stat-label">Total Staff</span>
           </div>
           <div className="staff-stat-card">
-            <span className="staff-stat-number">{totalMentors}</span>
-            <span className="staff-stat-label">Mentors Available</span>
-          </div>
-          <div className="staff-stat-card">
             <span className="staff-stat-number">{totalDepartments}</span>
             <span className="staff-stat-label">Departments</span>
-          </div>
-          <div className="staff-stat-card">
-            <span className="staff-stat-number">{recentSkills.length}</span>
-            <span className="staff-stat-label">Skills Tracked</span>
           </div>
         </div>
 
@@ -152,32 +125,6 @@ const StaffDirectory = () => {
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
               </select>
-            </div>
-
-            <div className="staff-filter-group">
-              <label className="staff-filter-label">Skill Category</label>
-              <select
-                className="staff-filter-select"
-                value={filters.skill}
-                onChange={(e) => handleFilterChange('skill', e.target.value)}
-              >
-                <option value="all">All Skills</option>
-                {skills.map(skill => (
-                  <option key={skill} value={skill}>{skill}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="staff-filter-mentor">
-              <label className="staff-switch">
-                <input
-                  type="checkbox"
-                  checked={filters.mentorOnly}
-                  onChange={(e) => handleFilterChange('mentorOnly', e.target.checked)}
-                />
-                <span className="staff-switch-slider"></span>
-                <span className="staff-switch-label">Mentor Only</span>
-              </label>
             </div>
 
             <button className="staff-clear-filters" onClick={clearFilters}>
@@ -249,7 +196,7 @@ const StaffDirectory = () => {
 
             {/* Sidebar Column */}
             <div className="staff-sidebar-column">
-              <StaffSidebar recentSkills={recentSkills} />
+              <StaffSidebar />
             </div>
           </div>
         )}

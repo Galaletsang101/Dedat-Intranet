@@ -1,88 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "../styles/policies.css";
-
-/*
-|--------------------------------------------------------------------------
-| PROGRAMMES
-|--------------------------------------------------------------------------
-*/
-
-const programmes = [
-  "All",
-  "General",
-];
-
-/*
-|--------------------------------------------------------------------------
-| DOCUMENT TYPES
-|--------------------------------------------------------------------------
-*/
-
-const documentTypes = [
-  "All",
-  "Policy",
-  "Act / Legislation",
-  "Strategy",
-  "Framework",
-  "Guideline",
-  "Directive",
-  "Plan",
-  "Procedure",
-  "Template",
-  "Form",
-  "Report",
-];
-
-/*
-|--------------------------------------------------------------------------
-| SUB-PROGRAMMES
-|--------------------------------------------------------------------------
-*/
-
-const subProgrammes = {
-  Administration: [
-    "Strategic Management",
-    "Monitoring & Evaluation",
-    "Risk Management",
-    "Governance",
-    "Financial Management",
-    "Economic Cluster Secretariat & IGR",
-  ],
-
-  "Corporate Services": [
-    "Human Resource Administration",
-    "Organisational Development & Legal Services",
-    "Employee Performance Management and Development System",
-    "Employee Health and Wellness",
-    "Labour Relations",
-  ],
-
-  "Integrated Economic Development Services": [
-    "Regional and Local Economic Development",
-    "Economic Empowerment, Preferential Procurement & BBBEE",
-  ],
-
-  "Trade and Sector Development": [
-    "Sector Development",
-    "Trade and Investment Promotion",
-  ],
-
-  "Consumer Protection and Business Regulation": [
-    "Consumer Protection",
-    "Northern Cape Consumer Court",
-    "Business Regulation",
-  ],
-
-  "Economic Planning": [
-    "Economic Research and Policy Development",
-    "Knowledge Economy Support",
-  ],
-
-  Tourism: [
-    "Tourism Development",
-    "Tourism Growth",
-  ],
-};
+import { getPolicies } from "../services/policiesService";
 
 /*
 |--------------------------------------------------------------------------
@@ -141,22 +59,7 @@ function Policies() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "http://localhost:5000/api/policies"
-      );
-
-      if (!response.ok) {
-        const data = await response
-          .json()
-          .catch(() => ({}));
-
-        throw new Error(
-          data.error ||
-            "Failed to fetch policies."
-        );
-      }
-
-      const data = await response.json();
+      const data = await getPolicies();
 
       /*
       |--------------------------------------------------------------------------
@@ -259,12 +162,22 @@ function Policies() {
         return [];
       }
 
-      return (
-        subProgrammes[
-          programmeFilter
-        ] || []
-      );
-    }, [programmeFilter]);
+      return [...new Set(
+        docs
+          .filter((document) => document.programme === programmeFilter)
+          .map((document) => document.subProgramme)
+          .filter(Boolean)
+      )].sort();
+    }, [docs, programmeFilter]);
+
+  const programmes = useMemo(
+    () => ["All", ...new Set(docs.map((document) => document.programme).filter(Boolean))],
+    [docs]
+  );
+  const documentTypes = useMemo(
+    () => ["All", ...new Set(docs.map((document) => document.type).filter(Boolean))],
+    [docs]
+  );
 
   /*
   |--------------------------------------------------------------------------
