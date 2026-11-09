@@ -3,6 +3,10 @@
 Internal staff portal for the Northern Cape Department of Economic Development
 and Tourism. React (Vite) frontend, Express backend, PostgreSQL database.
 
+**New to this repo, or pulling the latest changes?** Start with
+[`docs/SETUP_AND_CHANGES.md`](docs/SETUP_AND_CHANGES.md) — it explains
+what's changed recently and walks through running it on your machine.
+
 See [`docs/USER_FLOW_AND_ADMIN.md`](docs/USER_FLOW_AND_ADMIN.md) for the full
 route/endpoint map, [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) for how
 Admin access is configured, tested, and managed, and
