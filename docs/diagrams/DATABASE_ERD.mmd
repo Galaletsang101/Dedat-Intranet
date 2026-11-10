@@ -1,0 +1,158 @@
+erDiagram
+    employees ||--o{ users : "has one account (optional)"
+    departments ||--o{ employees : "has many"
+    users ||--o{ password_reset_tokens : "has many"
+
+    employees {
+        bigint id PK "matches staffData.js id, not auto-generated"
+        text first_name
+        text surname
+        text full_name
+        text initials
+        text email
+        text phone
+        text location
+        text programme
+        text subprogramme
+        text position
+        bigint department_id FK
+        boolean is_mentor
+        text_array skills
+        text experience
+        text status "Active | Inactive"
+        timestamptz created_date
+        timestamptz updated_at
+    }
+
+    users {
+        bigint id PK
+        bigint employee_id FK "UNIQUE - one account per employee"
+        text first_name
+        text surname
+        text email "UNIQUE"
+        text programme
+        text subprogramme
+        text position
+        text password_hash
+        text role "Employee | Admin"
+        boolean is_active
+        boolean must_reset_password
+        timestamptz last_login_at
+        timestamptz created_date
+        timestamptz updated_at
+    }
+
+    departments {
+        bigint id PK
+        text name "UNIQUE"
+        text description
+        text status "Active | Inactive"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    password_reset_tokens {
+        bigint id PK
+        bigint user_id FK
+        text token_hash "sha256, never plaintext"
+        text purpose "reset | invite"
+        timestamptz expires_at
+        timestamptz used_at
+        timestamptz created_at
+    }
+
+    news {
+        bigint id PK
+        text title
+        text excerpt
+        text content_markdown
+        text category
+        text author
+        date publication_date
+        text image_url
+        boolean is_featured
+        text status "Draft | Published"
+        timestamptz created_date
+        timestamptz updated_at
+    }
+
+    circulus {
+        bigint id PK
+        text title
+        text description
+        text category
+        text author
+        date publication_date
+        text file_url
+        text status
+        timestamptz created_at
+    }
+
+    wellness_videos {
+        bigint id PK
+        text title
+        text description
+        text category
+        text duration
+        text thumbnail
+        text video_url "YouTube / Vimeo / uploaded file URL"
+        boolean featured
+        text status "Draft | Published"
+        timestamptz created_date
+        timestamptz updated_at
+    }
+
+    documents {
+        bigint id PK
+        text title
+        text description
+        text category
+        text keywords
+        text knowledge_owner
+        date publication_date
+        date review_date
+        text version_number
+        text status
+        text file_url
+        timestamptz created_at
+    }
+
+    policies {
+        bigint id PK
+        text title
+        text policy_number
+        text description
+        text category
+        text author
+        date publication_date
+        date review_date
+        text status
+        text file_url
+        timestamptz created_at
+    }
+
+    faqs {
+        bigint id PK
+        text question
+        text answer
+        text category
+        text keywords
+        text status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    calendar_events {
+        bigint id PK
+        text title
+        text description
+        timestamptz start_time
+        timestamptz end_time
+        text category "Meeting|Training|Leave|Deadline|Boardroom"
+        text quarter
+    }
+
+    schema_migrations {
+        text version PK
+        timestamptz applied_at
+    }

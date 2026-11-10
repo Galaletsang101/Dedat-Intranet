@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant U as Staff member
+    participant FE as React SPA
+    participant API as Express API
+    participant DB as PostgreSQL
+
+    Note over U,DB: LOGIN
+    U->>FE: Enter email + password
+    FE->>API: POST /api/auth/login
+    API->>DB: SELECT * FROM users WHERE email = $1
+    DB-->>API: user row (password_hash, role, is_active)
+    API->>API: bcrypt.compare(password, password_hash)
+    alt invalid credentials
+        API-->>FE: 401 Invalid email or password
+    else account deactivated
+        API-->>FE: 403 Account deactivated
+    else must_reset_password = true
+        API-->>FE: 403 must set password via reset link
+    else success
+        API->>API: jwt.sign({id, employee_id, email, role}, JWT_SECRET, 8h)
+        API->>DB: UPDATE users SET last_login_at = NOW()
+        API-->>FE: 200 { token, user }
+        FE->>FE: sessionStorage.setItem(token, user)
+    end
+
+    Note over U,DB: EVERY SUBSEQUENT ADMIN-ONLY REQUEST
+    FE->>API: Request + Authorization: Bearer <token>
+    API->>API: authenticateToken: jwt.verify(token)
+    API->>DB: SELECT role, is_active FROM users WHERE id = decoded.id
+    DB-->>API: current role + is_active (NOT the token's claim)
+    alt role/is_active fails the check
+        API-->>FE: 401 / 403
+    else passes
+        API->>DB: perform the actual query
+        DB-->>API: result
+        API-->>FE: 200 + data
+    end
+
+    Note over API,DB: A role change or deactivation by an Admin takes\neffect on the user's VERY NEXT request - the live DB\nrow is re-checked every time, the 8h JWT's role claim\nis never trusted for authorization decisions.
