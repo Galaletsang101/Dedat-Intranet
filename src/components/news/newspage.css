@@ -117,83 +117,106 @@
     font-size: var(--font-sm);
 }
 
+.news-hero-overlay p {
+    max-width: 700px;
+    margin-bottom: var(--space-md);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: var(--font-md);
+    line-height: 1.5;
+}
+
 
 /* ==========================================
-   NEWS CARDS
+   NEWS CARD LINKS
+   (the actual card visuals reuse .news-card from homepage.css, so the
+   News page and Homepage "Latest Departmental News" sections match)
 ========================================== */
 
-.news-card-item {
+.news-card-link {
+    display: block;
     height: 100%;
-    overflow: hidden;
-    background-color: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
+    color: inherit;
+    text-decoration: none;
 }
 
-.news-card-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--primary-light);
-    box-shadow: var(--shadow-md);
+.news-card-link:hover {
+    color: inherit;
+    text-decoration: none;
 }
 
-.news-card-item .card-img-wrapper {
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+.news-search-wrapper {
     position: relative;
-    height: 190px;
-    overflow: hidden;
-    background-color: var(--surface-light);
+    max-width: 420px;
 }
 
-.news-card-item .card-img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.news-card-item:hover .card-img-wrapper img {
-    transform: scale(1.04);
-}
-
-.news-card-item .card-category-badge {
+.news-search-icon {
     position: absolute;
-    top: var(--space-sm);
-    left: var(--space-sm);
-    padding: 0.3rem 0.65rem;
+    top: 50%;
+    left: var(--space-md);
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+}
+
+.news-search-input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    border: 1px solid var(--border);
     border-radius: var(--radius-round);
-    font-size: var(--font-xs);
-    font-weight: var(--fw-bold);
-    text-transform: uppercase;
-}
-
-.news-card-item .card-body {
-    padding: var(--space-lg);
-}
-
-.news-card-item .card-title {
-    margin-bottom: var(--space-sm);
-    color: var(--primary);
-    font-size: var(--font-lg);
-    font-weight: var(--fw-semibold);
-    line-height: 1.35;
+    font-size: var(--font-sm);
+    background-color: var(--surface);
     transition: var(--transition);
 }
 
-.news-card-item:hover .card-title {
-    color: var(--secondary);
+.news-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-.news-card-item .card-excerpt {
-    margin-bottom: 0;
-    color: var(--text-secondary);
-    font-size: var(--font-sm);
-    line-height: 1.6;
 
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+/* ==========================================
+   EMPTY STATE / SKELETONS
+========================================== */
+
+.news-empty-state {
+    padding: var(--space-2xl) var(--space-md);
+    text-align: center;
+    color: var(--text-secondary);
+    background-color: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.news-skeleton-hero,
+.news-skeleton-card {
+    border-radius: var(--radius-lg);
+    background: linear-gradient(
+        90deg,
+        var(--border-light) 25%,
+        var(--surface-light) 50%,
+        var(--border-light) 75%
+    );
+    background-size: 200% 100%;
+    animation: news-skeleton-pulse 1.4s ease infinite;
+}
+
+.news-skeleton-hero {
+    height: 350px;
+}
+
+.news-skeleton-card {
+    height: 320px;
+}
+
+@keyframes news-skeleton-pulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 
@@ -244,69 +267,6 @@
     margin-bottom: 0;
     color: var(--text-secondary);
     font-size: var(--font-sm);
-}
-
-
-/* ==========================================
-   NEWSLETTER
-========================================== */
-
-.newsletter-item {
-    cursor: pointer;
-}
-
-.newsletter-item .newsletter-cover {
-    position: relative;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-
-    background-color: var(--surface-light);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-
-    transition: var(--transition);
-}
-
-.newsletter-item .newsletter-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.newsletter-item:hover .newsletter-cover {
-    box-shadow: var(--shadow-md);
-}
-
-.newsletter-item:hover .newsletter-cover img {
-    transform: scale(1.05);
-}
-
-.newsletter-item .hover-overlay {
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: rgba(0, 0, 0, 0);
-    transition: var(--transition);
-}
-
-.newsletter-item:hover .hover-overlay {
-    background-color: rgba(0, 0, 0, 0.35);
-}
-
-.newsletter-item .hover-overlay svg {
-    opacity: 0;
-    transform: scale(0.7);
-    transition: var(--transition);
-}
-
-.newsletter-item:hover .hover-overlay svg {
-    opacity: 1;
-    transform: scale(1);
 }
 
 

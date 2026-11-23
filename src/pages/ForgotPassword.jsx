@@ -5,7 +5,7 @@ import AuthCard from "../components/auth/AuthCard";
 import AuthInput from "../components/auth/AuthInput";
 import AuthButton from "../components/auth/AuthButton";
 
-import { resetPassword } from "../services/authService";
+import { forgotPassword } from "../services/authService";
 import { validateGovernmentEmail } from "../services/validation";
 
 
@@ -44,11 +44,11 @@ function ForgotPassword(){
 
         try{
 
-            await resetPassword(email);
+            await forgotPassword(email);
 
 
             setMessage(
-                "Password reset email sent. Please check your inbox."
+                "If that email has an account, a password reset link has been sent."
             );
 
 

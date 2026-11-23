@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph Admin_Publishes["Admin publishes a Wellness video (example workflow)"]
+        direction TB
+        A1["Admin Center -> Add Content -> Wellness"] --> A2{"File or link?"}
+        A2 -- "Uploads a file" --> A3["POST /api/wellness/upload\n(multipart, Admin-only)"]
+        A3 --> A4["multer saves to\nbackend/uploads/videos/<uuid>.ext"]
+        A4 --> A5["Returns real URL\nhttp://host/uploads/videos/..."]
+        A2 -- "Pastes a YouTube/Vimeo link" --> A5
+        A5 --> A6["POST /api/wellness\n{ video_url, status: Published|Draft }"]
+        A6 --> A7[("wellness_videos row\ninserted/updated")]
+    end
+
+    subgraph Staff_Views["Any staff member views Wellness"]
+        direction TB
+        B1["GET /wellness page loads"] --> B2["GET /api/wellness\n(public, Published only)"]
+        B2 --> B3[("wellness_videos\nWHERE status='Published'")]
+        B3 --> B4["VideoPlayer component\ndetects source type"]
+        B4 -- "YouTube/Vimeo URL" --> B5["<iframe> embed"]
+        B4 -- "uploaded file URL" --> B6["<video> element\nstreamed from /uploads/videos"]
+    end
+
+    A7 -.->|"becomes visible once\nstatus = Published"| B3

@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 import Login from "../pages/login";
 import Signup from "../pages/Signup";
 import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 
 function AuthRoutes() {
@@ -20,9 +21,14 @@ function AuthRoutes() {
                 element={<Signup />} 
             />
 
-            <Route 
-                path="/forgot-password" 
-                element={<ForgotPassword />} 
+            <Route
+                path="/forgot-password"
+                element={<ForgotPassword />}
+            />
+
+            <Route
+                path="/reset-password"
+                element={<ResetPassword />}
             />
 
         </>

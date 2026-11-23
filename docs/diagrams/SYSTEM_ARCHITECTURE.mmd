@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph Client["Browser"]
+        SPA["React SPA (Vite build)\nHashRouter - src/"]
+    end
+
+    subgraph Server["Node.js Server (backend/, port 5000)"]
+        Express["Express app\nbackend/server.js"]
+        Auth["Auth middleware\nbackend/middleware/auth.js"]
+        Uploads["Static file server\n/uploads -> backend/uploads/videos"]
+    end
+
+    subgraph Data["Data Layer"]
+        PG[("PostgreSQL\n12 tables")]
+        Disk[("Local disk\nbackend/uploads/videos/*.mp4")]
+    end
+
+    subgraph External["External Services"]
+        SMTP["Gmail SMTP\n(nodemailer)\noptional - EMAIL_USER/PASSWORD"]
+    end
+
+    SPA -- "fetch() / XHR, JSON + multipart\nAuthorization: Bearer <JWT>" --> Express
+    Express --> Auth
+    Auth -- "re-checks role/is_active\non every admin request" --> PG
+    Express -- "pg.Pool queries" --> PG
+    Express -- "multer disk storage" --> Disk
+    Express -- "GET /uploads/videos/*" --> Disk
+    Express -- "password reset / invite emails" --> SMTP
+    SPA -- "video playback\n<video>/<iframe>" --> Disk
+    SPA -. "YouTube/Vimeo embeds\n(no backend involved)" .-> YT["youtube-nocookie.com\nplayer.vimeo.com"]

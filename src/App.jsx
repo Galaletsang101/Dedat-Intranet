@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import AuthRoutes from "./routes/authRoutes";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
 
 // Main pages
 import Dashboard from "./pages/Dashboard";
@@ -18,11 +19,20 @@ import Home from "./pages/Homepage";
 import Calendar from "./pages/Calendar";
 import Wellness from "./pages/Wellness";
 import NewsCirculus from "./pages/NewsCirculus";
+import NewsArticle from "./pages/NewsArticle";
 import ProgramsUnits from "./pages/ProgramsUnits";
 import StaffDirectory from "./pages/StaffDirectory";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
 import FAQ from "./pages/FAQ";
 import Policies from "./pages/Policies";
+import AddContent from "./pages/AddContent";
+
+// Admin pages
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminEmployees from "./pages/admin/AdminEmployees";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDepartments from "./pages/admin/AdminDepartments";
 
 function App() {
   return (
@@ -50,6 +60,8 @@ function App() {
 
             <Route path="/news-circulus" element={<NewsCirculus />} />
 
+            <Route path="/news/:id" element={<NewsArticle />} />
+
             <Route path="/programs-units" element={<ProgramsUnits />} />
 
             <Route path="/staff-directory" element={<StaffDirectory />} />
@@ -59,6 +71,17 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
 
             <Route path="/policies" element={<Policies />} />
+
+            <Route element={<AdminRoute />}>
+              <Route path="add-content" element={<AddContent />} />
+
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOverview />} />
+                <Route path="employees" element={<AdminEmployees />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="departments" element={<AdminDepartments />} />
+              </Route>
+            </Route>
           </Route>
         </Route>
       </Routes>

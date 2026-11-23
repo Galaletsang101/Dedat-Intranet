@@ -1,255 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { formatDate } from "../utils/dateUtils";
 import "../styles/policies.css";
-
-/*
-|--------------------------------------------------------------------------
-| TEST DOCUMENT DATA
-|--------------------------------------------------------------------------
-*/
-
-const docs = [
-  {
-    id: 1,
-    title: "Recruitment and Selection Policy",
-    programme: "Corporate Services",
-    subProgramme: "Human Resource Administration",
-    type: "Policy",
-    version: "2026",
-    date: "Aug 2026",
-    status: "Approved",
-    description:
-      "Policy governing recruitment and selection of departmental employees.",
-    keywords: "recruitment selection HR employees hiring",
-    size: "2.4 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 2,
-    title: "Risk Management Policy",
-    programme: "Administration",
-    subProgramme: "Risk Management",
-    type: "Policy",
-    version: "2026",
-    date: "Aug 2026",
-    status: "Approved",
-    description:
-      "Policy providing the framework for identifying, assessing and managing departmental risks.",
-    keywords: "risk management ERM risk register",
-    size: "1.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 3,
-    title: "Employee Health and Wellness Policy",
-    programme: "Corporate Services",
-    subProgramme: "Employee Health and Wellness",
-    type: "Policy",
-    version: "2026",
-    date: "Jul 2026",
-    status: "Approved",
-    description:
-      "Guidance relating to employee health, wellness and workplace wellbeing.",
-    keywords: "employee wellness health EHW diversity",
-    size: "1.6 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 4,
-    title: "Code of Conduct for the Public Service",
-    programme: "Corporate Services",
-    subProgramme: "Labour Relations",
-    type: "Guideline",
-    version: "2026",
-    date: "Jul 2026",
-    status: "Approved",
-    description:
-      "Guidelines relating to ethical conduct and responsibilities of public service employees.",
-    keywords: "code conduct ethics employees public service",
-    size: "1.2 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 5,
-    title: "Consumer Protection Act",
-    programme: "Consumer Protection and Business Regulation",
-    subProgramme: "Consumer Protection",
-    type: "Act / Legislation",
-    version: "Current",
-    date: "2026",
-    status: "Approved",
-    description:
-      "Legislation relating to consumer protection and consumer rights.",
-    keywords: "consumer protection legislation consumers complaints",
-    size: "3.1 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 6,
-    title: "Consumer Complaint Lodging Form",
-    programme: "Consumer Protection and Business Regulation",
-    subProgramme: "Consumer Protection",
-    type: "Form",
-    version: "2026",
-    date: "Jun 2026",
-    status: "Approved",
-    description:
-      "Official form for lodging a consumer complaint with the department.",
-    keywords: "consumer complaint form complaint lodging",
-    size: "650 KB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 7,
-    title: "Northern Cape Manufacturing Strategy",
-    programme: "Trade and Sector Development",
-    subProgramme: "Sector Development",
-    type: "Strategy",
-    version: "2026",
-    date: "Jun 2026",
-    status: "Approved",
-    description:
-      "Strategy supporting manufacturing and industrial development in the Northern Cape.",
-    keywords: "manufacturing industry sector development",
-    size: "4.2 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 8,
-    title: "Investment Opportunity Framework",
-    programme: "Trade and Sector Development",
-    subProgramme: "Trade and Investment Promotion",
-    type: "Framework",
-    version: "2026",
-    date: "May 2026",
-    status: "Approved",
-    description:
-      "Framework supporting trade and investment promotion opportunities in the province.",
-    keywords: "investment trade business exporters opportunities",
-    size: "2.7 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 9,
-    title: "Local Economic Development Strategy",
-    programme: "Integrated Economic Development Services",
-    subProgramme: "Regional and Local Economic Development",
-    type: "Strategy",
-    version: "2026",
-    date: "May 2026",
-    status: "Approved",
-    description:
-      "Strategy supporting local economic development and inclusive economic participation.",
-    keywords: "LED local economic development economy",
-    size: "3.5 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 10,
-    title: "Red Tape Reduction Guidelines",
-    programme: "Integrated Economic Development Services",
-    subProgramme: "Regional and Local Economic Development",
-    type: "Guideline",
-    version: "2026",
-    date: "Apr 2026",
-    status: "Approved",
-    description:
-      "Guidelines for identifying and reducing unnecessary regulatory barriers affecting businesses.",
-    keywords: "red tape business regulation SMME",
-    size: "1.4 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 11,
-    title: "Economic Overview Report",
-    programme: "Economic Planning",
-    subProgramme: "Economic Research and Policy Development",
-    type: "Report",
-    version: "2026",
-    date: "Apr 2026",
-    status: "Approved",
-    description:
-      "Overview of economic conditions, trends and developments relevant to the Northern Cape.",
-    keywords: "economic overview economy research report",
-    size: "3.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 12,
-    title: "Digital Infrastructure Guidelines",
-    programme: "Economic Planning",
-    subProgramme: "Knowledge Economy Support",
-    type: "Guideline",
-    version: "2026",
-    date: "Mar 2026",
-    status: "Approved",
-    description:
-      "Guidelines supporting digital infrastructure and knowledge economy initiatives.",
-    keywords: "ICT digital broadband infrastructure technology",
-    size: "2.1 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 13,
-    title: "Tourism Enterprise Support Programme Guidelines",
-    programme: "Tourism",
-    subProgramme: "Tourism Development",
-    type: "Guideline",
-    version: "2026",
-    date: "Mar 2026",
-    status: "Approved",
-    description:
-      "Guidelines for tourism enterprises seeking departmental support.",
-    keywords: "tourism enterprise support grant business",
-    size: "2.9 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 14,
-    title: "Tourism Safety Guidelines",
-    programme: "Tourism",
-    subProgramme: "Tourism Growth",
-    type: "Guideline",
-    version: "2026",
-    date: "Feb 2026",
-    status: "Approved",
-    description:
-      "Guidelines supporting safe and responsible tourism activities.",
-    keywords: "tourism safety visitors tourists",
-    size: "1.7 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-
-  {
-    id: 15,
-    title: "Annual Performance Plan",
-    programme: "Administration",
-    subProgramme: "Strategic Management",
-    type: "Plan",
-    version: "2026/27",
-    date: "Feb 2026",
-    status: "Approved",
-    description:
-      "Annual departmental performance planning document outlining planned outputs and targets.",
-    keywords:
-      "APP annual performance plan strategic planning targets",
-    size: "4.8 MB",
-    path: "/assets/test-pdfs/Recruitment-Selection-Policy.pdf",
-  },
-];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -259,15 +10,8 @@ const docs = [
 
 const programmes = [
   "All",
-  "Administration",
-  "Corporate Services",
-  "Integrated Economic Development Services",
-  "Trade and Sector Development",
-  "Consumer Protection and Business Regulation",
-  "Economic Planning",
-  "Tourism",
+  "General",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -289,7 +33,6 @@ const documentTypes = [
   "Form",
   "Report",
 ];
-
 
 /*
 |--------------------------------------------------------------------------
@@ -342,7 +85,6 @@ const subProgrammes = {
   ],
 };
 
-
 /*
 |--------------------------------------------------------------------------
 | POLICIES COMPONENT
@@ -350,6 +92,17 @@ const subProgrammes = {
 */
 
 function Policies() {
+  /*
+  |--------------------------------------------------------------------------
+  | STATE
+  |--------------------------------------------------------------------------
+  */
+
+  const [docs, setDocs] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
 
   const [programmeFilter, setProgrammeFilter] =
     useState("All");
@@ -374,6 +127,114 @@ function Policies() {
 
   const documentsPerPage = 10;
 
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD POLICIES FROM POSTGRESQL
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    loadPolicies();
+  }, []);
+
+  async function loadPolicies() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        "http://localhost:5000/api/policies"
+      );
+
+      if (!response.ok) {
+        const data = await response
+          .json()
+          .catch(() => ({}));
+
+        throw new Error(
+          data.error ||
+            "Failed to fetch policies."
+        );
+      }
+
+      const data = await response.json();
+
+      /*
+      |--------------------------------------------------------------------------
+      | Convert PostgreSQL records into the structure
+      | used by the existing Policies page.
+      |--------------------------------------------------------------------------
+      */
+
+      const formattedPolicies = data.map(
+        (policy) => ({
+          id: policy.id,
+
+          title:
+            policy.title || "Untitled Policy",
+
+          programme:
+            policy.category || "General",
+
+          subProgramme:
+            policy.author || "Department",
+
+          type:
+            "Policy",
+
+          /*
+           * The PostgreSQL policies table does not
+           * contain a version_number column.
+           */
+          version:
+            "1.0",
+
+          date: formatDate(policy.publication_date, "N/A"),
+
+          status:
+            policy.status || "Unknown",
+
+          description:
+            policy.description || "",
+
+          keywords:
+            `${policy.title || ""} ${
+              policy.policy_number || ""
+            } ${
+              policy.category || ""
+            } ${
+              policy.author || ""
+            }`,
+
+          size:
+            "",
+
+          /*
+           * This comes directly from the
+           * PostgreSQL file_url column.
+           */
+          path:
+            policy.file_url || "",
+        })
+      );
+
+      setDocs(formattedPolicies);
+
+    } catch (error) {
+      console.error(
+        "Error loading policies:",
+        error
+      );
+
+      setError(
+        error?.message ||
+          "Unable to load policies."
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -381,16 +242,18 @@ function Policies() {
   |--------------------------------------------------------------------------
   */
 
-  const availableSubProgrammes = useMemo(() => {
+  const availableSubProgrammes =
+    useMemo(() => {
+      if (programmeFilter === "All") {
+        return [];
+      }
 
-    if (programmeFilter === "All") {
-      return [];
-    }
-
-    return subProgrammes[programmeFilter] || [];
-
-  }, [programmeFilter]);
-
+      return (
+        subProgrammes[
+          programmeFilter
+        ] || []
+      );
+    }, [programmeFilter]);
 
   /*
   |--------------------------------------------------------------------------
@@ -398,59 +261,72 @@ function Policies() {
   |--------------------------------------------------------------------------
   */
 
-  const filteredDocs = useMemo(() => {
+  const filteredDocs =
+    useMemo(() => {
+      const query =
+        searchTerm
+          .trim()
+          .toLowerCase();
 
-    const query =
-      searchTerm.trim().toLowerCase();
+      return docs.filter(
+        (document) => {
+          const matchesProgramme =
+            programmeFilter ===
+              "All" ||
+            document.programme ===
+              programmeFilter;
 
-    return docs.filter((document) => {
+          const matchesSubProgramme =
+            subProgrammeFilter ===
+              "All" ||
+            document.subProgramme ===
+              subProgrammeFilter;
 
-      const matchesProgramme =
-        programmeFilter === "All" ||
-        document.programme === programmeFilter;
+          const matchesType =
+            typeFilter === "All" ||
+            document.type ===
+              typeFilter;
 
+          const searchableText = `
+            ${document.title}
+            ${document.programme}
+            ${document.subProgramme}
+            ${document.type}
+            ${document.description}
+            ${document.keywords}
+          `.toLowerCase();
 
-      const matchesSubProgramme =
-        subProgrammeFilter === "All" ||
-        document.subProgramme === subProgrammeFilter;
+          const matchesSearch =
+            query.length === 0 ||
+            searchableText.includes(
+              query
+            );
 
-
-      const matchesType =
-        typeFilter === "All" ||
-        document.type === typeFilter;
-
-
-      const searchableText = `
-        ${document.title}
-        ${document.programme}
-        ${document.subProgramme}
-        ${document.type}
-        ${document.description}
-        ${document.keywords}
-      `.toLowerCase();
-
-
-      const matchesSearch =
-        query.length === 0 ||
-        searchableText.includes(query);
-
-
-      return (
-        matchesProgramme &&
-        matchesSubProgramme &&
-        matchesType &&
-        matchesSearch
+          return (
+            matchesProgramme &&
+            matchesSubProgramme &&
+            matchesType &&
+            matchesSearch
+          );
+        }
       );
+    }, [
+      /*
+       * IMPORTANT:
+       * docs must be here so the list
+       * recalculates after PostgreSQL
+       * data is loaded.
+       */
+      docs,
 
-    });
+      programmeFilter,
 
-  }, [
-    programmeFilter,
-    subProgrammeFilter,
-    typeFilter,
-    searchTerm,
-  ]);
+      subProgrammeFilter,
 
+      typeFilter,
+
+      searchTerm,
+    ]);
 
   /*
   |--------------------------------------------------------------------------
@@ -458,19 +334,19 @@ function Policies() {
   |--------------------------------------------------------------------------
   */
 
-  const totalPages = Math.ceil(
-    filteredDocs.length / documentsPerPage
-  );
-
+  const totalPages =
+    Math.ceil(
+      filteredDocs.length /
+        documentsPerPage
+    );
 
   const startIndex =
     (currentPage - 1) *
     documentsPerPage;
 
-
   const endIndex =
-    startIndex + documentsPerPage;
-
+    startIndex +
+    documentsPerPage;
 
   const currentDocuments =
     filteredDocs.slice(
@@ -478,15 +354,15 @@ function Policies() {
       endIndex
     );
 
-
   /*
   |--------------------------------------------------------------------------
   | PROGRAMME FILTER CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleProgrammeChange(event) {
-
+  function handleProgrammeChange(
+    event
+  ) {
     const selectedProgramme =
       event.target.value;
 
@@ -499,15 +375,15 @@ function Policies() {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | SEARCH CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleSearchChange(event) {
-
+  function handleSearchChange(
+    event
+  ) {
     setSearchTerm(
       event.target.value
     );
@@ -515,15 +391,15 @@ function Policies() {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | DOCUMENT TYPE CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleTypeChange(event) {
-
+  function handleTypeChange(
+    event
+  ) {
     setTypeFilter(
       event.target.value
     );
@@ -531,22 +407,21 @@ function Policies() {
     setCurrentPage(1);
   }
 
-
   /*
   |--------------------------------------------------------------------------
   | SUB-PROGRAMME CHANGE
   |--------------------------------------------------------------------------
   */
 
-  function handleSubProgrammeChange(event) {
-
+  function handleSubProgrammeChange(
+    event
+  ) {
     setSubProgrammeFilter(
       event.target.value
     );
 
     setCurrentPage(1);
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -555,14 +430,20 @@ function Policies() {
   */
 
   function handleView(path) {
+    if (!path) {
+      alert(
+        "No PDF file is available for this policy."
+      );
+
+      return;
+    }
 
     window.open(
       path,
-      "_blank"
+      "_blank",
+      "noopener,noreferrer"
     );
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -574,23 +455,32 @@ function Policies() {
     path,
     title
   ) {
+    if (!path) {
+      alert(
+        "No PDF file is available for this policy."
+      );
+
+      return;
+    }
 
     const link =
-      document.createElement("a");
+      document.createElement(
+        "a"
+      );
 
     link.href = path;
 
     link.download =
-      `${title}.pdf`;
+      `${title || "policy"}.pdf`;
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link
+    );
 
     link.click();
 
     link.remove();
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -599,7 +489,6 @@ function Policies() {
   */
 
   function clearFilters() {
-
     setProgrammeFilter("All");
 
     setSubProgrammeFilter("All");
@@ -609,9 +498,7 @@ function Policies() {
     setSearchTerm("");
 
     setCurrentPage(1);
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -620,16 +507,13 @@ function Policies() {
   */
 
   function goToPage(page) {
-
     setCurrentPage(page);
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
@@ -638,9 +522,7 @@ function Policies() {
   */
 
   return (
-
     <div className="policies-page">
-
 
       {/* =====================================================
           HEADER
@@ -649,38 +531,38 @@ function Policies() {
       <div className="list-header">
 
         <div>
-  <h3
-    style={{
-      color: "var(--primary, #d85f06)",
-      fontSize: "2rem",
-      fontWeight: "700",
-      marginBottom: "0.5rem",
-    }}
-  >
-    Department Policies
-  </h3>
+          <h3
+            style={{
+              color:
+                "var(--primary, #d85f06)",
+              fontSize: "2rem",
+              fontWeight: "700",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Department Policies
+          </h3>
 
-  <p
-    style={{
-      color: "#5c5b5b",
-      fontSize: "1rem",
-      lineHeight: "1.6",
-      margin: 0,
-    }}
-  >
-    Access departmental policies, legislation, strategies, guidelines,
-    procedures, templates and reports.
-  </p>
-</div>
+          <p
+            style={{
+              color: "#5c5b5b",
+              fontSize: "1rem",
+              lineHeight: "1.6",
+              margin: 0,
+            }}
+          >
+            Access departmental policies,
+            legislation, strategies,
+            guidelines, procedures,
+            templates and reports.
+          </p>
+        </div>
 
         <span className="muted">
-
           {filteredDocs.length}{" "}
-
           {filteredDocs.length === 1
             ? "Document"
             : "Documents"}
-
         </span>
 
       </div>
@@ -695,7 +577,9 @@ function Policies() {
         <input
           type="text"
           value={searchTerm}
-          onChange={handleSearchChange}
+          onChange={
+            handleSearchChange
+          }
           placeholder="Search documents, policies, legislation, keywords..."
           aria-label="Search documents"
         />
@@ -709,7 +593,6 @@ function Policies() {
 
       <div className="policies-filter-section">
 
-
         {/* PROGRAMME */}
 
         <div className="filter-group">
@@ -720,20 +603,22 @@ function Policies() {
 
           <select
             id="programme"
-            value={programmeFilter}
-            onChange={handleProgrammeChange}
+            value={
+              programmeFilter
+            }
+            onChange={
+              handleProgrammeChange
+            }
           >
 
             {programmes.map(
               (programme) => (
-
                 <option
                   key={programme}
                   value={programme}
                 >
                   {programme}
                 </option>
-
               )
             )}
 
@@ -752,10 +637,15 @@ function Policies() {
 
           <select
             id="subProgramme"
-            value={subProgrammeFilter}
-            onChange={handleSubProgrammeChange}
+            value={
+              subProgrammeFilter
+            }
+            onChange={
+              handleSubProgrammeChange
+            }
             disabled={
-              programmeFilter === "All"
+              programmeFilter ===
+              "All"
             }
           >
 
@@ -765,14 +655,14 @@ function Policies() {
 
             {availableSubProgrammes.map(
               (subProgramme) => (
-
                 <option
                   key={subProgramme}
-                  value={subProgramme}
+                  value={
+                    subProgramme
+                  }
                 >
                   {subProgramme}
                 </option>
-
               )
             )}
 
@@ -791,20 +681,22 @@ function Policies() {
 
           <select
             id="documentType"
-            value={typeFilter}
-            onChange={handleTypeChange}
+            value={
+              typeFilter
+            }
+            onChange={
+              handleTypeChange
+            }
           >
 
             {documentTypes.map(
               (type) => (
-
                 <option
                   key={type}
                   value={type}
                 >
                   {type}
                 </option>
-
               )
             )}
 
@@ -817,7 +709,9 @@ function Policies() {
 
         <button
           className="clear-filters"
-          onClick={clearFilters}
+          onClick={
+            clearFilters
+          }
         >
           Clear Filters
         </button>
@@ -832,11 +726,11 @@ function Policies() {
       <div className="policies-results-header">
 
         <span>
-
           Showing{" "}
 
           <strong>
-            {filteredDocs.length === 0
+            {filteredDocs.length ===
+            0
               ? 0
               : startIndex + 1}
           </strong>
@@ -858,7 +752,8 @@ function Policies() {
 
           {" "}
 
-          {filteredDocs.length === 1
+          {filteredDocs.length ===
+          1
             ? "document"
             : "documents"}
 
@@ -873,47 +768,89 @@ function Policies() {
 
       <div className="policies-list">
 
+        {/* LOADING */}
 
-        {currentDocuments.length === 0 ? (
-
-          /* EMPTY STATE */
-
+        {loading && (
           <div className="empty-state">
-
-            <div className="empty-icon">
-              PDF
-            </div>
-
             <h3>
-              No documents found
+              Loading policies...
             </h3>
-
-            <p>
-              No policies or documents match your
-              current search and filters.
-            </p>
-
-            <button
-              className="clear-empty-button"
-              onClick={clearFilters}
-            >
-              Clear Filters
-            </button>
-
           </div>
+        )}
 
-        ) : (
 
-          /* DOCUMENT CARDS */
+        {/* ERROR */}
 
+        {error &&
+          !loading && (
+            <div className="empty-state">
+              <h3>
+                {error}
+              </h3>
+
+              <button
+                className="clear-empty-button"
+                onClick={
+                  loadPolicies
+                }
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
+
+        {/* EMPTY */}
+
+        {!loading &&
+          !error &&
+          currentDocuments.length ===
+            0 && (
+
+            <div className="empty-state">
+
+              <div className="empty-icon">
+                PDF
+              </div>
+
+              <h3>
+                No documents found
+              </h3>
+
+              <p>
+                No policies or documents
+                match your current
+                search and filters.
+              </p>
+
+              <button
+                className="clear-empty-button"
+                onClick={
+                  clearFilters
+                }
+              >
+                Clear Filters
+              </button>
+
+            </div>
+          )}
+
+
+        {/* DOCUMENT CARDS */}
+
+        {!loading &&
+          !error &&
+          currentDocuments.length >
+            0 &&
           currentDocuments.map(
             (document) => (
 
               <div
-                key={document.id}
+                key={
+                  document.id
+                }
                 className="doc-card"
               >
-
 
                 {/* PDF ICON */}
 
@@ -931,19 +868,25 @@ function Policies() {
                 <div className="doc-body">
 
                   <div className="doc-title">
-                    {document.title}
+                    {
+                      document.title
+                    }
                   </div>
 
 
                   <div className="doc-unit">
 
-                    {document.programme}
+                    {
+                      document.programme
+                    }
 
                     <span className="separator">
                       →
                     </span>
 
-                    {document.subProgramme}
+                    {
+                      document.subProgramme
+                    }
 
                   </div>
 
@@ -951,26 +894,40 @@ function Policies() {
                   <div className="doc-meta">
 
                     <span className="document-type">
-                      {document.type}
+                      {
+                        document.type
+                      }
                     </span>
 
                     <span>
-                      Version {document.version}
+                      Version{" "}
+                      {
+                        document.version
+                      }
                     </span>
 
                     <span>
-                      Updated {document.date}
+                      Updated{" "}
+                      {
+                        document.date
+                      }
                     </span>
 
-                    <span>
-                      {document.size}
-                    </span>
+                    {document.size && (
+                      <span>
+                        {
+                          document.size
+                        }
+                      </span>
+                    )}
 
                   </div>
 
 
                   <div className="doc-summary">
-                    {document.description}
+                    {
+                      document.description
+                    }
                   </div>
 
 
@@ -978,7 +935,9 @@ function Policies() {
 
                     <span className="status-dot"></span>
 
-                    {document.status}
+                    {
+                      document.status
+                    }
 
                   </div>
 
@@ -1016,11 +975,8 @@ function Policies() {
                 </div>
 
               </div>
-
             )
-          )
-
-        )}
+          )}
 
       </div>
 
@@ -1033,12 +989,14 @@ function Policies() {
 
         <div className="policies-pagination">
 
-
           {/* PREVIOUS */}
 
           <button
             className="pagination-button"
-            disabled={currentPage === 1}
+            disabled={
+              currentPage ===
+              1
+            }
             onClick={() =>
               goToPage(
                 currentPage - 1
@@ -1055,7 +1013,8 @@ function Policies() {
 
             {Array.from(
               {
-                length: totalPages,
+                length:
+                  totalPages,
               },
               (_, index) =>
                 index + 1
@@ -1065,7 +1024,8 @@ function Policies() {
                 <button
                   key={page}
                   className={`pagination-number ${
-                    currentPage === page
+                    currentPage ===
+                    page
                       ? "active"
                       : ""
                   }`}
@@ -1087,7 +1047,8 @@ function Policies() {
           <button
             className="pagination-button"
             disabled={
-              currentPage === totalPages
+              currentPage ===
+              totalPages
             }
             onClick={() =>
               goToPage(
@@ -1098,16 +1059,11 @@ function Policies() {
             Next
           </button>
 
-
         </div>
-
       )}
 
     </div>
-
   );
-
 }
-
 
 export default Policies;
