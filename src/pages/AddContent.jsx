@@ -17,6 +17,19 @@ import NewsManager from "../components/admin/NewsManager";
 import WellnessManager from "../components/admin/WellnessManager";
 import "../styles/addContent.css";
 
+// Keep in sync with BOARDROOM_LOCATIONS in backend/server.js.
+const BOARDROOM_LOCATIONS = [
+  "Augrabies",
+  "Credo Mutwa",
+  "Flamingo",
+  "Kokerboom",
+  "Metlife 13th Floor Boardroom",
+  "Namakwa Daisies",
+  "Tshepe",
+  "Khaya La Bantu Boardroom",
+  "Policy & Planning Boardroom",
+];
+
 /* =========================================================
    PAGE OPTIONS
 
@@ -139,6 +152,7 @@ export default function AddContent() {
   const [calendarEndTime, setCalendarEndTime] = useState("");
   const [calendarCategory, setCalendarCategory] = useState("Meeting");
   const [calendarQuarter, setCalendarQuarter] = useState("Q1");
+  const [calendarLocation, setCalendarLocation] = useState("");
 
   /* =========================================================
      UI
@@ -457,6 +471,12 @@ export default function AddContent() {
         setMessageType("error");
         return false;
       }
+
+      if (calendarCategory === "Boardroom" && !calendarLocation) {
+        setMessage("Please select a boardroom.");
+        setMessageType("error");
+        return false;
+      }
     }
 
     return true;
@@ -506,6 +526,12 @@ export default function AddContent() {
           <p>
             <strong>Category:</strong> {calendarCategory}
           </p>
+
+          {calendarCategory === "Boardroom" && (
+            <p>
+              <strong>Boardroom:</strong> {calendarLocation}
+            </p>
+          )}
 
           <p>
             <strong>Quarter:</strong> {calendarQuarter}
@@ -710,6 +736,8 @@ export default function AddContent() {
             end_time: endTime,
             category: calendarCategory,
             quarter: calendarQuarter,
+            location:
+              calendarCategory === "Boardroom" ? calendarLocation : "",
           }),
         });
 
@@ -1009,6 +1037,25 @@ export default function AddContent() {
                 <option value="Boardroom">Boardroom</option>
               </select>
             </div>
+
+            {calendarCategory === "Boardroom" && (
+              <div className="form-group">
+                <label htmlFor="event-location">Boardroom *</label>
+
+                <select
+                  id="event-location"
+                  value={calendarLocation}
+                  onChange={(event) => setCalendarLocation(event.target.value)}
+                >
+                  <option value="">Select a boardroom...</option>
+                  {BOARDROOM_LOCATIONS.map((room) => (
+                    <option key={room} value={room}>
+                      {room}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="form-group">
               <label htmlFor="event-quarter">Quarter</label>

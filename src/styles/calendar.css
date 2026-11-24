@@ -159,6 +159,13 @@
 .calendar-box.empty {
   background: var(--surface-light);
   cursor: default;
+} /* ========================================== TODAY HIGHLIGHT ========================================== */
+.calendar-box.today {
+  background: var(--primary-extra-light);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+.calendar-box.today:hover {
+  background: var(--primary-extra-light);
 } /* ========================================== DATE NUMBER ========================================== */
 .date-number {
   display: inline-flex;
@@ -168,6 +175,11 @@
   height: 28px;
   color: var(--text-primary);
   font-weight: var(--fw-semibold);
+}
+.calendar-box.today .date-number {
+  background: var(--primary);
+  color: var(--text-white);
+  border-radius: 50%;
 } /* ========================================== EVENTS ========================================== */
 .events-container {
   margin-top: var(--space-xs);
@@ -192,6 +204,12 @@
   display: block;
   margin-top: 2px;
   opacity: 0.9;
+}
+.event-card-location {
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 } /* ========================================== EVENT CATEGORIES ========================================== */
 .event-card.meeting {
   background: var(--primary);
@@ -223,6 +241,7 @@
   background: rgba(0, 0, 0, 0.55);
 }
 .event-modal {
+  position: relative;
   width: 380px;
   max-width: 100%;
   padding: var(--space-xl);
@@ -230,10 +249,60 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
 }
+.event-modal:focus {
+  /* Programmatic focus landing spot on open, not a user-navigable
+     control - real controls inside (inputs, selects, buttons) keep
+     their own visible focus rings. */
+  outline: none;
+}
 .event-modal h2 {
   padding-bottom: var(--space-sm);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-sm);
+  padding-right: var(--space-xl);
   border-bottom: 3px solid var(--primary);
+}
+.event-modal .modal-close-x {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+.event-modal .modal-close-x:hover {
+  background: var(--surface-light);
+  color: var(--text-primary);
+}
+.today-badge {
+  display: inline-block;
+  margin-left: var(--space-sm);
+  padding: 2px var(--space-sm);
+  background: var(--primary);
+  color: var(--text-white);
+  font-size: var(--font-xs);
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}
+.booking-modal-date {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semibold);
+}
+.event-modal label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semibold);
 }
 .event-modal input,
 .event-modal select,
@@ -274,4 +343,76 @@
 }
 .event-modal .close-btn:hover {
   background: var(--secondary-dark);
+} /* ========================================== DAY EVENTS MODAL ========================================== */
+.day-modal-empty {
+  margin-bottom: var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--font-sm);
+}
+.day-modal-events {
+  max-height: 280px;
+  margin-bottom: var(--space-md);
+  overflow-y: auto;
+}
+.day-modal-event {
+  padding: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  background: var(--surface-light);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-sm);
+}
+.day-modal-event:last-child {
+  margin-bottom: 0;
+}
+.day-modal-event.meeting {
+  border-left-color: var(--primary);
+}
+.day-modal-event.training {
+  border-left-color: var(--info);
+}
+.day-modal-event.leave {
+  border-left-color: var(--success);
+}
+.day-modal-event.deadline {
+  border-left-color: #7b2cbf;
+}
+.day-modal-event.boardroom {
+  border-left-color: var(--secondary);
+}
+.day-modal-event.holiday {
+  border-left-color: var(--danger);
+}
+.day-modal-event-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.day-modal-event-header strong {
+  color: var(--text-primary);
+}
+.event-category-badge {
+  flex-shrink: 0;
+  padding: 2px var(--space-xs);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
+  font-weight: var(--fw-semibold);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.day-modal-event-location,
+.day-modal-event-time,
+.day-modal-event-description {
+  margin-top: var(--space-xs);
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+}
+.day-modal-event-location {
+  color: var(--text-primary);
+  font-weight: var(--fw-semibold);
+}
+.book-boardroom-btn {
+  margin-bottom: var(--space-xs);
 }
