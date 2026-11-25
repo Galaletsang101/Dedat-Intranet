@@ -147,7 +147,7 @@ describe("Calendar - day events modal", () => {
     fireEvent.click(findDateCell(container, emptyDay));
     await screen.findByText(/no events scheduled/i);
 
-    fireEvent.click(container.querySelector(".modal-overlay"));
+    fireEvent.click(container.querySelector(".calendar-modal-overlay"));
 
     await waitFor(() => {
       expect(screen.queryByText(/no events scheduled/i)).not.toBeInTheDocument();

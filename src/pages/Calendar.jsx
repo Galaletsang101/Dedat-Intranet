@@ -1,25 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import "../styles/calendar.css";
 import { holidays } from "../data/holidays";
-import { authFetch } from "../services/apiClient";
+import { authFetch, parseJsonResponse } from "../services/apiClient";
+import { isAdmin } from "../services/authService";
 import { formatDate } from "../utils/dateUtils";
-
-// Keep in sync with BOARDROOM_LOCATIONS in backend/server.js.
-const BOARDROOM_LOCATIONS = [
-  "Augrabies",
-  "Credo Mutwa",
-  "Flamingo",
-  "Kokerboom",
-  "Metlife 13th Floor Boardroom",
-  "Namakwa Daisies",
-  "Tshepe",
-  "Khaya La Bantu Boardroom",
-  "Policy & Planning Boardroom",
-];
+import { addDays, getWeekStart } from "../components/calendar/calendarConstants";
+import MonthGrid from "../components/calendar/MonthGrid";
+import TimeGridView from "../components/calendar/TimeGridView";
+import CalendarNav from "../components/calendar/CalendarNav";
+import DayEventsModal from "../components/calendar/DayEventsModal";
+import BookingModal from "../components/calendar/BookingModal";
 
 const Calendar = () => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const [view, setView] = useState("Month");
 
   const [events, setEvents] = useState([]);
 
@@ -28,6 +24,10 @@ const Calendar = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [showDayModal, setShowDayModal] = useState(false);
+
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+
+  const [bookingError, setBookingError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -42,14 +42,15 @@ const Calendar = () => {
   });
 
 
-  const [eventData, setEventData] = useState({
+  const [bookingForm, setBookingForm] = useState({
+    date: "",
     title: "",
     description: "",
+    location: "",
     time: "",
     endTime: "",
-    category: "Meeting",
-    quarter: "Q1",
-    location: "",
+    attendees: "",
+    requirements: "",
   });
 
 
@@ -119,21 +120,15 @@ const Calendar = () => {
 
     try {
 
-      const response = await fetch(
-        "http://localhost:5000/api/calendar-events"
+      const response = await authFetch(
+        "/calendar-events"
       );
 
 
-      if (!response.ok) {
-
-        throw new Error(
-          "Failed to fetch calendar events"
-        );
-
-      }
-
-
-      const data = await response.json();
+      const data = await parseJsonResponse(
+        response,
+        "Failed to fetch calendar events"
+      );
 
 
       const loadedEvents = data.map((event) => {
@@ -183,6 +178,15 @@ const Calendar = () => {
           location:
             event.location || "",
 
+          organiser:
+            event.organiser || "",
+
+          attendees:
+            event.attendees ?? null,
+
+          requirements:
+            event.requirements || "",
+
         };
 
       });
@@ -207,59 +211,12 @@ const Calendar = () => {
   // CALENDAR DATA
   // ============================================================
 
-  const monthNames = [
-
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-
-  ];
-
-
-  const days = [
-
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-
-  ];
-
-
   const year =
     currentDate.getFullYear();
 
 
   const month =
     currentDate.getMonth();
-
-
-  const firstDay =
-    new Date(
-      year,
-      month,
-      1
-    ).getDay();
-
-
-  const totalDays =
-    new Date(
-      year,
-      month + 1,
-      0
-    ).getDate();
 
 
   // ============================================================
@@ -278,45 +235,6 @@ const Calendar = () => {
 
 
   // ============================================================
-  // MONTH NAVIGATION
-  // ============================================================
-
-  const previousMonth = () => {
-
-    setCurrentDate(
-      new Date(
-        year,
-        month - 1,
-        1
-      )
-    );
-
-  };
-
-
-  const nextMonth = () => {
-
-    setCurrentDate(
-      new Date(
-        year,
-        month + 1,
-        1
-      )
-    );
-
-  };
-
-
-  const today = () => {
-
-    setCurrentDate(
-      new Date()
-    );
-
-  };
-
-
-  // ============================================================
   // OPEN "WHAT'S ON THIS DAY" MODAL
   // ============================================================
 
@@ -329,30 +247,43 @@ const Calendar = () => {
   };
 
 
+  const openDayModalForDateString = (dateStr) => {
+
+    setSelectedDate(dateStr);
+
+    setShowDayModal(true);
+
+  };
+
+
   // ============================================================
   // OPEN BOARDROOM BOOKING MODAL
   // ============================================================
 
   const openBookingModal = () => {
 
-    setEventData({
+    setBookingForm({
+
+      date: selectedDate || "",
 
       title: "",
 
       description: "",
 
+      location: "",
+
       time: "",
 
       endTime: "",
 
-      category: "Boardroom",
+      attendees: "",
 
-      quarter: "Q1",
-
-      location: "",
+      requirements: "",
 
     });
 
+
+    setBookingError(null);
 
     setShowDayModal(false);
 
@@ -367,126 +298,13 @@ const Calendar = () => {
 
   const saveEvent = async () => {
 
-    console.log(
-      "BOOKING FORM DATA:",
-      eventData
-    );
+    // Field-level validation already happened in BookingModal before it
+    // called this handler - this only talks to the backend and surfaces
+    // whatever the server itself rejects (e.g. a room double-booking).
 
-    console.log(
-      "TITLE:",
-      eventData.title
-    );
+    setIsSubmittingBooking(true);
 
-    console.log(
-      "START TIME:",
-      eventData.time
-    );
-
-    console.log(
-      "END TIME:",
-      eventData.endTime
-    );
-
-    console.log(
-      "SELECTED DATE:",
-      selectedDate
-    );
-
-
-    // ========================================================
-    // CHECK TITLE
-    // ========================================================
-
-    if (
-      !eventData.title ||
-      eventData.title.trim() === ""
-    ) {
-
-      alert(
-        "Booking title is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK BOARDROOM
-    // ========================================================
-
-    if (!eventData.location) {
-
-      alert(
-        "Please select a boardroom"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK START TIME
-    // ========================================================
-
-    if (!eventData.time) {
-
-      alert(
-        "Start time is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK END TIME
-    // ========================================================
-
-    if (!eventData.endTime) {
-
-      alert(
-        "End time is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK DATE
-    // ========================================================
-
-    if (!selectedDate) {
-
-      alert(
-        "Booking date is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK TIME ORDER
-    // ========================================================
-
-    if (
-      eventData.endTime <=
-      eventData.time
-    ) {
-
-      alert(
-        "End time must be after start time"
-      );
-
-      return;
-
-    }
+    setBookingError(null);
 
 
     try {
@@ -496,22 +314,11 @@ const Calendar = () => {
       // ======================================================
 
       const startTime =
-        `${selectedDate} ${eventData.time}:00`;
+        `${bookingForm.date} ${bookingForm.time}:00`;
 
 
       const endTime =
-        `${selectedDate} ${eventData.endTime}:00`;
-
-
-      console.log(
-        "SENDING START TIME:",
-        startTime
-      );
-
-      console.log(
-        "SENDING END TIME:",
-        endTime
-      );
+        `${bookingForm.date} ${bookingForm.endTime}:00`;
 
 
       // ======================================================
@@ -529,10 +336,10 @@ const Calendar = () => {
               JSON.stringify({
 
                 title:
-                  eventData.title.trim(),
+                  bookingForm.title.trim(),
 
                 description:
-                  eventData.description,
+                  bookingForm.description,
 
                 start_time:
                   startTime,
@@ -543,11 +350,16 @@ const Calendar = () => {
                 category:
                   "Boardroom",
 
-                quarter:
-                  eventData.quarter,
-
                 location:
-                  eventData.location,
+                  bookingForm.location,
+
+                attendees:
+                  bookingForm.attendees === ""
+                    ? null
+                    : Number(bookingForm.attendees),
+
+                requirements:
+                  bookingForm.requirements || null,
 
               }),
 
@@ -559,39 +371,16 @@ const Calendar = () => {
       // READ BACKEND RESPONSE
       // ======================================================
 
-      const responseData =
-        await response.json();
-
-
-      console.log(
-        "BACKEND RESPONSE:",
-        responseData
-      );
-
-
-      // ======================================================
-      // HANDLE ERROR
-      // ======================================================
-
-      if (!response.ok) {
-
-        throw new Error(
-
-          responseData.error ||
+      const savedEvent =
+        await parseJsonResponse(
+          response,
           "Failed to save boardroom booking"
-
         );
-
-      }
 
 
       // ======================================================
       // SUCCESS
       // ======================================================
-
-      const savedEvent =
-        responseData;
-
 
       const startDate =
         new Date(
@@ -645,6 +434,15 @@ const Calendar = () => {
         location:
           savedEvent.location || "",
 
+        organiser:
+          savedEvent.organiser || "",
+
+        attendees:
+          savedEvent.attendees ?? null,
+
+        requirements:
+          savedEvent.requirements || "",
+
       };
 
 
@@ -664,23 +462,23 @@ const Calendar = () => {
       // RESET FORM
       // ======================================================
 
-      setEventData({
+      setBookingForm({
+
+        date: "",
 
         title: "",
 
         description: "",
 
+        location: "",
+
         time: "",
 
         endTime: "",
 
-        category:
-          "Boardroom",
+        attendees: "",
 
-        quarter:
-          "Q1",
-
-        location: "",
+        requirements: "",
 
       });
 
@@ -701,9 +499,55 @@ const Calendar = () => {
       );
 
 
-      alert(
+      setBookingError(
         error.message ||
         "Failed to save boardroom booking"
+      );
+
+    } finally {
+
+      setIsSubmittingBooking(false);
+
+    }
+
+  };
+
+
+  // ============================================================
+  // CANCEL EVENT (ADMIN ONLY - BACKEND RE-CHECKS THE ROLE)
+  // ============================================================
+
+  const cancelEvent = async (id) => {
+
+    try {
+
+      const response = await authFetch(
+        `/calendar-events/${id}`,
+        { method: "DELETE" }
+      );
+
+      await parseJsonResponse(
+        response,
+        "Failed to cancel event"
+      );
+
+      setEvents(
+        (prevEvents) =>
+          prevEvents.filter(
+            (event) => event.id !== id
+          )
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error cancelling event:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Failed to cancel event"
       );
 
     }
@@ -760,14 +604,6 @@ const Calendar = () => {
 
 
   // ============================================================
-  // FILTER EVENTS FOR A DAY-OF-MONTH (GRID CELLS)
-  // ============================================================
-
-  const filteredEvents = (day) =>
-    filterEventsForDate(buildDateString(day));
-
-
-  // ============================================================
   // EVENTS FOR THE DAY MODAL
   // ============================================================
 
@@ -797,118 +633,6 @@ const Calendar = () => {
           new Date(a.date) -
           new Date(b.date)
       );
-
-
-  // ============================================================
-  // CREATE CALENDAR DAYS
-  // ============================================================
-
-  const calendarDays = [];
-
-
-  for (
-    let i = 0;
-    i < firstDay;
-    i++
-  ) {
-
-    calendarDays.push(
-
-      <div
-        className="calendar-box empty"
-        key={`empty-${i}`}
-      ></div>
-
-    );
-
-  }
-
-
-  for (
-    let day = 1;
-    day <= totalDays;
-    day++
-  ) {
-
-    const dayEvents =
-      filteredEvents(day);
-
-
-    calendarDays.push(
-
-      <div
-        className={
-          `calendar-box${isToday(day) ? " today" : ""}`
-        }
-        key={day}
-        onClick={() =>
-          openDayModal(day)
-        }
-      >
-
-        <span className="date-number">
-
-          {day}
-
-        </span>
-
-
-        <div className="events-container">
-
-          {
-
-            dayEvents.map(
-              (event, index) => (
-
-                <div
-                  className={
-                    `event-card ${event.category.toLowerCase()}`
-                  }
-                  key={index}
-                >
-
-                  <strong>
-
-                    {event.title}
-
-                  </strong>
-
-
-                  {
-
-                    event.location && (
-
-                      <small className="event-card-location">
-
-                        {event.location}
-
-                      </small>
-
-                    )
-
-                  }
-
-
-                  <small>
-
-                    {event.time}
-
-                  </small>
-
-                </div>
-
-              )
-            )
-
-          }
-
-        </div>
-
-      </div>
-
-    );
-
-  }
 
 
   // ============================================================
@@ -1080,84 +804,58 @@ const Calendar = () => {
         <div className="calendar-content">
 
 
-          <div className="calendar-header">
+          <CalendarNav
+
+            currentDate={currentDate}
+
+            view={view}
+
+            onViewChange={setView}
+
+            onDateChange={setCurrentDate}
+
+          />
 
 
-            <button
-              onClick={
-                previousMonth
-              }
-            >
+          {
 
-              ‹
+            view === "Month" ? (
 
-            </button>
+              <MonthGrid
 
+                year={year}
 
-            <h1>
+                month={month}
 
-              {monthNames[month]}
-              {" "}
-              {year}
+                isToday={isToday}
 
-            </h1>
+                getEventsForDate={filterEventsForDate}
 
+                onDayClick={openDayModal}
 
-            <button
-              onClick={
-                nextMonth
-              }
-            >
+              />
 
-              ›
+            ) : (
 
-            </button>
+              <TimeGridView
 
+                days={
+                  view === "Week"
+                    ? Array.from({ length: 7 }, (_, i) =>
+                        addDays(getWeekStart(currentDate), i)
+                      )
+                    : [currentDate]
+                }
 
-          </div>
+                getEventsForDate={filterEventsForDate}
 
+                onEventClick={openDayModalForDateString}
 
-          <button
+              />
 
-            className="today-btn"
+            )
 
-            onClick={today}
-
-          >
-
-            Today
-
-          </button>
-
-
-          <div className="weekdays">
-
-            {
-
-              days.map(
-                (day) => (
-
-                  <div
-                    key={day}
-                  >
-
-                    {day}
-
-                  </div>
-
-                )
-              )
-
-            }
-
-          </div>
-
-
-          <div className="calendar-grid">
-
-            {calendarDays}
-
-          </div>
+          }
 
 
         </div>
@@ -1166,519 +864,61 @@ const Calendar = () => {
       </div>
 
 
-      {/* ======================================================
-          DAY EVENTS MODAL ("what's on this day")
-      ====================================================== */}
-
       {
 
-        showDayModal && selectedDate && (
+        showDayModal && (
 
-          <div
-            className="modal-overlay"
-            onClick={() => setShowDayModal(false)}
-          >
+          <DayEventsModal
 
-            <div
+            selectedDate={selectedDate}
 
-              className="event-modal day-modal"
+            isToday={isSelectedDateToday}
 
-              role="dialog"
+            events={dayModalEvents}
 
-              aria-modal="true"
+            onClose={() => setShowDayModal(false)}
 
-              aria-labelledby="day-modal-heading"
+            onBookBoardroom={openBookingModal}
 
-              ref={dayModalRef}
+            isAdmin={isAdmin()}
 
-              tabIndex={-1}
+            onCancelEvent={cancelEvent}
 
-              onClick={(e) => e.stopPropagation()}
+            ref={dayModalRef}
 
-            >
-
-              <button
-
-                type="button"
-
-                className="modal-close-x"
-
-                aria-label="Close"
-
-                onClick={() => setShowDayModal(false)}
-
-              >
-
-                &times;
-
-              </button>
-
-
-              <h2 id="day-modal-heading">
-
-                {formatDate(selectedDate)}
-
-                {
-
-                  isSelectedDateToday && (
-
-                    <span className="today-badge">
-
-                      Today
-
-                    </span>
-
-                  )
-
-                }
-
-              </h2>
-
-
-              {
-
-                dayModalEvents.length === 0 ? (
-
-                  <p className="day-modal-empty">
-
-                    No events scheduled for this day.
-
-                  </p>
-
-                ) : (
-
-                  <div className="day-modal-events">
-
-                    {
-
-                      dayModalEvents.map(
-                        (event, index) => (
-
-                          <div
-
-                            className={
-                              `day-modal-event ${event.category.toLowerCase()}`
-                            }
-
-                            key={index}
-
-                          >
-
-                            <div className="day-modal-event-header">
-
-                              <strong>
-
-                                {event.title}
-
-                              </strong>
-
-
-                              <span className="event-category-badge">
-
-                                {event.category}
-
-                              </span>
-
-                            </div>
-
-
-                            {
-
-                              event.location && (
-
-                                <p className="day-modal-event-location">
-
-                                  {event.location}
-
-                                </p>
-
-                              )
-
-                            }
-
-
-                            {
-
-                              event.time && (
-
-                                <p className="day-modal-event-time">
-
-                                  {event.time}
-
-                                  {
-                                    event.endTime &&
-                                    ` - ${event.endTime}`
-                                  }
-
-                                </p>
-
-                              )
-
-                            }
-
-
-                            {
-
-                              event.description && (
-
-                                <p className="day-modal-event-description">
-
-                                  {event.description}
-
-                                </p>
-
-                              )
-
-                            }
-
-                          </div>
-
-                        )
-                      )
-
-                    }
-
-                  </div>
-
-                )
-
-              }
-
-
-              <button
-
-                type="button"
-
-                className="book-boardroom-btn"
-
-                onClick={openBookingModal}
-
-              >
-
-                + Book Boardroom
-
-              </button>
-
-
-              <button
-
-                type="button"
-
-                className="close-btn"
-
-                onClick={() => setShowDayModal(false)}
-
-              >
-
-                Close
-
-              </button>
-
-
-            </div>
-
-          </div>
+          />
 
         )
 
       }
 
 
-      {/* ======================================================
-          BOARDROOM BOOKING MODAL
-      ====================================================== */}
-
       {
 
         showModal && (
 
-          <div
-            className="modal-overlay"
-            onClick={() => setShowModal(false)}
-          >
+          <BookingModal
 
-            <div
-              className="event-modal"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="booking-modal-heading"
-              ref={bookingModalRef}
-              tabIndex={-1}
-              onClick={(e) => e.stopPropagation()}
-            >
+            value={bookingForm}
 
-              <button
+            onFieldChange={(field, fieldValue) =>
+              setBookingForm({
+                ...bookingForm,
+                [field]: fieldValue,
+              })
+            }
 
-                type="button"
+            onSubmit={saveEvent}
 
-                className="modal-close-x"
+            onCancel={() => setShowModal(false)}
 
-                aria-label="Close"
+            isSubmitting={isSubmittingBooking}
 
-                onClick={() => setShowModal(false)}
+            error={bookingError}
 
-              >
+            ref={bookingModalRef}
 
-                &times;
-
-              </button>
-
-
-              <h2 id="booking-modal-heading">
-
-                Book Boardroom
-
-              </h2>
-
-
-              {
-
-                selectedDate && (
-
-                  <p className="booking-modal-date">
-
-                    {formatDate(selectedDate)}
-
-                  </p>
-
-                )
-
-              }
-
-
-              {/* BOARDROOM */}
-
-              <label htmlFor="boardroom-select">
-
-                Boardroom
-
-              </label>
-
-
-              <select
-
-                id="boardroom-select"
-
-                value={
-                  eventData.location
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    location:
-                      e.target.value,
-
-                  })
-
-                }
-
-              >
-
-                <option value="">
-
-                  Select a boardroom...
-
-                </option>
-
-                {
-
-                  BOARDROOM_LOCATIONS.map(
-                    (room) => (
-
-                      <option
-                        key={room}
-                        value={room}
-                      >
-
-                        {room}
-
-                      </option>
-
-                    )
-                  )
-
-                }
-
-              </select>
-
-
-              {/* TITLE */}
-
-              <label htmlFor="booking-title">
-
-                Booking Title
-
-              </label>
-
-
-              <input
-
-                id="booking-title"
-
-                type="text"
-
-                placeholder="e.g. Budget Planning"
-
-                value={
-                  eventData.title
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    title:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* DESCRIPTION */}
-
-              <label htmlFor="booking-description">
-
-                Description (optional)
-
-              </label>
-
-
-              <textarea
-
-                id="booking-description"
-
-                placeholder="Agenda, attendees, or other details"
-
-                value={
-                  eventData.description
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    description:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* START TIME */}
-
-              <label htmlFor="booking-start-time">
-
-                Start Time
-
-              </label>
-
-
-              <input
-
-                id="booking-start-time"
-
-                type="time"
-
-                value={
-                  eventData.time
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    time:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* END TIME */}
-
-              <label htmlFor="booking-end-time">
-
-                End Time
-
-              </label>
-
-
-              <input
-
-                id="booking-end-time"
-
-                type="time"
-
-                value={
-                  eventData.endTime
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    endTime:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* BOOK */}
-
-              <button
-                onClick={saveEvent}
-              >
-
-                Book Boardroom
-
-              </button>
-
-
-              {/* CANCEL */}
-
-              <button
-
-                className="close-btn"
-
-                onClick={() =>
-                  setShowModal(false)
-                }
-
-              >
-
-                Cancel
-
-              </button>
-
-
-            </div>
-
-          </div>
+          />
 
         )
 

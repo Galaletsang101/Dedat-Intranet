@@ -101,8 +101,14 @@
 }
 .calendar-header h1 {
   margin-bottom: 0;
+  font-size: var(--font-xl);
 }
-.calendar-header button {
+.calendar-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.nav-btn {
   width: 42px;
   height: 40px;
   background: var(--primary);
@@ -111,12 +117,11 @@
   font-size: var(--font-xl);
   transition: var(--transition);
 }
-.calendar-header button:hover {
+.nav-btn:hover {
   background: var(--primary-hover);
 } /* ========================================== TODAY BUTTON ========================================== */
 .today-btn {
   padding: var(--space-xs) var(--space-md);
-  margin-bottom: var(--space-md);
   background: var(--secondary);
   color: var(--text-white);
   border-radius: var(--radius-sm);
@@ -124,10 +129,32 @@
 }
 .today-btn:hover {
   background: var(--secondary-dark);
+} /* ========================================== VIEW SWITCHER ========================================== */
+.view-switcher {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-light);
+  border-radius: var(--radius-sm);
+}
+.view-tab {
+  padding: var(--space-xs) var(--space-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.view-tab:hover {
+  background: var(--primary-extra-light);
+}
+.view-tab.active {
+  background: var(--primary);
+  color: var(--text-white);
 } /* ========================================== WEEK DAYS ========================================== */
 .weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   background: var(--accent);
   color: var(--text-primary);
   text-align: center;
@@ -137,15 +164,19 @@
   padding: var(--space-sm) var(--space-xs);
   border: 1px solid var(--border);
   font-size: var(--font-sm);
+}
+.weekday-short {
+  display: none;
 } /* ========================================== CALENDAR GRID ========================================== */
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   border-left: 1px solid var(--border);
   border-top: 1px solid var(--border);
 }
 .calendar-box {
   min-height: 120px;
+  min-width: 0;
   padding: var(--space-sm);
   background: var(--surface);
   border-right: 1px solid var(--border);
@@ -229,8 +260,16 @@
 .event-card.holiday {
   background: var(--danger);
   border-left: 4px solid #a71d2a;
+}
+.event-card.more-indicator {
+  background: var(--surface-light);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+  cursor: pointer;
 } /* ========================================== MODAL ========================================== */
-.modal-overlay {
+.calendar-modal-overlay {
   position: fixed;
   z-index: 9999;
   inset: 0;
@@ -291,12 +330,6 @@
   border-radius: var(--radius-sm);
   vertical-align: middle;
 }
-.booking-modal-date {
-  margin-bottom: var(--space-md);
-  color: var(--text-secondary);
-  font-size: var(--font-sm);
-  font-weight: var(--fw-semibold);
-}
 .event-modal label {
   display: block;
   margin-bottom: var(--space-xs);
@@ -343,6 +376,82 @@
 }
 .event-modal .close-btn:hover {
   background: var(--secondary-dark);
+} /* ========================================== BOOKING MODAL FORM ========================================== */
+.event-modal.booking-modal {
+  width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.booking-form-section {
+  padding-top: var(--space-md);
+  margin-top: var(--space-md);
+  border-top: 1px solid var(--border-light);
+}
+.booking-form-section:first-of-type {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: none;
+}
+.booking-form-section h3 {
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.booking-form-section .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+.booking-form-section .form-group {
+  min-width: 0;
+}
+.booking-organiser {
+  margin: 0;
+  padding: var(--space-sm);
+  background: var(--surface-light);
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  border-radius: var(--radius-sm);
+}
+.booking-date-display {
+  margin: 0;
+  padding: var(--space-sm) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semibold);
+}
+.field-error {
+  margin-top: calc(-1 * var(--space-xs));
+  margin-bottom: var(--space-sm);
+  color: var(--danger);
+  font-size: var(--font-xs);
+}
+.booking-form-error {
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  background: #fde8e8;
+  color: var(--danger);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--danger);
+}
+.booking-form-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+.booking-form-actions button {
+  flex: 1;
+  width: auto;
+  margin-top: 0;
+}
+.booking-form-actions button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 } /* ========================================== DAY EVENTS MODAL ========================================== */
 .day-modal-empty {
   margin-bottom: var(--space-md);
@@ -403,6 +512,7 @@
 }
 .day-modal-event-location,
 .day-modal-event-time,
+.day-modal-event-meta,
 .day-modal-event-description {
   margin-top: var(--space-xs);
   margin-bottom: 0;
@@ -415,4 +525,266 @@
 }
 .book-boardroom-btn {
   margin-bottom: var(--space-xs);
+} /* ========================================== ADMIN EVENT CANCELLATION ========================================== */
+.event-modal .admin-cancel-btn {
+  width: auto;
+  padding: var(--space-xs) var(--space-sm);
+  margin-top: var(--space-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--font-xs);
+  font-weight: var(--fw-semibold);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.event-modal .admin-cancel-btn:hover {
+  background: var(--surface-light);
+}
+.event-modal .admin-cancel-btn.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--surface);
+}
+.event-modal .admin-cancel-btn.danger:hover {
+  background: #fde8e8;
+}
+.day-modal-event-cancel-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+.day-modal-event-cancel-confirm span {
+  color: var(--text-primary);
+  font-size: var(--font-xs);
+  font-weight: var(--fw-semibold);
+}
+.day-modal-event-cancel-confirm .admin-cancel-btn {
+  margin-top: 0;
+} /* ========================================== TIME GRID ========================================== */
+.timegrid-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.timegrid-day-headers {
+  display: grid;
+  background: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+.timegrid-gutter-label {
+  border-right: 1px solid var(--border);
+}
+.timegrid-day-header {
+  padding: var(--space-sm);
+  color: var(--text-primary);
+  font-weight: var(--fw-semibold);
+  font-size: var(--font-sm);
+  text-align: center;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.timegrid-day-header.today {
+  background: var(--primary-extra-light);
+  color: var(--primary);
+}
+.timegrid-scroll {
+  max-height: 600px;
+  overflow-y: auto;
+}
+.timegrid-body {
+  position: relative;
+  display: grid;
+}
+.timegrid-hour-labels {
+  border-right: 1px solid var(--border);
+}
+.timegrid-hour-label {
+  box-sizing: border-box;
+  padding-right: var(--space-xs);
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+  text-align: right;
+  border-bottom: 1px solid var(--border-light);
+}
+.timegrid-day-column {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+}
+.timegrid-hour-row {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border-light);
+}
+.timegrid-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--danger);
+  z-index: 2;
+}
+.timegrid-now-line::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+}
+.timegrid-event {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 2px 4px;
+  color: var(--text-white);
+  font-size: var(--font-xs);
+  line-height: 1.2;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.timegrid-event:hover {
+  filter: brightness(1.08);
+}
+.timegrid-event strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.timegrid-event small {
+  display: block;
+  opacity: 0.9;
+}
+.timegrid-event.meeting {
+  background: var(--primary);
+}
+.timegrid-event.training {
+  background: var(--info);
+}
+.timegrid-event.leave {
+  background: var(--success);
+}
+.timegrid-event.deadline {
+  background: #7b2cbf;
+}
+.timegrid-event.boardroom {
+  background: var(--secondary);
+}
+.timegrid-event.holiday {
+  background: var(--danger);
+} /* ========================================== RESPONSIVE ========================================== */
+@media (max-width: 1200px) {
+  .calendar-sidebar {
+    width: 220px;
+  }
+}
+@media (max-width: 900px) {
+  .calendar-layout {
+    flex-direction: column;
+  }
+  .calendar-sidebar {
+    width: 100%;
+  }
+  .calendar-header {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+}
+@media (max-width: 576px) {
+  .weekday-full {
+    display: none;
+  }
+  .weekday-short {
+    display: inline;
+  }
+}
+@media (max-width: 768px) {
+  .calendar-page {
+    padding: var(--space-md);
+  }
+  .calendar-box {
+    min-height: 90px;
+  }
+
+  .view-switcher {
+    width: 100%;
+  }
+  .view-tab {
+    flex: 1;
+    min-height: 44px;
+  }
+  .nav-btn,
+  .today-btn {
+    min-height: 44px;
+  }
+
+  /* Day modal becomes a bottom sheet; booking modal goes full-screen
+     (set just below) - both anchor to the bottom edge on mobile. */
+  .calendar-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .event-modal.booking-modal {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: var(--space-lg) var(--space-md);
+    padding-top: calc(var(--space-lg) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+  }
+
+  .event-modal.day-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow-y: auto;
+    padding-bottom: calc(var(--space-xl) + env(safe-area-inset-bottom));
+  }
+
+  .event-modal .modal-close-x {
+    width: 44px;
+    height: 44px;
+  }
+
+  .event-modal button,
+  .event-modal input,
+  .event-modal select,
+  .event-modal textarea {
+    min-height: 44px;
+  }
+
+  .booking-form-section .form-row {
+    gap: var(--space-sm);
+  }
+}
+@media (max-width: 480px) {
+  .booking-form-section .form-row {
+    grid-template-columns: 1fr;
+  }
+  .booking-form-actions {
+    flex-direction: column;
+  }
+  .calendar-header h1 {
+    font-size: var(--font-lg);
+  }
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+  }
 }
