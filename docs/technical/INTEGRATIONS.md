@@ -5,9 +5,11 @@ itself, and what it deliberately does not.
 
 ## 1. Email (Gmail SMTP via `nodemailer`)
 
-- **What it's for:** password-reset links, and password-set links for
-  Admin-invited accounts.
-- **Configuration:** `EMAIL_USER` / `EMAIL_PASSWORD` in `backend/.env`.
+- **What it's for:** password-reset links, password-set links for
+  Admin-invited accounts, and boardroom booking notifications to the admin.
+- **Configuration:** `EMAIL_USER` / `EMAIL_PASSWORD` in `backend/.env` are the
+  Gmail sender account and its App Password. `ADMIN_EMAIL` is the recipient for
+  boardroom booking notifications.
   For a Gmail account, `EMAIL_PASSWORD` must be an
   [App Password](https://myaccount.google.com/apppasswords), not the
   account's normal login password (Gmail requires this for any
