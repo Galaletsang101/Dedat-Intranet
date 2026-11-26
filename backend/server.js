@@ -19,6 +19,18 @@ const VALID_ROLES = ["Employee", "Admin"];
 const RESET_TOKEN_TTL_HOURS = 2;
 const INVITE_TOKEN_TTL_HOURS = 48;
 
+const BOARDROOM_LOCATIONS = [
+    "Augrabies",
+    "Credo Mutwa",
+    "Flamingo",
+    "Kokerboom",
+    "Metlife 13th Floor Boardroom",
+    "Namakwa Daisies",
+    "Tshepe",
+    "Khaya La Bantu Boardroom",
+    "Policy & Planning Boardroom",
+];
+
 // ============================================================
 // FILE UPLOADS (Wellness videos)
 // ============================================================
@@ -542,8 +554,17 @@ app.get("/api/calendar-events", async (req, res) => {
 
 app.post("/api/calendar-events", authenticateToken, async (req, res) => {
     try {
-        const { title, description, start_time, end_time, category, quarter } =
-            req.body;
+        const {
+            title,
+            description,
+            start_time,
+            end_time,
+            category,
+            quarter,
+            location,
+            attendees,
+            requirements,
+        } = req.body;
 
         if (!title || !start_time || !end_time) {
             return res.status(400).json({
@@ -557,28 +578,78 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
                 .json({ error: "End time must be after start time" });
         }
 
+        // Organiser is never taken from the request body - it's derived
+        // from the authenticated user's own row, the same "don't trust
+        // the client for identity" approach requireRole takes for roles.
+        const organiserResult = await pool.query(
+            `SELECT first_name, surname FROM users WHERE id = $1`,
+            [req.user.id]
+        );
+
+        if (organiserResult.rows.length === 0) {
+            return res.status(403).json({ error: "Account not found." });
+        }
+
+        const organiser =
+            `${organiserResult.rows[0].first_name} ${organiserResult.rows[0].surname}`.trim();
+
         const eventCategory = category || "Meeting";
+        let eventLocation = "";
+        let parsedAttendees = null;
+        let eventRequirements = null;
 
         if (eventCategory === "Boardroom") {
+            if (!location || !BOARDROOM_LOCATIONS.includes(location)) {
+                return res.status(400).json({
+                    error: "Please select a valid boardroom.",
+                });
+            }
+
+            eventLocation = location;
+
+            if (
+                attendees !== undefined &&
+                attendees !== null &&
+                attendees !== ""
+            ) {
+                parsedAttendees = Number(attendees);
+
+                if (
+                    !Number.isInteger(parsedAttendees) ||
+                    parsedAttendees < 1 ||
+                    parsedAttendees > 100
+                ) {
+                    return res.status(400).json({
+                        error:
+                            "Number of attendees must be a whole number between 1 and 100.",
+                    });
+                }
+            }
+
+            eventRequirements = requirements || null;
+
+            // Scoped to the SAME room: two different boardrooms can be
+            // booked for the same time slot without conflicting.
             const conflict = await pool.query(
                 `SELECT * FROM calendar_events
                  WHERE category = 'Boardroom'
+                 AND location = $3
                  AND start_time < $2
                  AND end_time > $1`,
-                [start_time, end_time]
+                [start_time, end_time, eventLocation]
             );
 
             if (conflict.rows.length > 0) {
                 return res.status(409).json({
-                    error: "The boardroom is already booked for this time.",
+                    error: `${eventLocation} is already booked for this time.`,
                 });
             }
         }
 
         const result = await pool.query(
             `INSERT INTO calendar_events
-                (title, description, start_time, end_time, category, quarter)
-             VALUES ($1, $2, $3, $4, $5, $6)
+                (title, description, start_time, end_time, category, quarter, location, organiser, attendees, requirements)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING *`,
             [
                 title,
@@ -587,6 +658,10 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
                 end_time,
                 eventCategory,
                 quarter || null,
+                eventLocation,
+                organiser,
+                parsedAttendees,
+                eventRequirements,
             ]
         );
 
@@ -596,6 +671,42 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Failed to save calendar event" });
     }
 });
+
+// Cancelling an event (any category, not just Boardroom bookings) is
+// Admin-only - requireAdmin re-checks the caller's role in Postgres on
+// every request rather than trusting the JWT, same as every other
+// admin-only write in this app.
+app.delete(
+    "/api/calendar-events/:id",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (!/^\d+$/.test(id)) {
+                return res.status(400).json({ error: "Invalid event id" });
+            }
+
+            const result = await pool.query(
+                "DELETE FROM calendar_events WHERE id = $1 RETURNING *",
+                [id]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Event not found" });
+            }
+
+            res.json({
+                message: "Event cancelled successfully",
+                event: result.rows[0],
+            });
+        } catch (error) {
+            console.error("Error cancelling calendar event:", error);
+            res.status(500).json({ error: "Failed to cancel event" });
+        }
+    }
+);
 
 // ============================================================
 // DOCUMENTS (Knowledge Centre) - Admin-managed content

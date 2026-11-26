@@ -1,17 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../styles/calendar.css";
 import { holidays } from "../data/holidays";
-import { authFetch } from "../services/apiClient";
+import { authFetch, parseJsonResponse } from "../services/apiClient";
+import { isAdmin } from "../services/authService";
+import { formatDate } from "../utils/dateUtils";
+import { addDays, getWeekStart } from "../components/calendar/calendarConstants";
+import MonthGrid from "../components/calendar/MonthGrid";
+import TimeGridView from "../components/calendar/TimeGridView";
+import CalendarNav from "../components/calendar/CalendarNav";
+import DayEventsModal from "../components/calendar/DayEventsModal";
+import BookingModal from "../components/calendar/BookingModal";
 
 const Calendar = () => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const [view, setView] = useState("Month");
 
   const [events, setEvents] = useState([]);
 
   const [selectedDate, setSelectedDate] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
+
+  const [showDayModal, setShowDayModal] = useState(false);
+
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+
+  const [bookingError, setBookingError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -26,13 +42,15 @@ const Calendar = () => {
   });
 
 
-  const [eventData, setEventData] = useState({
+  const [bookingForm, setBookingForm] = useState({
+    date: "",
     title: "",
     description: "",
+    location: "",
     time: "",
     endTime: "",
-    category: "Meeting",
-    quarter: "Q1",
+    attendees: "",
+    requirements: "",
   });
 
 
@@ -45,25 +63,72 @@ const Calendar = () => {
   }, []);
 
 
+  // ============================================================
+  // CLOSE OPEN MODAL ON ESCAPE
+  // ============================================================
+
+  useEffect(() => {
+
+    if (!showModal && !showDayModal) {
+      return undefined;
+    }
+
+    const handleKeyDown = (e) => {
+
+      if (e.key === "Escape") {
+        setShowModal(false);
+        setShowDayModal(false);
+      }
+
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+
+  }, [showModal, showDayModal]);
+
+
+  // ============================================================
+  // MOVE FOCUS INTO AN OPENED MODAL
+  // ============================================================
+
+  const dayModalRef = useRef(null);
+
+  const bookingModalRef = useRef(null);
+
+
+  useEffect(() => {
+
+    if (showDayModal && dayModalRef.current) {
+      dayModalRef.current.focus();
+    }
+
+  }, [showDayModal]);
+
+
+  useEffect(() => {
+
+    if (showModal && bookingModalRef.current) {
+      bookingModalRef.current.focus();
+    }
+
+  }, [showModal]);
+
+
   const loadEvents = async () => {
 
     try {
 
-      const response = await fetch(
-        "http://localhost:5000/api/calendar-events"
+      const response = await authFetch(
+        "/calendar-events"
       );
 
 
-      if (!response.ok) {
-
-        throw new Error(
-          "Failed to fetch calendar events"
-        );
-
-      }
-
-
-      const data = await response.json();
+      const data = await parseJsonResponse(
+        response,
+        "Failed to fetch calendar events"
+      );
 
 
       const loadedEvents = data.map((event) => {
@@ -110,6 +175,18 @@ const Calendar = () => {
           quarter:
             event.quarter,
 
+          location:
+            event.location || "",
+
+          organiser:
+            event.organiser || "",
+
+          attendees:
+            event.attendees ?? null,
+
+          requirements:
+            event.requirements || "",
+
         };
 
       });
@@ -134,37 +211,6 @@ const Calendar = () => {
   // CALENDAR DATA
   // ============================================================
 
-  const monthNames = [
-
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-
-  ];
-
-
-  const days = [
-
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-
-  ];
-
-
   const year =
     currentDate.getFullYear();
 
@@ -173,57 +219,39 @@ const Calendar = () => {
     currentDate.getMonth();
 
 
-  const firstDay =
-    new Date(
-      year,
-      month,
-      1
-    ).getDay();
+  // ============================================================
+  // DATE STRING HELPERS
+  // ============================================================
 
+  const buildDateString = (day) =>
+    `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-  const totalDays =
-    new Date(
-      year,
-      month + 1,
-      0
-    ).getDate();
+  const now = new Date();
+
+  const todayDateString =
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+  const isToday = (day) => buildDateString(day) === todayDateString;
 
 
   // ============================================================
-  // MONTH NAVIGATION
+  // OPEN "WHAT'S ON THIS DAY" MODAL
   // ============================================================
 
-  const previousMonth = () => {
+  const openDayModal = (day) => {
 
-    setCurrentDate(
-      new Date(
-        year,
-        month - 1,
-        1
-      )
-    );
+    setSelectedDate(buildDateString(day));
+
+    setShowDayModal(true);
 
   };
 
 
-  const nextMonth = () => {
+  const openDayModalForDateString = (dateStr) => {
 
-    setCurrentDate(
-      new Date(
-        year,
-        month + 1,
-        1
-      )
-    );
+    setSelectedDate(dateStr);
 
-  };
-
-
-  const today = () => {
-
-    setCurrentDate(
-      new Date()
-    );
+    setShowDayModal(true);
 
   };
 
@@ -232,31 +260,32 @@ const Calendar = () => {
   // OPEN BOARDROOM BOOKING MODAL
   // ============================================================
 
-  const openEventModal = (day) => {
+  const openBookingModal = () => {
 
-    const date =
-      `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    setBookingForm({
 
-
-    setSelectedDate(date);
-
-
-    setEventData({
+      date: selectedDate || "",
 
       title: "",
 
       description: "",
 
+      location: "",
+
       time: "",
 
       endTime: "",
 
-      category: "Boardroom",
+      attendees: "",
 
-      quarter: "Q1",
+      requirements: "",
 
     });
 
+
+    setBookingError(null);
+
+    setShowDayModal(false);
 
     setShowModal(true);
 
@@ -269,111 +298,13 @@ const Calendar = () => {
 
   const saveEvent = async () => {
 
-    console.log(
-      "BOOKING FORM DATA:",
-      eventData
-    );
+    // Field-level validation already happened in BookingModal before it
+    // called this handler - this only talks to the backend and surfaces
+    // whatever the server itself rejects (e.g. a room double-booking).
 
-    console.log(
-      "TITLE:",
-      eventData.title
-    );
+    setIsSubmittingBooking(true);
 
-    console.log(
-      "START TIME:",
-      eventData.time
-    );
-
-    console.log(
-      "END TIME:",
-      eventData.endTime
-    );
-
-    console.log(
-      "SELECTED DATE:",
-      selectedDate
-    );
-
-
-    // ========================================================
-    // CHECK TITLE
-    // ========================================================
-
-    if (
-      !eventData.title ||
-      eventData.title.trim() === ""
-    ) {
-
-      alert(
-        "Booking title is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK START TIME
-    // ========================================================
-
-    if (!eventData.time) {
-
-      alert(
-        "Start time is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK END TIME
-    // ========================================================
-
-    if (!eventData.endTime) {
-
-      alert(
-        "End time is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK DATE
-    // ========================================================
-
-    if (!selectedDate) {
-
-      alert(
-        "Booking date is missing"
-      );
-
-      return;
-
-    }
-
-
-    // ========================================================
-    // CHECK TIME ORDER
-    // ========================================================
-
-    if (
-      eventData.endTime <=
-      eventData.time
-    ) {
-
-      alert(
-        "End time must be after start time"
-      );
-
-      return;
-
-    }
+    setBookingError(null);
 
 
     try {
@@ -383,22 +314,11 @@ const Calendar = () => {
       // ======================================================
 
       const startTime =
-        `${selectedDate} ${eventData.time}:00`;
+        `${bookingForm.date} ${bookingForm.time}:00`;
 
 
       const endTime =
-        `${selectedDate} ${eventData.endTime}:00`;
-
-
-      console.log(
-        "SENDING START TIME:",
-        startTime
-      );
-
-      console.log(
-        "SENDING END TIME:",
-        endTime
-      );
+        `${bookingForm.date} ${bookingForm.endTime}:00`;
 
 
       // ======================================================
@@ -416,10 +336,10 @@ const Calendar = () => {
               JSON.stringify({
 
                 title:
-                  eventData.title.trim(),
+                  bookingForm.title.trim(),
 
                 description:
-                  eventData.description,
+                  bookingForm.description,
 
                 start_time:
                   startTime,
@@ -430,8 +350,16 @@ const Calendar = () => {
                 category:
                   "Boardroom",
 
-                quarter:
-                  eventData.quarter,
+                location:
+                  bookingForm.location,
+
+                attendees:
+                  bookingForm.attendees === ""
+                    ? null
+                    : Number(bookingForm.attendees),
+
+                requirements:
+                  bookingForm.requirements || null,
 
               }),
 
@@ -443,39 +371,16 @@ const Calendar = () => {
       // READ BACKEND RESPONSE
       // ======================================================
 
-      const responseData =
-        await response.json();
-
-
-      console.log(
-        "BACKEND RESPONSE:",
-        responseData
-      );
-
-
-      // ======================================================
-      // HANDLE ERROR
-      // ======================================================
-
-      if (!response.ok) {
-
-        throw new Error(
-
-          responseData.error ||
+      const savedEvent =
+        await parseJsonResponse(
+          response,
           "Failed to save boardroom booking"
-
         );
-
-      }
 
 
       // ======================================================
       // SUCCESS
       // ======================================================
-
-      const savedEvent =
-        responseData;
-
 
       const startDate =
         new Date(
@@ -526,6 +431,18 @@ const Calendar = () => {
         quarter:
           savedEvent.quarter,
 
+        location:
+          savedEvent.location || "",
+
+        organiser:
+          savedEvent.organiser || "",
+
+        attendees:
+          savedEvent.attendees ?? null,
+
+        requirements:
+          savedEvent.requirements || "",
+
       };
 
 
@@ -545,21 +462,23 @@ const Calendar = () => {
       // RESET FORM
       // ======================================================
 
-      setEventData({
+      setBookingForm({
+
+        date: "",
 
         title: "",
 
         description: "",
 
+        location: "",
+
         time: "",
 
         endTime: "",
 
-        category:
-          "Boardroom",
+        attendees: "",
 
-        quarter:
-          "Q1",
+        requirements: "",
 
       });
 
@@ -580,9 +499,55 @@ const Calendar = () => {
       );
 
 
-      alert(
+      setBookingError(
         error.message ||
         "Failed to save boardroom booking"
+      );
+
+    } finally {
+
+      setIsSubmittingBooking(false);
+
+    }
+
+  };
+
+
+  // ============================================================
+  // CANCEL EVENT (ADMIN ONLY - BACKEND RE-CHECKS THE ROLE)
+  // ============================================================
+
+  const cancelEvent = async (id) => {
+
+    try {
+
+      const response = await authFetch(
+        `/calendar-events/${id}`,
+        { method: "DELETE" }
+      );
+
+      await parseJsonResponse(
+        response,
+        "Failed to cancel event"
+      );
+
+      setEvents(
+        (prevEvents) =>
+          prevEvents.filter(
+            (event) => event.id !== id
+          )
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error cancelling event:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Failed to cancel event"
       );
 
     }
@@ -591,39 +556,27 @@ const Calendar = () => {
 
 
   // ============================================================
-  // GET EVENTS FOR DAY
+  // GET EVENTS FOR A DATE STRING ("YYYY-MM-DD")
   // ============================================================
 
-  const getEvents = (day) => {
+  const getEventsForDate = (dateStr) => [
 
-    const date =
-      `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    ...events.filter(
+      (event) =>
+        event.date === dateStr
+    ),
 
+    ...holidays.filter(
+      (holiday) =>
+        holiday.date === dateStr
+    ),
 
-    return [
-
-      ...events.filter(
-        (event) =>
-          event.date === date
-      ),
-
-      ...holidays.filter(
-        (holiday) =>
-          holiday.date === date
-      ),
-
-    ];
-
-  };
+  ];
 
 
-  // ============================================================
-  // FILTER EVENTS
-  // ============================================================
+  const filterEventsForDate = (dateStr) => {
 
-  const filteredEvents = (day) => {
-
-    return getEvents(day).filter(
+    return getEventsForDate(dateStr).filter(
       (event) => {
 
         const searchMatch =
@@ -651,6 +604,20 @@ const Calendar = () => {
 
 
   // ============================================================
+  // EVENTS FOR THE DAY MODAL
+  // ============================================================
+
+  const dayModalEvents =
+    selectedDate
+      ? filterEventsForDate(selectedDate)
+      : [];
+
+
+  const isSelectedDateToday =
+    selectedDate === todayDateString;
+
+
+  // ============================================================
   // BOARDROOM BOOKINGS
   // ============================================================
 
@@ -666,101 +633,6 @@ const Calendar = () => {
           new Date(a.date) -
           new Date(b.date)
       );
-
-
-  // ============================================================
-  // CREATE CALENDAR DAYS
-  // ============================================================
-
-  const calendarDays = [];
-
-
-  for (
-    let i = 0;
-    i < firstDay;
-    i++
-  ) {
-
-    calendarDays.push(
-
-      <div
-        className="calendar-box empty"
-        key={`empty-${i}`}
-      ></div>
-
-    );
-
-  }
-
-
-  for (
-    let day = 1;
-    day <= totalDays;
-    day++
-  ) {
-
-    const dayEvents =
-      filteredEvents(day);
-
-
-    calendarDays.push(
-
-      <div
-        className="calendar-box"
-        key={day}
-        onClick={() =>
-          openEventModal(day)
-        }
-      >
-
-        <span className="date-number">
-
-          {day}
-
-        </span>
-
-
-        <div className="events-container">
-
-          {
-
-            dayEvents.map(
-              (event, index) => (
-
-                <div
-                  className={
-                    `event-card ${event.category.toLowerCase()}`
-                  }
-                  key={index}
-                >
-
-                  <strong>
-
-                    {event.title}
-
-                  </strong>
-
-
-                  <small>
-
-                    {event.time}
-
-                  </small>
-
-                </div>
-
-              )
-            )
-
-          }
-
-        </div>
-
-      </div>
-
-    );
-
-  }
 
 
   // ============================================================
@@ -888,12 +760,16 @@ const Calendar = () => {
 
                         <strong>
 
-                          {booking.date}
+                          {booking.location || "Boardroom"}
 
                         </strong>
 
 
                         <p>
+
+                          {formatDate(booking.date)}
+
+                          {" · "}
 
                           {booking.time}
 
@@ -928,84 +804,58 @@ const Calendar = () => {
         <div className="calendar-content">
 
 
-          <div className="calendar-header">
+          <CalendarNav
+
+            currentDate={currentDate}
+
+            view={view}
+
+            onViewChange={setView}
+
+            onDateChange={setCurrentDate}
+
+          />
 
 
-            <button
-              onClick={
-                previousMonth
-              }
-            >
+          {
 
-              ‹
+            view === "Month" ? (
 
-            </button>
+              <MonthGrid
 
+                year={year}
 
-            <h1>
+                month={month}
 
-              {monthNames[month]}
-              {" "}
-              {year}
+                isToday={isToday}
 
-            </h1>
+                getEventsForDate={filterEventsForDate}
 
+                onDayClick={openDayModal}
 
-            <button
-              onClick={
-                nextMonth
-              }
-            >
+              />
 
-              ›
+            ) : (
 
-            </button>
+              <TimeGridView
 
+                days={
+                  view === "Week"
+                    ? Array.from({ length: 7 }, (_, i) =>
+                        addDays(getWeekStart(currentDate), i)
+                      )
+                    : [currentDate]
+                }
 
-          </div>
+                getEventsForDate={filterEventsForDate}
 
+                onEventClick={openDayModalForDateString}
 
-          <button
+              />
 
-            className="today-btn"
+            )
 
-            onClick={today}
-
-          >
-
-            Today
-
-          </button>
-
-
-          <div className="weekdays">
-
-            {
-
-              days.map(
-                (day) => (
-
-                  <div
-                    key={day}
-                  >
-
-                    {day}
-
-                  </div>
-
-                )
-              )
-
-            }
-
-          </div>
-
-
-          <div className="calendar-grid">
-
-            {calendarDays}
-
-          </div>
+          }
 
 
         </div>
@@ -1014,181 +864,61 @@ const Calendar = () => {
       </div>
 
 
-      {/* ======================================================
-          BOARDROOM BOOKING MODAL
-      ====================================================== */}
+      {
+
+        showDayModal && (
+
+          <DayEventsModal
+
+            selectedDate={selectedDate}
+
+            isToday={isSelectedDateToday}
+
+            events={dayModalEvents}
+
+            onClose={() => setShowDayModal(false)}
+
+            onBookBoardroom={openBookingModal}
+
+            isAdmin={isAdmin()}
+
+            onCancelEvent={cancelEvent}
+
+            ref={dayModalRef}
+
+          />
+
+        )
+
+      }
+
 
       {
 
         showModal && (
 
-          <div
-            className="modal-overlay"
-          >
+          <BookingModal
 
-            <div
-              className="event-modal"
-            >
+            value={bookingForm}
 
+            onFieldChange={(field, fieldValue) =>
+              setBookingForm({
+                ...bookingForm,
+                [field]: fieldValue,
+              })
+            }
 
-              <h2>
+            onSubmit={saveEvent}
 
-                Book Boardroom
+            onCancel={() => setShowModal(false)}
 
-              </h2>
+            isSubmitting={isSubmittingBooking}
 
+            error={bookingError}
 
-              {/* TITLE */}
+            ref={bookingModalRef}
 
-              <input
-
-                type="text"
-
-                placeholder="Booking title"
-
-                value={
-                  eventData.title
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    title:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* DESCRIPTION */}
-
-              <textarea
-
-                placeholder="Booking description"
-
-                value={
-                  eventData.description
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    description:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* START TIME */}
-
-              <label>
-
-                Start Time
-
-              </label>
-
-
-              <input
-
-                type="time"
-
-                value={
-                  eventData.time
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    time:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* END TIME */}
-
-              <label>
-
-                End Time
-
-              </label>
-
-
-              <input
-
-                type="time"
-
-                value={
-                  eventData.endTime
-                }
-
-                onChange={(e) =>
-
-                  setEventData({
-
-                    ...eventData,
-
-                    endTime:
-                      e.target.value,
-
-                  })
-
-                }
-
-              />
-
-
-              {/* BOOK */}
-
-              <button
-                onClick={saveEvent}
-              >
-
-                Book Boardroom
-
-              </button>
-
-
-              {/* CANCEL */}
-
-              <button
-
-                className="close-btn"
-
-                onClick={() =>
-                  setShowModal(false)
-                }
-
-              >
-
-                Cancel
-
-              </button>
-
-
-            </div>
-
-          </div>
+          />
 
         )
 

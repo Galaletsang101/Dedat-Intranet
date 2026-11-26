@@ -57,7 +57,11 @@ CREATE TABLE IF NOT EXISTS calendar_events (
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
     category TEXT NOT NULL DEFAULT 'Meeting',
-    quarter TEXT
+    quarter TEXT,
+    location TEXT NOT NULL DEFAULT '',
+    organiser TEXT NOT NULL DEFAULT '',
+    attendees INTEGER,
+    requirements TEXT
 );
 
 CREATE TABLE IF NOT EXISTS documents (
