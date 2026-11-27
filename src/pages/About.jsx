@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaEye,
   FaRocket,
@@ -17,8 +17,19 @@ import {
   FaChartLine,
   FaDownload,
   FaExternalLinkAlt,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
-
+import orgarnogram from "../../backend/database/assets/Northern_Cape_Organogram_Intranet_Updated.png";
+import thamiMabijaImage from "../assets/executives/thami-mabija.jpeg";
+import tebogoNgamoleImage from "../assets/executives/tebogo-ngamole.png";
+import lizetteWyngaardImage from "../assets/executives/lizette-wyngaard.png";
+import zahidCaderImage from "../assets/executives/zahid-cader.png";
+import princeOlivierImage from "../assets/executives/prince-olivier.jpeg";
+import riaanWarieImage from "../assets/executives/riaan-warie.png";
+import samMabiloImage from "../assets/executives/sam-mabilo.png";
+import jeanWilsonImage from "../assets/executives/jean-wilson.png";
+import darrylChristiansImage from "../assets/executives/darryl-christians.png";
 import "../styles/about.css";
 
 const values = [
@@ -73,25 +84,103 @@ const goals = [
 
 const executives = [
   {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCoZGc-umvsIYHbfvAaFT1oXe-inSdprn4r7EOIcFnwbVDKeEuI4DtbW1woegbBh-cxyf3RUpi25Z_nSzQsPlMRUSd13lLdwAw3tHQRhinReHlbUainfyuvrjQnSgYmD91cktwoWA-8KPTw0Xfv6z6R7w2zB3cJkZwYOvZeSq8IX_M-DEunzocmcR17H1R1Ao1eAzTNF9w4VWPyKZhfHqNd_FoCUS3uKcIUDv0M0irFqETr3Iv_2jWS89aAInRgHUuQdEtqQdaTDkw",
-    role: "MEC",
-    name: "Hon. Nomsa Maseko",
-    position: "Member of the Executive Council",
+    image: null,
+    initials: "ML",
+    role: "MINISTRY",
+    name: "Modise Letselebe",
+    position: "Head of Ministry",
+    phone: "073 662 7454",
+    email: "diceletselebe@yahoo.com",
   },
   {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9fSG1jT3SDeABbFX3Ui4bq0O2lZ00OAMoOvfmNZCBAg4HukrpVI-TQ4u3wifmDGzmaeRVq0mVC6IPj8-WclC_248CHfPKNrUWBXLlv0nber8Qv_G0cygb04SupwpXduYFU14wNFeox9EI-eFhmLmE-wkBwOySB5CYh8xfAhrzIDNFp-pn-I5noz2rLp1Ycp0vw46YQK4tsk511TBElB4z5TLfUc334OwM82jmEYat1-JHz1VTOfny6Had2o8h2m0Ge9Jn5kh-tbI",
+    image: null,
+    initials: "KM",
+    role: "MINISTRY",
+    name: "Kgalalelo Matsime",
+    position: "Media Liaison Officer: Ministry",
+    phone: "072 516 0182",
+    email: "kgalalelomatsime@gmail.com",
+  },
+  {
+    image: thamiMabijaImage,
+    initials: "TM",
     role: "HOD",
-    name: "Mr. Sipho Dlamini",
+    name: "Thami Mabija",
     position: "Head of Department",
+    phone: "053 839 4002",
+    email: "UNgomane@ncpg.gov.za",
   },
   {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCv7BV6dn7T7GAsePpgTsEbLfeOWzvwgipZNjMtVt6yGVuyxNRyPgKARB1uFprOluZb0pkoKEJmPQMjIPm_bap1L5GqPEYVVuMZEUDzns603gMlPQsCf1AGXffzc8Xi1VQ4GoE3-KIe4EiLnQjIzSHXeTaovml683rbiO7mqLj9fHQoDgUueJo7mASs68NpWEJlxh0O4Rr94JcY-XCWHS5lA58CgUh49zsp93TdL9KR0pO9J4PZPrN_wwgC-CN5XJd5hMpfiVkTCKE",
-    role: "CFO",
-    name: "Ms. Sarah Jacobs",
+    image: tebogoNgamoleImage,
+    initials: "TN",
+    role: "CORPORATE SERVICES",
+    name: "Tebogo Ngamole",
+    position: "Chief Director: Corporate Services",
+    phone: "083 631 6507",
+    email: "tngamole@ncpg.gov.za",
+  },
+  {
+    image: lizetteWyngaardImage,
+    initials: "LW",
+    role: "ADMINISTRATION",
+    name: "Lizette Wyngaard",
+    position: "Chief Director: Administration",
+    phone: "053 839 4076",
+    email: "mmusa@ncpg.gov.za",
+  },
+  {
+    image: zahidCaderImage,
+    initials: "ZC",
+    role: "FINANCE",
+    name: "Zahid Cader",
     position: "Chief Financial Officer",
+    phone: "067 012 1049",
+    email: "caderzah@gmail.com",
+  },
+  {
+    image: princeOlivierImage,
+    initials: "PO",
+    role: "CONSUMER PROTECTION",
+    name: "Adv. Prince Olivier",
+    position: "Chief Director: Consumer Protection",
+    phone: "082 812 5617",
+    email: "POlivier@ncpg.gov.za",
+  },
+  {
+    image: riaanWarieImage,
+    initials: "RW",
+    role: "TRADE & SECTOR DEVELOPMENT",
+    name: "Mr. Riaan Warie",
+    position: "Chief Director: Trade & Sector Development",
+    phone: "053 830 4899",
+    email: "rwarie@ncpg.gov.za",
+  },
+  {
+    image: samMabiloImage,
+    initials: "SM",
+    role: "ECONOMIC PLANNING",
+    name: "Mr. Sam Mabilo",
+    position: "Chief Director: Economic Planning",
+    phone: "053 830 4864",
+    email: "smabilo@ncpg.gov.za",
+  },
+  {
+    image: jeanWilsonImage,
+    initials: "JW",
+    role: "TOURISM",
+    name: "Ms. Jean Wilson",
+    position: "Chief Director: Tourism",
+    phone: "053 830 4895",
+    email: "jwilson@ncpg.gov.za",
+  },
+  {
+    image: darrylChristiansImage,
+    initials: "DC",
+    role: "IEDS",
+    name: "Mr. Darryl Christians",
+    position: "Chief Director: IEDS",
+    phone: "053 802 1646",
+    email: "dchristians@ncpg.gov.za",
   },
 ];
 
@@ -167,6 +256,8 @@ const reports = [
 ];
 
 function About() {
+  const [activeExecutiveIndex, setActiveExecutiveIndex] = useState(0);
+
   return (
     <div className="about-page">
       {/* Hero */}
@@ -281,33 +372,120 @@ function About() {
         <div className="about-container">
           <h2 className="section-title-center">Executive Management</h2>
 
-          <div className="executive-list">
-            {executives.map((person) => (
-              <div className="executive-card" key={person.role}>
-                <div className="executive-image-wrapper">
-                  <img src={person.image} alt={person.name} />
+          <div
+            className="executive-carousel"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Executive management contacts"
+          >
+            <button
+              type="button"
+              className="executive-carousel-button executive-carousel-previous"
+              aria-label="Previous executive contact"
+              onClick={() =>
+                setActiveExecutiveIndex((index) => Math.max(index - 1, 0))
+              }
+              disabled={activeExecutiveIndex === 0}
+            >
+              <FaChevronLeft />
+            </button>
 
-                  <span className="executive-role">{person.role}</span>
-                </div>
+            <div className="executive-carousel-viewport">
+              <div
+                className="executive-carousel-track"
+                style={{
+                  transform: `translateX(-${activeExecutiveIndex * 100}%)`,
+                }}
+              >
+                {executives.map((person, index) => (
+                  <div
+                    className="executive-carousel-slide"
+                    key={person.email}
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={`${person.name}, ${index + 1} of ${executives.length}`}
+                    aria-hidden={activeExecutiveIndex !== index}
+                    inert={activeExecutiveIndex !== index}
+                  >
+                    <article className="executive-card">
+                      <div className="executive-image-wrapper">
+                        {person.image ? (
+                          <img src={person.image} alt={person.name} />
+                        ) : (
+                          <div
+                            className="executive-image-placeholder"
+                            role="img"
+                            aria-label={`Portrait not provided for ${person.name}`}
+                          >
+                            {person.initials}
+                          </div>
+                        )}
+                        <span className="executive-role">{person.role}</span>
+                      </div>
 
-                <div className="executive-info">
-                  <h3>{person.name}</h3>
-                  <p>{person.position}</p>
+                      <div className="executive-info">
+                        <h3>{person.name}</h3>
+                        <p>{person.position}</p>
 
-                  <div className="executive-actions">
-                    <button type="button" className="primary-button">
-                      <FaEnvelope />
-                      Email
-                    </button>
+                        <div className="executive-actions">
+                          <a
+                            className="primary-button"
+                            href={`mailto:${person.email}`}
+                          >
+                            <FaEnvelope />
+                            Email
+                          </a>
 
-                    <button type="button" className="outline-button">
-                      <FaPhone />
-                      Phone
-                    </button>
+                          <a
+                            className="outline-button"
+                            href={`tel:${person.phone.replace(/\s/g, "")}`}
+                          >
+                            <FaPhone />
+                            Phone
+                          </a>
+                        </div>
+                      </div>
+                    </article>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <button
+              type="button"
+              className="executive-carousel-button executive-carousel-next"
+              aria-label="Next executive contact"
+              onClick={() =>
+                setActiveExecutiveIndex((index) =>
+                  Math.min(index + 1, executives.length - 1)
+                )
+              }
+              disabled={activeExecutiveIndex === executives.length - 1}
+            >
+              <FaChevronRight />
+            </button>
+
+            <div className="executive-carousel-footer">
+              <span aria-live="polite">
+                {activeExecutiveIndex + 1} / {executives.length}
+              </span>
+              <div
+                className="executive-carousel-dots"
+                role="group"
+                aria-label="Choose an executive contact"
+              >
+                {executives.map((person, index) => (
+                  <button
+                    type="button"
+                    key={person.email}
+                    className="executive-carousel-dot"
+                    aria-label={`View ${person.name}`}
+                    aria-current={activeExecutiveIndex === index ? "true" : undefined}
+                    onClick={() => setActiveExecutiveIndex(index)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -315,38 +493,7 @@ function About() {
       {/* Organisational Structure */}
       <section className="organisation-section">
         <div className="about-container">
-          <div className="center-heading organisation-heading">
-            <h2>Organisational Structure</h2>
-            <p>
-              Hierarchical overview of departmental programmes and reporting
-              lines.
-            </p>
-          </div>
-
-          <div className="organisation-tree">
-            <div className="hod-box">Head of Department (HOD)</div>
-
-            <div className="tree-line" />
-
-            <div className="programme-list">
-              {programmes.map((programme) => (
-                <div className="programme-wrapper" key={programme.number}>
-                  <div className="programme-line" />
-
-                  <div className="programme-card">
-                    <span>{programme.number}</span>
-                    <h3>{programme.title}</h3>
-
-                    <ul>
-                      {programme.items.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <img src={orgarnogram} alt="Organisational Structure" className="organisation-image" />
         </div>
       </section>
 
