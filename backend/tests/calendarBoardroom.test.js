@@ -11,6 +11,18 @@
  * and scope the conflict check to the same category AND the same location.
  */
 
+const mockSendMail = jest.fn();
+
+jest.mock("nodemailer", () => ({
+    createTransport: jest.fn(() => ({
+        sendMail: (...args) => mockSendMail(...args),
+    })),
+}));
+
+process.env.EMAIL_USER = "mailer@example.com";
+process.env.EMAIL_PASSWORD = "test-app-password";
+process.env.ADMIN_EMAIL = "admin@example.com";
+
 const request = require("supertest");
 const jwt = require("jsonwebtoken");
 const app = require("../server");
@@ -32,6 +44,10 @@ beforeAll(async () => {
 
     expectedOrganiser =
         `${userRow.rows[0].first_name} ${userRow.rows[0].surname}`.trim();
+});
+
+beforeEach(() => {
+    mockSendMail.mockReset().mockResolvedValue({});
 });
 
 afterAll(async () => {
@@ -87,7 +103,35 @@ describe("POST /api/calendar-events - boardroom location", () => {
 
         expect(res.status).toBe(201);
         expect(res.body.location).toBe("Augrabies");
+        expect(res.body.emailNotificationSent).toBe(true);
+        expect(mockSendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                to: "admin@example.com",
+                subject: "Boardroom booked: Budget Planning",
+                text: expect.stringContaining("Boardroom: Augrabies"),
+            })
+        );
 
+        createdIds.push(res.body.id);
+    });
+
+    it("keeps the booking when the admin notification email fails", async () => {
+        mockSendMail.mockRejectedValueOnce(new Error("SMTP unavailable"));
+
+        const res = await request(app)
+            .post("/api/calendar-events")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                title: "Email Failure Booking",
+                start_time: "2026-12-05 09:00:00",
+                end_time: "2026-12-05 10:00:00",
+                category: "Boardroom",
+                location: "Augrabies",
+            });
+
+        expect(res.status).toBe(201);
+        expect(res.body.title).toBe("Email Failure Booking");
+        expect(res.body.emailNotificationSent).toBe(false);
         createdIds.push(res.body.id);
     });
 
@@ -273,6 +317,7 @@ describe("POST /api/calendar-events - organiser and booking details", () => {
 
         expect(res.status).toBe(201);
         expect(res.body.organiser).toBe(expectedOrganiser);
+        expect(mockSendMail).not.toHaveBeenCalled();
 
         createdIds.push(res.body.id);
     });

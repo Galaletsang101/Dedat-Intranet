@@ -1,3 +1,4 @@
+/* global process, require, __dirname */
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
@@ -96,6 +97,42 @@ async function sendAccountEmail({ to, subject, text }) {
         return true;
     } catch (error) {
         console.error("Failed to send account email:", error.message);
+        return false;
+    }
+}
+
+async function sendBoardroomBookingEmail(event) {
+    if (!emailConfigured || !process.env.ADMIN_EMAIL) {
+        console.warn(
+            "Boardroom booking email not sent: configure EMAIL_USER, " +
+                "EMAIL_PASSWORD, and ADMIN_EMAIL."
+        );
+        return false;
+    }
+
+    try {
+        const formatDateTime = (value) => new Date(value).toISOString();
+        const details = [
+            `Title: ${event.title}`,
+            `Boardroom: ${event.location}`,
+            `Start: ${formatDateTime(event.start_time)}`,
+            `End: ${formatDateTime(event.end_time)}`,
+            `Organiser: ${event.organiser}`,
+            `Organiser email: ${event.organiser_email}`,
+            `Description: ${event.description || "Not provided"}`,
+            `Attendees: ${event.attendees ?? "Not provided"}`,
+            `Additional requirements: ${event.requirements || "None"}`,
+        ].join("\n");
+
+        await emailTransporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.ADMIN_EMAIL,
+            subject: `Boardroom booked: ${event.title}`,
+            text: `A boardroom has been booked.\n\n${details}`,
+        });
+        return true;
+    } catch (error) {
+        console.error("Failed to send boardroom booking email:", error.message);
         return false;
     }
 }
@@ -582,7 +619,7 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
         // from the authenticated user's own row, the same "don't trust
         // the client for identity" approach requireRole takes for roles.
         const organiserResult = await pool.query(
-            `SELECT first_name, surname FROM users WHERE id = $1`,
+            `SELECT first_name, surname, email FROM users WHERE id = $1`,
             [req.user.id]
         );
 
@@ -590,8 +627,9 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
             return res.status(403).json({ error: "Account not found." });
         }
 
+        const organiserDetails = organiserResult.rows[0];
         const organiser =
-            `${organiserResult.rows[0].first_name} ${organiserResult.rows[0].surname}`.trim();
+            `${organiserDetails.first_name} ${organiserDetails.surname}`.trim();
 
         const eventCategory = category || "Meeting";
         let eventLocation = "";
@@ -666,7 +704,15 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
             ]
         );
 
-        res.status(201).json(result.rows[0]);
+        const savedEvent = result.rows[0];
+        if (eventCategory === "Boardroom") {
+            savedEvent.emailNotificationSent = await sendBoardroomBookingEmail({
+                ...savedEvent,
+                organiser_email: organiserDetails.email,
+            });
+        }
+
+        res.status(201).json(savedEvent);
     } catch (error) {
         console.error("Error saving calendar event:", error);
         res.status(500).json({ error: "Failed to save calendar event" });
@@ -2280,9 +2326,6 @@ app.post("/api/auth/register", async (req, res) => {
             first_name,
             surname,
             email,
-            programme,
-            subprogramme,
-            position,
             password,
         } = req.body;
 
@@ -2609,6 +2652,7 @@ app.put("/api/users/:id", authenticateToken, async (req, res) => {
     }
 });
 
+/* global module */
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`DEDAT backend running on http://localhost:${PORT}`);

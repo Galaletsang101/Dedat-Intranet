@@ -33,10 +33,12 @@ backend/uploads/                Admin-uploaded Wellness video files (gitignored,
    cp backend/.env.example backend/.env
    ```
    Required backend variables: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`,
-   `DB_PASSWORD`, `JWT_SECRET`. Optional: `EMAIL_USER` / `EMAIL_PASSWORD` (a
-   Gmail account used to send password-reset/invite emails - without these,
-   reset links are logged to the server console instead of emailed, which is
-   fine for local development but must be set in any real deployment).
+   `DB_PASSWORD`, `JWT_SECRET`. For email delivery, set `EMAIL_USER` and
+   `EMAIL_PASSWORD` to a Gmail sender and its App Password, and set
+   `ADMIN_EMAIL` to the address that should receive boardroom booking
+   notifications. Password-reset and invitation emails also use the sender
+   credentials. Without email configuration, bookings are saved but the admin
+   notification is not delivered.
 
 2. Install dependencies:
    ```

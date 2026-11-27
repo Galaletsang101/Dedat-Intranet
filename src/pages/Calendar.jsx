@@ -395,6 +395,9 @@ const Calendar = () => {
 
       alert(
         isEditing ? "Boardroom booking updated" : "Boardroom booked successfully",
+        savedEvent.emailNotificationSent
+          ? "Boardroom booked successfully. The admin has been notified by email."
+          : "Boardroom booked successfully, but the admin notification email could not be sent. Please contact an administrator."
       );
     } catch (error) {
       console.error("Error saving boardroom booking:", error);
