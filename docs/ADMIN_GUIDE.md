@@ -207,3 +207,109 @@ following changes:
 - No other Admin accounts exist beyond `ungomane@ncdedat.gov.za`. Use
   **Admin Center -> Users & Roles -> Invite User** to create a second Admin
   as a safety net, since the system currently has exactly one.
+
+## 8. Programmes & Units: sub-programme hierarchy
+
+`src/pages/ProgramsUnits.jsx` ("Programmes & Units") shows each `departments`
+row as a parent "programme" card. Programmes can now contain multiple
+**sub-programmes**, shown via a drill-down popup.
+
+### Data model
+
+- New table: `sub_programmes` (`backend/database/migrations/010_sub_programmes.sql`)
+  - `department_id` (FK to `departments`), `name`, `description`, `status`
+    (`Active`/`Inactive`), timestamps. `UNIQUE (department_id, name)`.
+  - Seeded with 3 placeholder sub-programmes per one of the 6 real
+    departments (18 rows total), so the feature is demonstrable immediately.
+    These are editable/removable by any Admin - they are not meant to be
+    treated as final, authoritative data.
+  - `employees.subprogramme` / `users.subprogramme` are **pre-existing,
+    unrelated, legacy free-text columns** - 0 of 159 real employee rows have
+    a non-blank value in them. They are not read or written by this feature
+    and are not the source of truth for sub-programmes.
+
+### Endpoints
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/api/departments` | any logged-in user | now also returns `sub_programme_count` (Active-only count), alongside the existing `employee_count` |
+| GET | `/api/departments/:id/sub-programmes` | any logged-in user | all of that department's sub-programmes (both statuses - the frontend decides what to show, see below). 404 if the department doesn't exist |
+| POST | `/api/departments/:id/sub-programmes` | Admin | creates one. 400 blank name, 404 unknown department, 409 duplicate name (case-insensitive) within the same department |
+| PUT | `/api/sub-programmes/:id` | Admin | updates name/description/status. 404 if unknown |
+| DELETE | `/api/sub-programmes/:id` | Admin | soft-delete - sets `status = 'Inactive'`, same convention as departments (no hard delete, no "reactivate" either - matches that departments themselves have no reactivate action in the UI today) |
+
+`src/services/subProgrammesService.js` mirrors
+`src/services/departmentsService.js`'s conventions exactly (`getSubProgrammes`
+uses a plain `fetch` + manual token header like `getDepartments`; the three
+write functions use `authFetch`).
+
+### Modal / drill-down UX
+
+`src/components/programs/ProgrammeDetailsModal.jsx` is a single overlay/
+dialog element with an internal `view` state machine
+(`'programme' | 'subprogramme' | 'add-sub' | 'edit-sub'`) - it never stacks a
+second modal backdrop, even while drilling into a sub-programme or opening
+the Admin add/edit form. It fetches that programme's sub-programmes itself
+on open.
+
+- **Visibility rule** (mirrors the existing department-level rule, where
+  `ProgramsUnits.jsx` already hides `status !== "Active"` departments from
+  everyone): non-admins see only `Active` sub-programmes; Admins also see
+  `Inactive` ones, with a status pill, so they can see what they deactivated.
+- **Admin-only actions** (`+ Add Sub-Programme`, `Edit`, `Deactivate`) are
+  gated by the `isAdmin` prop passed down from `ProgramsUnits.jsx`
+  (`isAdmin()` from `authService.js` - a UI convenience only; `requireAdmin`
+  on the backend is the real boundary, same pattern as everywhere else in
+  this app).
+- Escape key and the close (×) button close the whole modal from any view.
+  The "← Back to {programme}" button inside the sub-programme view returns
+  to the programme view without closing.
+
+### Pre-existing bug fixed in passing
+
+Every programme card's "Enter Workspace" button called
+`navigate(\`/programmes/${slug}\`)` - a route that **does not exist anywhere**
+in `src/App.jsx` (confirmed via grep before this work started). It was
+already a dead link. It, and the card itself (now a clickable,
+keyboard-operable element), both open the new Programme Details popup
+instead. "Policies" and "Contacts" are unaffected (`stopPropagation` added so
+they don't also trigger the card's click handler).
+
+### Tests
+
+- `backend/tests/subProgrammes.test.js` (15 cases) - create/list/update/
+  deactivate permission checks, 404s, case-insensitive duplicate detection
+  scoped per-department, and the `sub_programme_count` subquery. Uses its own
+  disposable department fixture so assertions aren't coupled to the 18 seeded
+  placeholder rows.
+- `src/components/programs/ProgrammeDetailsModal.test.jsx` (15 cases) -
+  loading/error/empty states, Active-only vs. Admin-sees-all visibility,
+  single-dialog drill-down navigation, Escape/close, and the full Admin
+  add/edit/deactivate flow (mocking `subProgrammesService`).
+- `src/pages/ProgramsUnits.test.jsx` (6 cases) - sub-programme count tag,
+  card/"Enter Workspace" both open the modal for the right department,
+  "Policies"/"Contacts" still work unaffected (`ProgrammeDetailsModal` is
+  stubbed here; its own behavior is covered by the file above).
+
+All three suites were green at the time of writing, alongside the full
+pre-existing backend (80 tests) and frontend (126 tests) suites with no
+regressions. The feature was also verified live against the running dev
+servers via a scripted, headless-browser pass (sessionStorage JWT injection,
+same approach used elsewhere in this project's testing) covering: the
+Active/Inactive visibility split as a real non-admin vs. real Admin, a full
+live create -> edit -> deactivate round trip, mobile viewport (375px, no
+horizontal scroll, bottom-sheet presentation), and that Policies/Contacts
+still function.
+
+### Known limitations
+
+- No standalone `GET /api/sub-programmes/:id` - the frontend always already
+  holds the full list in memory when drilling into one, same simplification
+  departments themselves use (no `GET /api/departments/:id` exists either).
+- No "reactivate" action exists for a deactivated sub-programme, matching the
+  identical limitation that already exists for departments. A direct SQL
+  update (`UPDATE sub_programmes SET status = 'Active' WHERE id = ...`) is
+  the only way back today.
+- The 18 seeded sub-programmes are realistic placeholders modeled on typical
+  South African provincial DEDaT budget-programme structures, not an
+  authoritative source - Admins should review/edit them via the new UI.

@@ -94,7 +94,7 @@ except the nav button that links to `add-content`, are restricted by role.
 | `/calendar` | `Calendar` | Calendar/boardroom bookings (`GET`/`POST /api/calendar-events`) |
 | `/news-circulus` | `NewsCirculus` | News & circulars feed (`GET /api/news`), styled to match the Homepage's news cards |
 | `/news/:id` | `NewsArticle` | Full article reading page (`GET /api/news/:id`) - see `NEWS_WELLNESS_GUIDE.md` |
-| `/programs-units` | `ProgramsUnits` | Programme/unit info - reads `GET /api/departments`, managed via Admin Center → Departments |
+| `/programs-units` | `ProgramsUnits` | Programme/unit info - reads `GET /api/departments` (now includes `sub_programme_count`); clicking a programme opens a drill-down popup (`src/components/programs/ProgrammeDetailsModal.jsx`) showing its sub-programmes (`GET /api/departments/:id/sub-programmes`), with Admin-only add/edit/deactivate - see `ADMIN_GUIDE.md` §8 |
 | `/staff-directory` | `StaffDirectory` | Staff directory - reads `GET /api/employees`, managed via Admin Center → Employees |
 | `/knowledge-center` | `KnowledgeCenter` | Document/knowledge resources (`GET /api/documents`) |
 | `/faq` | `FAQ` | FAQ list (`GET /api/faqs`) |
@@ -310,9 +310,12 @@ POST /api/auth/register                   POST /api/auth/login
 | `GET` | `/api/employees/departments-list`, `/api/employees/skills-list` | **Logged in** | Distinct filter option lists for the directory UI |
 | `POST`/`PUT` | `/api/employees[/:id]` | **Admin** | Create/update an employee record |
 | `DELETE` | `/api/employees/:id` | **Admin** | Soft-delete (deactivate) an employee |
-| `GET` | `/api/departments` | **Logged in** | List departments with live employee counts |
+| `GET` | `/api/departments` | **Logged in** | List departments with live employee counts and `sub_programme_count` |
 | `POST`/`PUT` | `/api/departments[/:id]` | **Admin** | Create/update a department |
 | `DELETE` | `/api/departments/:id` | **Admin** | Deactivate a department (blocked if active employees are still assigned) |
+| `GET` | `/api/departments/:id/sub-programmes` | **Logged in** | List a department's sub-programmes (both statuses) |
+| `POST` | `/api/departments/:id/sub-programmes` | **Admin** | Create a sub-programme under a department |
+| `PUT`/`DELETE` | `/api/sub-programmes/:id` | **Admin** | Update / deactivate a sub-programme - see `ADMIN_GUIDE.md` §8 |
 | `GET` | `/api/users` | — | Legacy public directory list (name/email/programme — no password data; unchanged, unused by the current frontend) |
 | `GET` | `/api/admin/users` | **Admin** | Full user/account list (role, active status, last login) |
 | `PUT` | `/api/admin/users/:id/role` | **Admin** | Change a user's role (blocks removing the last Admin) |

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDepartments } from "../services/departmentsService";
+import { isAdmin } from "../services/authService";
+import ProgrammeDetailsModal from "../components/programs/ProgrammeDetailsModal";
 import "../styles/programs.css";
 
 /*
@@ -49,6 +51,7 @@ const ProgramsUnits = () => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openProgramme, setOpenProgramme] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -125,23 +128,33 @@ const ProgramsUnits = () => {
         </p>
       ) : (
         <div className="units-grid">
-          {departments.map((dept, index) => (
-            <UnitCard
-              key={dept.id}
-              icon={iconFor(dept.name, index).path}
-              iconBg={iconFor(dept.name, index).bg}
-              status={dept.status === "Active" ? "Active Unit" : "Inactive"}
-              statusType={dept.status === "Active" ? "green" : "gray"}
-              title={dept.name}
-              description={
-                dept.description ||
-                "No description has been added for this programme yet."
-              }
-              tags={[`${dept.employee_count} ${dept.employee_count === "1" ? "Employee" : "Employees"}`]}
-              navigate={navigate}
-              setShowContact={setShowContact}
-            />
-          ))}
+          {departments.map((dept, index) => {
+            const subProgrammeCount = parseInt(dept.sub_programme_count, 10) || 0;
+
+            return (
+              <UnitCard
+                key={dept.id}
+                icon={iconFor(dept.name, index).path}
+                iconBg={iconFor(dept.name, index).bg}
+                status={dept.status === "Active" ? "Active Unit" : "Inactive"}
+                statusType={dept.status === "Active" ? "green" : "gray"}
+                title={dept.name}
+                description={
+                  dept.description ||
+                  "No description has been added for this programme yet."
+                }
+                tags={[
+                  `${dept.employee_count} ${dept.employee_count === "1" ? "Employee" : "Employees"}`,
+                  subProgrammeCount > 0
+                    ? `${subProgrammeCount} Sub-Programme${subProgrammeCount === 1 ? "" : "s"}`
+                    : "No Sub-Programmes yet",
+                ]}
+                navigate={navigate}
+                setShowContact={setShowContact}
+                onOpenProgramme={() => setOpenProgramme(dept)}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -179,6 +192,14 @@ const ProgramsUnits = () => {
           </button>
         </div>
       </div>
+
+      {openProgramme && (
+        <ProgrammeDetailsModal
+          department={openProgramme}
+          isAdmin={isAdmin()}
+          onClose={() => setOpenProgramme(null)}
+        />
+      )}
 
       {showContact && (
         <div className="contact-overlay">
@@ -230,9 +251,23 @@ function UnitCard({
   tags,
   navigate,
   setShowContact,
+  onOpenProgramme,
 }) {
+  function handleCardKeyDown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onOpenProgramme();
+    }
+  }
+
   return (
-    <div className="unit-card">
+    <div
+      className="unit-card"
+      role="button"
+      tabIndex={0}
+      onClick={onOpenProgramme}
+      onKeyDown={handleCardKeyDown}
+    >
       <div className="unit-header">
         <div className={`unit-icon ${iconBg}`}>
           <svg className="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,9 +294,10 @@ function UnitCard({
         <button
           type="button"
           className="workspace-btn"
-          onClick={() =>
-            navigate(`/programmes/${title.toLowerCase().replace(/\s+/g, "-")}`)
-          }
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenProgramme();
+          }}
         >
           Enter Workspace
         </button>
@@ -269,7 +305,10 @@ function UnitCard({
         <button
           type="button"
           className="secondary-btn"
-          onClick={() => navigate("/policies")}
+          onClick={(event) => {
+            event.stopPropagation();
+            navigate("/policies");
+          }}
         >
           Policies
         </button>
@@ -277,7 +316,10 @@ function UnitCard({
         <button
           type="button"
           className="secondary-btn"
-          onClick={() => setShowContact(true)}
+          onClick={(event) => {
+            event.stopPropagation();
+            setShowContact(true);
+          }}
         >
           Contacts
         </button>

@@ -1829,7 +1829,9 @@ app.get("/api/departments", authenticateToken, async (req, res) => {
         const result = await pool.query(
             `SELECT d.*,
                     (SELECT COUNT(*) FROM employees e
-                     WHERE e.department_id = d.id AND e.status <> 'Inactive') AS employee_count
+                     WHERE e.department_id = d.id AND e.status <> 'Inactive') AS employee_count,
+                    (SELECT COUNT(*) FROM sub_programmes s
+                     WHERE s.department_id = d.id AND s.status <> 'Inactive') AS sub_programme_count
              FROM departments d
              ORDER BY d.name ASC`
         );
@@ -1955,6 +1957,159 @@ app.delete(
         } catch (error) {
             console.error("Error deactivating department:", error);
             res.status(500).json({ error: "Failed to deactivate department" });
+        }
+    }
+);
+
+// ============================================================
+// SUB-PROGRAMMES - nested under a department ("programme"). Any
+// authenticated user may view them; only Admins may create/edit/
+// deactivate, same permission split as departments themselves.
+// ============================================================
+
+app.get(
+    "/api/departments/:id/sub-programmes",
+    authenticateToken,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const department = await pool.query(
+                "SELECT id FROM departments WHERE id = $1",
+                [id]
+            );
+
+            if (department.rows.length === 0) {
+                return res.status(404).json({ error: "Department not found" });
+            }
+
+            const result = await pool.query(
+                `SELECT * FROM sub_programmes
+                 WHERE department_id = $1
+                 ORDER BY name ASC`,
+                [id]
+            );
+
+            res.json(result.rows);
+        } catch (error) {
+            console.error("Error fetching sub-programmes:", error);
+            res.status(500).json({ error: "Failed to fetch sub-programmes" });
+        }
+    }
+);
+
+app.post(
+    "/api/departments/:id/sub-programmes",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { name, description } = req.body;
+
+            if (!name || !name.trim()) {
+                return res
+                    .status(400)
+                    .json({ error: "Sub-programme name is required." });
+            }
+
+            const department = await pool.query(
+                "SELECT id FROM departments WHERE id = $1",
+                [id]
+            );
+
+            if (department.rows.length === 0) {
+                return res.status(404).json({ error: "Department not found" });
+            }
+
+            const existing = await pool.query(
+                "SELECT id FROM sub_programmes WHERE department_id = $1 AND LOWER(name) = LOWER($2)",
+                [id, name.trim()]
+            );
+
+            if (existing.rows.length > 0) {
+                return res.status(409).json({
+                    error: "A sub-programme with this name already exists in this department.",
+                });
+            }
+
+            const result = await pool.query(
+                `INSERT INTO sub_programmes (department_id, name, description, status, created_at, updated_at)
+                 VALUES ($1, $2, $3, 'Active', NOW(), NOW())
+                 RETURNING *`,
+                [id, name.trim(), description || null]
+            );
+
+            res.status(201).json(result.rows[0]);
+        } catch (error) {
+            console.error("Error creating sub-programme:", error);
+            res.status(500).json({ error: "Failed to create sub-programme" });
+        }
+    }
+);
+
+app.put(
+    "/api/sub-programmes/:id",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { name, description, status } = req.body;
+
+            if (!name || !name.trim()) {
+                return res
+                    .status(400)
+                    .json({ error: "Sub-programme name is required." });
+            }
+
+            const result = await pool.query(
+                `UPDATE sub_programmes
+                 SET name = $1, description = $2, status = COALESCE($3, status), updated_at = NOW()
+                 WHERE id = $4
+                 RETURNING *`,
+                [name.trim(), description || null, status || null, id]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Sub-programme not found" });
+            }
+
+            res.json(result.rows[0]);
+        } catch (error) {
+            console.error("Error updating sub-programme:", error);
+            res.status(500).json({ error: "Failed to update sub-programme" });
+        }
+    }
+);
+
+app.delete(
+    "/api/sub-programmes/:id",
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const result = await pool.query(
+                `UPDATE sub_programmes
+                 SET status = 'Inactive', updated_at = NOW()
+                 WHERE id = $1
+                 RETURNING *`,
+                [id]
+            );
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: "Sub-programme not found" });
+            }
+
+            res.json({
+                message: "Sub-programme deactivated successfully",
+                subProgramme: result.rows[0],
+            });
+        } catch (error) {
+            console.error("Error deactivating sub-programme:", error);
+            res.status(500).json({ error: "Failed to deactivate sub-programme" });
         }
     }
 );

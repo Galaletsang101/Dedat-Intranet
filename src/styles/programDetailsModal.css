@@ -1,0 +1,407 @@
+/* ==========================================
+   PROGRAMME / SUB-PROGRAMME DETAILS MODAL
+   Uses global variables from variables.css.
+   Classes are locally "pm-" prefixed - deliberately not sharing
+   admin.css's global .admin-* classes, since this modal renders on the
+   public Programmes & Units page, not inside the Admin Center.
+========================================== */
+
+.pm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--space-lg);
+
+    background: rgba(34, 34, 34, 0.55);
+}
+
+.pm-modal {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: var(--space-xl);
+    overflow-y: auto;
+
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+
+    transition: var(--transition);
+}
+
+.pm-modal h2 {
+    margin: 0 0 var(--space-sm);
+    padding-right: var(--space-xl);
+    color: var(--text-primary);
+    font-size: var(--font-xl);
+    font-weight: var(--fw-semibold);
+}
+
+.pm-description {
+    margin: var(--space-sm) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-md);
+    line-height: 1.6;
+}
+
+.subprog-parent {
+    margin: var(--space-xs) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    font-weight: var(--fw-medium);
+}
+
+
+/* ==========================================
+   CLOSE BUTTON
+========================================== */
+
+.pm-close-x {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-secondary);
+    font-size: 24px;
+    border-radius: var(--radius-round);
+
+    transition: var(--transition);
+}
+
+.pm-close-x:hover,
+.pm-close-x:focus-visible {
+    background: var(--primary-extra-light);
+    color: var(--primary);
+}
+
+
+/* ==========================================
+   BACK BUTTON
+========================================== */
+
+.pm-back-btn {
+    align-self: flex-start;
+    margin-bottom: var(--space-md);
+
+    color: var(--primary);
+    font-size: var(--font-sm);
+    font-weight: var(--fw-semibold);
+}
+
+.pm-back-btn:hover,
+.pm-back-btn:focus-visible {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   STATUS PILLS
+========================================== */
+
+.pm-pill {
+    display: inline-flex;
+    align-items: center;
+    margin-top: var(--space-sm);
+    padding: 5px 10px;
+    border-radius: var(--radius-round);
+    font-size: var(--font-xs);
+    font-weight: var(--fw-semibold);
+    white-space: nowrap;
+}
+
+.pm-pill-sm {
+    margin-top: 0;
+}
+
+.pm-pill-active {
+    background: rgba(25, 135, 84, 0.10);
+    color: var(--success);
+}
+
+.pm-pill-inactive {
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+}
+
+
+/* ==========================================
+   META ROW
+========================================== */
+
+.pm-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+    padding: var(--space-md);
+
+    background: var(--surface-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+}
+
+.pm-meta-item {
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+}
+
+.pm-meta-item strong {
+    color: var(--primary);
+    font-size: var(--font-lg);
+}
+
+
+/* ==========================================
+   SECTION HEADER
+========================================== */
+
+.pm-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.pm-section-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--font-lg);
+    font-weight: var(--fw-semibold);
+}
+
+
+/* ==========================================
+   LOADING / ERROR / EMPTY STATES
+========================================== */
+
+.pm-loading,
+.pm-error {
+    margin: 0;
+    padding: var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-sm);
+}
+
+.pm-loading {
+    color: var(--text-secondary);
+    background: var(--surface-light);
+}
+
+.pm-error {
+    color: var(--danger);
+    background: rgba(220, 53, 69, 0.08);
+}
+
+.pm-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-xl) var(--space-md);
+
+    text-align: left;
+    color: var(--text-secondary);
+    background: var(--surface-light);
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius-sm);
+}
+
+.pm-empty-state p {
+    margin: 0;
+    font-size: var(--font-sm);
+}
+
+
+/* ==========================================
+   SUB-PROGRAMME LIST
+========================================== */
+
+.pm-sub-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pm-sub-card {
+    padding: var(--space-md);
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.pm-sub-card:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.pm-sub-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+}
+
+.pm-sub-card-description {
+    margin: 0 0 var(--space-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   FORM
+========================================== */
+
+.pm-form-group {
+    margin-bottom: var(--space-md);
+}
+
+.pm-form-group label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+    font-size: var(--font-sm);
+    font-weight: var(--fw-medium);
+}
+
+.pm-form-group input,
+.pm-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-sm);
+    font-family: inherit;
+}
+
+.pm-form-group input:focus,
+.pm-form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.pm-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-light);
+}
+
+.pm-btn {
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-sm);
+    font-weight: var(--fw-semibold);
+    transition: var(--transition);
+}
+
+.pm-btn-sm {
+    min-height: 32px;
+    padding: 6px 12px;
+    font-size: var(--font-xs);
+}
+
+.pm-btn-primary {
+    background: var(--primary);
+    color: var(--text-white);
+}
+
+.pm-btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.pm-btn-outline {
+    background: var(--surface);
+    color: var(--secondary);
+    border: 1px solid var(--border);
+}
+
+.pm-btn-outline:hover {
+    background: var(--primary-extra-light);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.pm-btn-danger {
+    background: var(--surface);
+    color: var(--danger);
+    border: 1px solid rgba(220, 53, 69, 0.35);
+}
+
+.pm-btn-danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+}
+
+
+/* ==========================================
+   RESPONSIVE - full-screen presentation on
+   small screens, no horizontal scroll, the
+   sub-programme list scrolls vertically
+   within the already-scrollable .pm-modal.
+========================================== */
+
+@media (max-width: 640px) {
+
+    .pm-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .pm-modal {
+        max-width: 100%;
+        width: 100%;
+        max-height: 92vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .pm-meta-row {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .pm-modal-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pm-modal-actions .pm-btn {
+        width: 100%;
+    }
+
+}
