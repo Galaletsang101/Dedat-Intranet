@@ -9,6 +9,7 @@ const realEvent = {
   time: "09:00",
   endTime: "10:00",
   location: "Flamingo",
+  createdBy: 7,
 };
 
 const holidayEvent = {
@@ -20,6 +21,7 @@ const holidayEvent = {
 
 function renderModal(overrides = {}) {
   const onCancelEvent = vi.fn();
+  const onEditEvent = vi.fn();
 
   const utils = render(
     <DayEventsModal
@@ -29,12 +31,14 @@ function renderModal(overrides = {}) {
       onClose={() => {}}
       onBookBoardroom={() => {}}
       isAdmin={false}
+      currentUserId={999}
       onCancelEvent={onCancelEvent}
+      onEditEvent={onEditEvent}
       {...overrides}
     />
   );
 
-  return { ...utils, onCancelEvent };
+  return { ...utils, onCancelEvent, onEditEvent };
 }
 
 describe("DayEventsModal - admin cancellation", () => {
@@ -77,5 +81,39 @@ describe("DayEventsModal - admin cancellation", () => {
 
     expect(onCancelEvent).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /cancel event/i })).toBeInTheDocument();
+  });
+});
+
+describe("DayEventsModal - owner self-service", () => {
+  it("shows Cancel and Edit for the booking's own creator, even when not Admin", () => {
+    renderModal({ isAdmin: false, currentUserId: 7 });
+
+    expect(screen.getByRole("button", { name: /cancel event/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^edit$/i })).toBeInTheDocument();
+  });
+
+  it("does not show Cancel or Edit for a booking created by someone else, when the viewer is neither Admin nor the creator", () => {
+    renderModal({ isAdmin: false, currentUserId: 123 });
+
+    expect(screen.queryByRole("button", { name: /cancel event/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^edit$/i })).toBeNull();
+  });
+
+  it("does not show Edit for a non-Boardroom event, even for its creator", () => {
+    renderModal({
+      isAdmin: false,
+      currentUserId: 7,
+      events: [{ ...realEvent, category: "Meeting" }],
+    });
+
+    expect(screen.queryByRole("button", { name: /^edit$/i })).toBeNull();
+  });
+
+  it("calls onEditEvent with the event when Edit is clicked", () => {
+    const { onEditEvent } = renderModal({ isAdmin: false, currentUserId: 7 });
+
+    fireEvent.click(screen.getByRole("button", { name: /^edit$/i }));
+
+    expect(onEditEvent).toHaveBeenCalledWith(realEvent);
   });
 });

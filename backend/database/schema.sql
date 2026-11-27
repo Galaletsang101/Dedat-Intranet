@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS calendar_events (
     location TEXT NOT NULL DEFAULT '',
     organiser TEXT NOT NULL DEFAULT '',
     attendees INTEGER,
-    requirements TEXT
+    requirements TEXT,
+    created_by BIGINT REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS documents (

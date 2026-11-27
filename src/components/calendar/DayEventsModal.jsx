@@ -10,7 +10,9 @@ const DayEventsModal = forwardRef(
       onClose,
       onBookBoardroom,
       isAdmin,
+      currentUserId,
       onCancelEvent,
+      onEditEvent,
     },
     ref
   ) => {
@@ -49,7 +51,16 @@ const DayEventsModal = forwardRef(
             <p className="day-modal-empty">No events scheduled for this day.</p>
           ) : (
             <div className="day-modal-events">
-              {events.map((event, index) => (
+              {events.map((event, index) => {
+                const isOwner =
+                  event.category === "Boardroom" &&
+                  event.id != null &&
+                  event.createdBy != null &&
+                  String(event.createdBy) === String(currentUserId);
+
+                const canManage = isAdmin || isOwner;
+
+                return (
                 <div
                   className={`day-modal-event ${event.category.toLowerCase()}`}
                   key={index}
@@ -93,7 +104,7 @@ const DayEventsModal = forwardRef(
                     </p>
                   )}
 
-                  {isAdmin && event.id != null && (
+                  {canManage && event.id != null && (
                     confirmCancelId === event.id ? (
                       <div className="day-modal-event-cancel-confirm">
                         <span>Cancel this event?</span>
@@ -118,17 +129,30 @@ const DayEventsModal = forwardRef(
                         </button>
                       </div>
                     ) : (
-                      <button
-                        type="button"
-                        className="admin-cancel-btn danger"
-                        onClick={() => setConfirmCancelId(event.id)}
-                      >
-                        Cancel Event
-                      </button>
+                      <div className="day-modal-event-actions">
+                        {event.category === "Boardroom" && (
+                          <button
+                            type="button"
+                            className="admin-cancel-btn"
+                            onClick={() => onEditEvent(event)}
+                          >
+                            Edit
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          className="admin-cancel-btn danger"
+                          onClick={() => setConfirmCancelId(event.id)}
+                        >
+                          Cancel Event
+                        </button>
+                      </div>
                     )
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

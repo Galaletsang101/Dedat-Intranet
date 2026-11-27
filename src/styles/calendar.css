@@ -63,6 +63,20 @@
   color: var(--text-muted);
   font-size: var(--font-sm);
   line-height: 1.5;
+} /* ========================================== BOARDROOM DAY GROUPS ========================================== */
+.boardroom-day-group {
+  margin-bottom: var(--space-md);
+}
+.boardroom-day-group:last-child {
+  margin-bottom: 0;
+}
+.boardroom-day-heading {
+  margin-bottom: var(--space-xs);
+  color: var(--primary);
+  font-size: var(--font-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 } /* ========================================== BOARDROOM SLOTS ========================================== */
 .boardroom-slot {
   padding: var(--space-sm);
@@ -563,6 +577,14 @@
 }
 .day-modal-event-cancel-confirm .admin-cancel-btn {
   margin-top: 0;
+}
+.day-modal-event-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+.day-modal-event-actions .admin-cancel-btn {
+  margin-top: var(--space-sm);
 } /* ========================================== TIME GRID ========================================== */
 .timegrid-wrapper {
   background: var(--surface);

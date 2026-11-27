@@ -21,6 +21,10 @@ import {
   HiNewspaper,
   HiClock,
 } from "react-icons/hi";
+import {
+  getCurrentUser,
+  logoutUser
+} from "../services/authService";
 
 const quickActions = [
   {
@@ -128,6 +132,18 @@ function Dashboard() {
   const [suggestionMessage, setSuggestionMessage] = useState("");
   const [grievanceMessage, setGrievanceMessage] = useState("");
 
+    // Get the currently logged-in PostgreSQL user
+  const user = getCurrentUser();
+  // Get initials
+
+  // const initials = user
+  //   ? `${user.first_name?.charAt(0) || ""}${user.surname?.charAt(0) || ""}`
+  //   : "U";
+
+  // Get full name
+  const fullName = user
+    ? `${user.first_name || ""} ${user.surname || ""}`.trim()
+    : "User";
   const handleAction = (action) => {
     if (!action) return;
     if (action.startsWith("mailto:")) {
@@ -175,7 +191,7 @@ function Dashboard() {
   return (
     <div className="dashboard-page">
       <section className="dashboard-hero">
-        <h1>Welcome back, Thabo</h1>
+        <h1>Welcome back, <span>{fullName}</span></h1>
         <p>Your central hub for DEDaT departmental services and professional resources.</p>
       </section>
 
@@ -249,7 +265,7 @@ function Dashboard() {
       </div>
 
       {/* ROW 2: Wellness Center (Left) | Staff Spotlight (Right) */}
-      <div className="dashboard-grid">
+      {/* <div className="dashboard-grid">
         <section className="dashboard-card dashboard-card-wellness">
           <div className="dashboard-card-header">
             <div className="dashboard-title-group">
@@ -295,10 +311,10 @@ function Dashboard() {
             </div>
           </div>
         </section>
-      </div>
+      </div> */}
 
       {/* ROW 3: Department Notices (Left) | Learning Centre (Right) */}
-      <div className="dashboard-grid">
+      {/* <div className="dashboard-grid">
         <section className="dashboard-card dashboard-card-department">
           <div className="dashboard-card-header">
             <div className="dashboard-title-group">
@@ -358,10 +374,10 @@ function Dashboard() {
             <p>75% of Digital Literacy complete</p>
           </div>
         </section>
-      </div>
+      </div> */}
 
       {/* ROW 4: Internal Communications (Full Width) */}
-      <section className="dashboard-card dashboard-card-news">
+      {/* <section className="dashboard-card dashboard-card-news">
         <div className="dashboard-card-header">
           <div className="dashboard-title-group">
             <HiNewspaper className="dashboard-icon-accent" />
@@ -380,7 +396,7 @@ function Dashboard() {
             </article>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* ROW 5: Anonymous Boxes (Left & Right) */}
       <div className="dashboard-grid dashboard-grid-equal">

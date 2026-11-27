@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import MonthGrid from "./MonthGrid";
+import { MAX_VISIBLE_EVENTS_PER_CELL } from "./calendarConstants";
 
 const manyEvents = [
   { date: "2026-11-05", title: "Event A", time: "08:00", category: "Meeting" },
@@ -27,7 +28,7 @@ function findDateCell(container, day) {
 }
 
 describe("MonthGrid", () => {
-  it("shows at most 3 event chips plus a '+N more' indicator when a day has more than 3 events", () => {
+  it("shows at most MAX_VISIBLE_EVENTS_PER_CELL event chips plus a '+N more' indicator when a day has more events than that", () => {
     const { container } = render(
       <MonthGrid
         year={2026}
@@ -40,14 +41,18 @@ describe("MonthGrid", () => {
 
     const cell = findDateCell(container, 5);
 
-    expect(cell.querySelectorAll(".event-card:not(.more-indicator)").length).toBe(3);
+    expect(cell.querySelectorAll(".event-card:not(.more-indicator)").length).toBe(
+      MAX_VISIBLE_EVENTS_PER_CELL
+    );
 
     const moreIndicator = cell.querySelector(".event-card.more-indicator");
     expect(moreIndicator).not.toBeNull();
-    expect(moreIndicator.textContent).toMatch(/\+2 more/i);
+    expect(moreIndicator.textContent).toMatch(
+      new RegExp(`\\+${manyEvents.length - MAX_VISIBLE_EVENTS_PER_CELL} more`, "i")
+    );
   });
 
-  it("does not show a '+more' indicator when a day has 3 or fewer events", () => {
+  it("does not show a '+more' indicator when a day has MAX_VISIBLE_EVENTS_PER_CELL or fewer events", () => {
     const { container } = render(
       <MonthGrid
         year={2026}

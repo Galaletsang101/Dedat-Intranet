@@ -1,11 +1,18 @@
 // src/pages/Homepage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
-  Container, Row, Col, Nav, Navbar, Carousel, Button,
-  Badge, Modal
-} from 'react-bootstrap';
+  Container,
+  Row,
+  Col,
+  Nav,
+  Navbar,
+  Carousel,
+  Button,
+  Badge,
+  Modal,
+} from "react-bootstrap";
 import {
   FaSearch,
   FaBell,
@@ -27,11 +34,11 @@ import {
   FaArrowRight,
   FaTimes,
   FaClock,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+  FaExclamationTriangle,
+} from "react-icons/fa";
 
-import '../../styles/homepage.css';
-import '../../styles/updatesModal.css';
+import "../../styles/homepage.css";
+import "../../styles/updatesModal.css";
 
 // ============================================================
 // SERVICES
@@ -52,7 +59,7 @@ const calendarEvents = [
     date: "24",
     month: "OCT",
     time: "09:00 AM - Boardroom 3",
-    expiry: "EXPIRES SOON (Apply by 16:00)"
+    expiry: "EXPIRES SOON (Apply by 16:00)",
   },
   {
     id: 2,
@@ -60,8 +67,8 @@ const calendarEvents = [
     date: "26",
     month: "OCT",
     time: "All Day - Virtual Meeting",
-    expiry: "MANDATORY ATTENDANCE"
-  }
+    expiry: "MANDATORY ATTENDANCE",
+  },
 ];
 
 // ============================================================
@@ -73,14 +80,14 @@ const expiringDocuments = [
     id: 1,
     title: "Tourism Policy Update v2",
     expiry: "Expires in 12 days",
-    urgency: "urgent"
+    urgency: "urgent",
   },
   {
     id: 2,
     title: "Annual Procurement Plan 2025/26",
     expiry: "Expires in 28 days",
-    urgency: "warning"
-  }
+    urgency: "warning",
+  },
 ];
 
 // ============================================================
@@ -93,33 +100,32 @@ const latestUpdates = [
     icon: FaNewspaper,
     title: "New Department News",
     description: "New Industrial Hub project announcement has been published.",
-    type: "News"
+    type: "News",
   },
   {
     id: 2,
     icon: FaCalendarAlt,
     title: "Upcoming Calendar Event",
     description: "Quarterly Performance Review scheduled for 26 October.",
-    type: "Calendar"
+    type: "Calendar",
   },
   {
     id: 3,
     icon: FaFileAlt,
     title: "New HR Circulus Available",
     description: "Updated Information Security Guidelines have been uploaded.",
-    type: "Circular"
+    type: "Circular",
   },
   {
     id: 4,
     icon: FaUserCircle,
     title: "Appointment Update",
     description: "New acting appointments have been announced.",
-    type: "HR"
-  }
+    type: "HR",
+  },
 ];
 
 const Homepage = () => {
-
   const [emergencyVisible, setEmergencyVisible] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -152,16 +158,11 @@ const Homepage = () => {
         const newsData = await getNews();
 
         if (Array.isArray(newsData) && newsData.length > 0) {
-
           // Sort newest first
           const sortedNews = [...newsData].sort((a, b) => {
-            const dateA = new Date(
-              a.created_date || a.publication_date || 0
-            );
+            const dateA = new Date(a.created_date || a.publication_date || 0);
 
-            const dateB = new Date(
-              b.created_date || b.publication_date || 0
-            );
+            const dateB = new Date(b.created_date || b.publication_date || 0);
 
             return dateB - dateA;
           });
@@ -174,15 +175,12 @@ const Homepage = () => {
             sortedNews.slice(0, 4).map((item) => ({
               id: item.id,
               title: item.title,
-              excerpt:
-                item.excerpt ||
-                item.summary ||
-                "No summary available.",
+              excerpt: item.excerpt || item.summary || "No summary available.",
               category: item.category || "News",
               image:
                 item.image_url ||
-                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"
-            }))
+                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
+            })),
           );
 
           // ----------------------------------------------------
@@ -191,9 +189,7 @@ const Homepage = () => {
 
           // First look for a featured article
           const featuredNews = sortedNews.find(
-            (item) =>
-              item.is_featured === true ||
-              item.is_featured === "true"
+            (item) => item.is_featured === true || item.is_featured === "true",
           );
 
           // If there is no featured article, use newest news
@@ -214,17 +210,13 @@ const Homepage = () => {
                   "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
                 time: heroNews.publication_date
                   ? `Published ${formatDate(heroNews.publication_date)}`
-                  : "Latest News"
-              }
+                  : "Latest News",
+              },
             ]);
           }
         }
-
       } catch (error) {
-        console.error(
-          "Failed to load homepage news:",
-          error
-        );
+        console.error("Failed to load homepage news:", error);
       }
 
       try {
@@ -234,30 +226,18 @@ const Homepage = () => {
 
         const circulusData = await getCirculus();
 
-        if (
-          Array.isArray(circulusData) &&
-          circulusData.length > 0
-        ) {
+        if (Array.isArray(circulusData) && circulusData.length > 0) {
+          const sortedCirculus = [...circulusData].sort((a, b) => {
+            const dateA = new Date(
+              a.created_date || a.created_at || a.publication_date || 0,
+            );
 
-          const sortedCirculus = [...circulusData].sort(
-            (a, b) => {
-              const dateA = new Date(
-                a.created_date ||
-                a.created_at ||
-                a.publication_date ||
-                0
-              );
+            const dateB = new Date(
+              b.created_date || b.created_at || b.publication_date || 0,
+            );
 
-              const dateB = new Date(
-                b.created_date ||
-                b.created_at ||
-                b.publication_date ||
-                0
-              );
-
-              return dateB - dateA;
-            }
-          );
+            return dateB - dateA;
+          });
 
           setHomepageCirculars(
             sortedCirculus.slice(0, 4).map((item) => ({
@@ -267,19 +247,13 @@ const Homepage = () => {
                 item.classification ||
                 getClassificationFromCategory(item.category),
               time: getPostedTime(
-                item.created_date ||
-                item.created_at ||
-                item.publication_date
-              )
-            }))
+                item.created_date || item.created_at || item.publication_date,
+              ),
+            })),
           );
         }
-
       } catch (error) {
-        console.error(
-          "Failed to load homepage circulus:",
-          error
-        );
+        console.error("Failed to load homepage circulus:", error);
       } finally {
         setNewsLoading(false);
       }
@@ -300,7 +274,7 @@ const Homepage = () => {
     { icon: FaFileAlt, label: "SAES eFiling" },
     { icon: FaCalendarAlt, label: "E-Leave" },
     { icon: FaPaperPlane, label: "E-Submission" },
-    { icon: FaShieldAlt, label: "Cybersecurity" }
+    { icon: FaShieldAlt, label: "Cybersecurity" },
   ];
 
   // ============================================================
@@ -309,14 +283,14 @@ const Homepage = () => {
 
   const getClassificationBadge = (type) => {
     const classes = {
-      'U': 'secondary',
-      'I': 'primary',
-      'C': 'warning',
-      'S': 'danger',
-      'TS': 'dark'
+      U: "secondary",
+      I: "primary",
+      C: "warning",
+      S: "danger",
+      TS: "dark",
     };
 
-    return classes[type] || 'secondary';
+    return classes[type] || "secondary";
   };
 
   // ============================================================
@@ -325,7 +299,6 @@ const Homepage = () => {
 
   return (
     <div className="homepage">
-
       {/* Emergency Notices Bar */}
 
       {/*
@@ -349,7 +322,6 @@ const Homepage = () => {
       */}
 
       <Container fluid className="px-4 py-4">
-
         <Modal
           show={showUpdates}
           onHide={() => setShowUpdates(false)}
@@ -359,78 +331,51 @@ const Homepage = () => {
           keyboard={false}
           dialogClassName="updates-modal"
         >
-
           <Modal.Header closeButton>
-            <Modal.Title>
-              What's New on DeDAaT Intranet
-            </Modal.Title>
+            <Modal.Title>What's New on DeDAaT Intranet</Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
-
-            <p>
-              Here are the latest updates available on the website:
-            </p>
+            <p>Here are the latest updates available on the website:</p>
 
             {latestUpdates.map((update) => {
-
               const Icon = update.icon;
 
               return (
-                <div
-                  key={update.id}
-                  className="update-card"
-                >
-
+                <div key={update.id} className="update-card">
                   <div className="update-icon">
                     <Icon />
                   </div>
 
                   <div className="update-content">
+                    <h6>{update.title}</h6>
 
-                    <h6>
-                      {update.title}
-                    </h6>
-
-                    <div className="update-type">
-                      {update.type}
-                    </div>
+                    <div className="update-type">{update.type}</div>
 
                     <div className="update-description">
                       {update.description}
                     </div>
-
                   </div>
-
                 </div>
               );
-
             })}
-
           </Modal.Body>
 
           <Modal.Footer>
-
             <Button
               className="updates-btn"
               onClick={() => {
-                localStorage.setItem(
-                  "dedat_updates_seen",
-                  "true"
-                );
+                localStorage.setItem("dedat_updates_seen", "true");
 
                 setShowUpdates(false);
               }}
             >
               Continue to Intranet
             </Button>
-
           </Modal.Footer>
-
         </Modal>
 
         <div className="homepage-container">
-
           {/* =====================================================
               HERO CAROUSEL
           ====================================================== */}
@@ -451,100 +396,62 @@ const Homepage = () => {
               controls={true}
               interval={5000}
             >
-
               {homepageCarousel.map((item) => (
-
                 <Carousel.Item key={item.id}>
-
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                  />
+                  <img src={item.image} alt={item.title} />
 
                   <Carousel.Caption className="text-md-left">
-
                     <Badge className="badge-featured mb-2">
                       {item.category}
                     </Badge>
 
-                    <h2>
-                      {item.title}
-                    </h2>
+                    <h2>{item.title}</h2>
 
-                    <p>
-                      {item.excerpt}
-                    </p>
+                    <p>{item.excerpt}</p>
 
                     <div className="d-flex align-items-center gap-3">
-
                       <Link to={`/news/${item.id}`} className="btn btn-read">
                         Read Full Article
                         <FaArrowRight className="ms-2" />
                       </Link>
 
-                      <span className="text-white-50">
-                        {item.time}
-                      </span>
-
+                      <span className="text-white-50">{item.time}</span>
                     </div>
-
                   </Carousel.Caption>
-
                 </Carousel.Item>
-
               ))}
-
             </Carousel>
           )}
 
           <Row className="g-4">
-
             {/* =================================================
                 LEFT COLUMN
             ================================================== */}
 
             <Col lg={8}>
-
               {/* =================================================
                   QUICK ACCESS PORTAL
               ================================================== */}
 
               <section className="mb-4">
-
                 <h4 className="section-title mb-3">
                   <FaTh className="section-icon" />
                   Quick Access Portal
                 </h4>
 
                 <Row className="g-3">
-
                   {quickAccessItems.map((item, index) => (
-
-                    <Col
-                      xs={6}
-                      sm={4}
-                      md={3}
-                      key={index}
-                    >
-
+                    <Col xs={6} sm={4} md={3} key={index}>
                       <div className="quick-access-card">
-
                         <div className="icon-wrapper">
                           <item.icon />
                         </div>
 
-                        <span className="card-label">
-                          {item.label}
-                        </span>
-
+                        <span className="card-label">{item.label}</span>
                       </div>
-
                     </Col>
-
                   ))}
-
                 </Row>
-
               </section>
 
               {/* =================================================
@@ -552,15 +459,10 @@ const Homepage = () => {
               ================================================== */}
 
               <section className="mb-4">
-
                 <div className="d-flex justify-content-between align-items-center mb-3">
-
                   <h4 className="section-title">
-
                     <FaNewspaper className="section-icon" />
-
                     Latest Departmental News
-
                   </h4>
 
                   <Link
@@ -570,7 +472,6 @@ const Homepage = () => {
                     Explore Archive
                     <FaArrowRight className="ms-1" />
                   </Link>
-
                 </div>
 
                 {newsLoading ? (
@@ -582,60 +483,45 @@ const Homepage = () => {
                     ))}
                   </Row>
                 ) : homepageNews.length === 0 ? (
-                  <p className="text-muted mb-0">No news has been published yet.</p>
+                  <p className="text-muted mb-0">
+                    No news has been published yet.
+                  </p>
                 ) : (
-                <Row className="g-4">
+                  <Row className="g-4">
+                    {homepageNews.map((item) => (
+                      <Col md={6} key={item.id}>
+                        <Link
+                          to={`/news/${item.id}`}
+                          className="news-card-link"
+                        >
+                          <div className="news-card">
+                            <img src={item.image} alt={item.title} />
 
-                  {homepageNews.map((item) => (
+                            <div className="news-body">
+                              <div className="news-category">
+                                {item.category}
+                              </div>
 
-                    <Col
-                      md={6}
-                      key={item.id}
-                    >
+                              <h5 className="news-title">{item.title}</h5>
 
-                      <Link to={`/news/${item.id}`} className="news-card-link">
-                      <div className="news-card">
+                              <p className="news-excerpt">{item.excerpt}</p>
 
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                        />
-
-                        <div className="news-body">
-
-                          <div className="news-category">
-                            {item.category}
+                              <span className="news-read-link">
+                                Read Article
+                                <FaArrowRight
+                                  className="ms-1"
+                                  style={{
+                                    fontSize: "0.65rem",
+                                  }}
+                                />
+                              </span>
+                            </div>
                           </div>
-
-                          <h5 className="news-title">
-                            {item.title}
-                          </h5>
-
-                          <p className="news-excerpt">
-                            {item.excerpt}
-                          </p>
-
-                          <span className="news-read-link">
-                            Read Article
-                            <FaArrowRight
-                              className="ms-1"
-                              style={{
-                                fontSize: '0.65rem'
-                              }}
-                            />
-                          </span>
-
-                        </div>
-
-                      </div>
-                      </Link>
-
-                    </Col>
-
-                  ))}
-                </Row>
+                        </Link>
+                      </Col>
+                    ))}
+                  </Row>
                 )}
-
               </section>
 
               {/* =================================================
@@ -643,104 +529,60 @@ const Homepage = () => {
               ================================================== */}
 
               <section>
-
                 <div className="calendar-widget">
-
                   <div className="d-flex justify-content-between align-items-center mb-3">
-
-                    <h5 className="section-title">
-                      Departmental Calendar
-                    </h5>
+                    <h5 className="section-title">Departmental Calendar</h5>
 
                     <div className="d-flex align-items-center gap-2">
-
-                      <Button
-                        variant="link"
-                        className="p-0 text-secondary"
-                      >
+                      <Button variant="link" className="p-0 text-secondary">
                         <FaChevronLeft />
                       </Button>
 
-                      <span className="calendar-month">
-                        October 2026
-                      </span>
+                      <span className="calendar-month">October 2026</span>
 
-                      <Button
-                        variant="link"
-                        className="p-0 text-secondary"
-                      >
+                      <Button variant="link" className="p-0 text-secondary">
                         <FaChevronRight />
                       </Button>
-
                     </div>
-
                   </div>
 
                   <Row className="g-3">
-
                     {calendarEvents.map((event) => (
-
-                      <Col
-                        md={6}
-                        key={event.id}
-                      >
-
+                      <Col md={6} key={event.id}>
                         <div className="event-item">
-
                           <div className="event-date">
+                            <div className="month">{event.month}</div>
 
-                            <div className="month">
-                              {event.month}
-                            </div>
-
-                            <div className="day">
-                              {event.date}
-                            </div>
-
+                            <div className="day">{event.date}</div>
                           </div>
 
                           <div>
+                            <div className="event-title">{event.title}</div>
 
-                            <div className="event-title">
-                              {event.title}
-                            </div>
-
-                            <div className="event-time">
-                              {event.time}
-                            </div>
+                            <div className="event-time">{event.time}</div>
 
                             <div
                               className={
-                                event.expiry.includes('EXPIRES')
+                                event.expiry.includes("EXPIRES")
                                   ? "event-expiry urgent"
                                   : "event-expiry"
                               }
                             >
-
                               <FaClock
                                 style={{
-                                  fontSize: '0.6rem'
+                                  fontSize: "0.6rem",
                                 }}
                               />
 
                               {event.expiry}
-
                             </div>
-
                           </div>
-
                         </div>
-
                       </Col>
-
                     ))}
-
                   </Row>
-
                 </div>
-
               </section>
-
             </Col>
 
             {/* =================================================
@@ -748,45 +590,34 @@ const Homepage = () => {
             ================================================== */}
 
             <Col lg={4}>
-
               {/* =================================================
                   MEC VISION WIDGET
               ================================================== */}
 
               <div className="mec-widget mb-4">
-
                 <div
                   className="position-relative"
                   style={{
-                    height: '100px',
-                    overflow: 'hidden'
+                    height: "100px",
+                    overflow: "hidden",
                   }}
                 >
-
                   <img
                     src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80"
                     alt="Northern Cape Landscape"
                     className="mec-image"
                   />
 
-                  <div
-                    className="position-absolute bottom-0 start-0 p-3 w-100"
-                  >
-
-                    <Badge className="mec-badge">
-                      Our Vision
-                    </Badge>
+                  <div className="position-absolute bottom-0 start-0 p-3 w-100">
+                    <Badge className="mec-badge">Our Vision</Badge>
 
                     <h6 className="text-white mt-1">
                       Radical Economic Transformation
                     </h6>
-
                   </div>
-
                 </div>
 
                 <div className="mec-body d-flex align-items-center gap-3">
-
                   <img
                     src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&q=80"
                     alt="MEC"
@@ -794,11 +625,10 @@ const Homepage = () => {
                   />
 
                   <div className="flex-grow-1">
-
                     <div
                       style={{
                         fontWeight: 600,
-                        fontSize: '0.8rem'
+                        fontSize: "0.8rem",
                       }}
                     >
                       MEC's Welcome
@@ -807,18 +637,15 @@ const Homepage = () => {
                     <div className="mec-quote">
                       "Building a prosperous future together..."
                     </div>
-
                   </div>
 
                   <FaArrowRight
                     style={{
                       opacity: 0.5,
-                      cursor: 'pointer'
+                      cursor: "pointer",
                     }}
                   />
-
                 </div>
-
               </div>
 
               {/* =================================================
@@ -826,55 +653,36 @@ const Homepage = () => {
               ================================================== */}
 
               <section className="mb-4">
-
                 <h5
                   className="d-flex align-items-center gap-2 mb-3"
                   style={{
-                    color: '#5c5b5b'
+                    color: "#5c5b5b",
                   }}
                 >
-
                   <FaExclamationTriangle
                     style={{
-                      color: '#dc3545'
+                      color: "#dc3545",
                     }}
                   />
-
                   Expiring Documents
-
                 </h5>
 
                 <div className="bg-white p-3 rounded-3 border">
-
                   {expiringDocuments.map((doc) => (
-
                     <div
                       key={doc.id}
                       className={`expiring-doc-item ${doc.urgency}`}
                     >
+                      <div className="expired-docs-card">
+                        <div className="doc-title">{doc.title}</div>
 
-                      <div className='expired-docs-card'>
+                        <div className="doc-expiry">{doc.expiry}</div>
 
-                        <div className="doc-title">
-                          {doc.title}
-                        </div>
-
-                        <div className="doc-expiry">
-                          {doc.expiry}
-                        </div>
-
-                        <button className="doc-btn mt-1">
-                          Review Now
-                        </button>
-
+                        <button className="doc-btn mt-1">Review Now</button>
                       </div>
-
                     </div>
-
                   ))}
-
                 </div>
-
               </section>
 
               {/* =================================================
@@ -882,15 +690,12 @@ const Homepage = () => {
               ================================================== */}
 
               <section className="mb-4">
-
                 <div className="bg-white p-3 rounded-3 border">
-
                   <div className="d-flex justify-content-between align-items-center mb-3">
-
                     <h5
                       style={{
-                        color: '#5c5b5b',
-                        fontWeight: 600
+                        color: "#5c5b5b",
+                        fontWeight: 600,
                       }}
                     >
                       Circulus
@@ -898,46 +703,28 @@ const Homepage = () => {
 
                     <FaClock
                       style={{
-                        color: '#6c757d'
+                        color: "#6c757d",
                       }}
                     />
-
                   </div>
 
                   {homepageCirculars.map((circular) => (
-
-                    <div
-                      key={circular.id}
-                      className="circular-item"
-                    >
-
+                    <div key={circular.id} className="circular-item">
                       <div className="d-flex justify-content-between align-items-start">
-
                         <div>
-
                           <Badge
-                            bg={getClassificationBadge(
-                              circular.classification
-                            )}
+                            bg={getClassificationBadge(circular.classification)}
                             className="me-2"
                           >
                             {circular.classification}
                           </Badge>
-
                         </div>
-
                       </div>
 
-                      <div className="circular-title">
-                        {circular.title}
-                      </div>
+                      <div className="circular-title">{circular.title}</div>
 
-                      <div className="circular-date">
-                        {circular.time}
-                      </div>
-
+                      <div className="circular-date">{circular.time}</div>
                     </div>
-
                   ))}
 
                   <Button
@@ -946,9 +733,7 @@ const Homepage = () => {
                   >
                     View All
                   </Button>
-
                 </div>
-
               </section>
 
               {/* =================================================
@@ -956,13 +741,10 @@ const Homepage = () => {
               ================================================== */}
 
               <section>
-
                 <div className="expert-spotlight">
-
                   <div className="spotlight-bg"></div>
 
                   <div className="d-flex align-items-center gap-3 mb-3">
-
                     <img
                       src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80"
                       alt="Expert"
@@ -970,39 +752,22 @@ const Homepage = () => {
                     />
 
                     <div>
+                      <div className="expert-name">Thandiwe Molefe</div>
 
-                      <div className="expert-name">
-                        Thandiwe Molefe
-                      </div>
-
-                      <div className="expert-title">
-                        Senior Economist
-                      </div>
-
+                      <div className="expert-title">Senior Economist</div>
                     </div>
-
                   </div>
 
                   <button className="btn-contact">
-
                     <FaStar className="me-2" />
-
                     Contact Expert
-
                   </button>
-
                 </div>
-
               </section>
-
             </Col>
-
           </Row>
-
         </div>
-
       </Container>
-
     </div>
   );
 };

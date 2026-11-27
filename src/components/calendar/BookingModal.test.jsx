@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import BookingModal from "./BookingModal";
 
@@ -26,6 +26,8 @@ function renderModal(overrides = {}) {
       onCancel={onCancel}
       isSubmitting={false}
       error={null}
+      isEditing={false}
+      organiserName="Jane Doe"
       {...overrides}
     />
   );
@@ -34,23 +36,31 @@ function renderModal(overrides = {}) {
 }
 
 describe("BookingModal", () => {
-  beforeEach(() => {
-    sessionStorage.setItem(
-      "user",
-      JSON.stringify({ first_name: "Jane", surname: "Doe" })
-    );
-  });
-
   afterEach(() => {
-    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it("pre-fills and renders the organiser field as read-only from the logged-in user", () => {
+  it("renders the organiser name it's given as read-only, not an editable field", () => {
     renderModal();
 
     expect(screen.getByText(/booked by:\s*jane doe/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/organiser/i)).toBeNull();
+  });
+
+  it("shows the original booking's organiser (not the current viewer) when editing someone else's booking", () => {
+    renderModal({ isEditing: true, organiserName: "Original Booker" });
+
+    expect(screen.getByText(/booked by:\s*original booker/i)).toBeInTheDocument();
+  });
+
+  it("shows an Edit heading and a Save Changes button when isEditing is true", () => {
+    renderModal({ isEditing: true });
+
+    expect(
+      screen.getByRole("heading", { name: /edit boardroom booking/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save changes/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /confirm booking/i })).toBeNull();
   });
 
   it("shows an inline validation message instead of alert() when attendees is not a positive whole number", () => {

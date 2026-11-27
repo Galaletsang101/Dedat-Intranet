@@ -1,5 +1,4 @@
 import { forwardRef, useState } from "react";
-import { getCurrentUser } from "../../services/authService";
 import { formatDate } from "../../utils/dateUtils";
 import { BOARDROOM_LOCATIONS } from "./calendarConstants";
 
@@ -47,13 +46,20 @@ function validate(value) {
 }
 
 const BookingModal = forwardRef(
-  ({ value, onFieldChange, onSubmit, onCancel, isSubmitting, error }, ref) => {
+  (
+    {
+      value,
+      onFieldChange,
+      onSubmit,
+      onCancel,
+      isSubmitting,
+      error,
+      isEditing,
+      organiserName,
+    },
+    ref
+  ) => {
     const [fieldErrors, setFieldErrors] = useState({});
-
-    const organiser = getCurrentUser();
-    const organiserName = organiser
-      ? `${organiser.first_name} ${organiser.surname}`
-      : "";
 
     const handleSubmit = () => {
       const errors = validate(value);
@@ -85,7 +91,9 @@ const BookingModal = forwardRef(
             &times;
           </button>
 
-          <h2 id="booking-modal-heading">Book Boardroom</h2>
+          <h2 id="booking-modal-heading">
+            {isEditing ? "Edit Boardroom Booking" : "Book Boardroom"}
+          </h2>
 
           {error && <p className="booking-form-error">{error}</p>}
 
@@ -226,7 +234,13 @@ const BookingModal = forwardRef(
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Booking..." : "Confirm Booking"}
+              {isSubmitting
+                ? isEditing
+                  ? "Saving..."
+                  : "Booking..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Confirm Booking"}
             </button>
 
             <button

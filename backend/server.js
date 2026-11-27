@@ -648,8 +648,8 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
 
         const result = await pool.query(
             `INSERT INTO calendar_events
-                (title, description, start_time, end_time, category, quarter, location, organiser, attendees, requirements)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                (title, description, start_time, end_time, category, quarter, location, organiser, attendees, requirements, created_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
              RETURNING *`,
             [
                 title,
@@ -662,6 +662,7 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
                 organiser,
                 parsedAttendees,
                 eventRequirements,
+                req.user.id,
             ]
         );
 
@@ -672,41 +673,179 @@ app.post("/api/calendar-events", authenticateToken, async (req, res) => {
     }
 });
 
-// Cancelling an event (any category, not just Boardroom bookings) is
-// Admin-only - requireAdmin re-checks the caller's role in Postgres on
-// every request rather than trusting the JWT, same as every other
-// admin-only write in this app.
-app.delete(
-    "/api/calendar-events/:id",
-    authenticateToken,
-    requireAdmin,
-    async (req, res) => {
-        try {
-            const { id } = req.params;
+// Shared by PUT/DELETE below: an Admin can manage any event; the person
+// who created a Boardroom booking can also manage their own without
+// being an Admin. Both the event's owner and the requester's CURRENT
+// role/active status are re-read from Postgres on every call - never
+// trusted from the JWT, and never inferred from the `organiser` display
+// string (a name is not a safe identity check).
+//
+// Sends the error response itself and returns null when unauthorized,
+// invalid, or not found; returns the event row when the caller may
+// proceed.
+async function loadManageableEvent(req, res) {
+    const { id } = req.params;
 
-            if (!/^\d+$/.test(id)) {
-                return res.status(400).json({ error: "Invalid event id" });
+    if (!/^\d+$/.test(id)) {
+        res.status(400).json({ error: "Invalid event id" });
+        return null;
+    }
+
+    const eventResult = await pool.query(
+        "SELECT * FROM calendar_events WHERE id = $1",
+        [id]
+    );
+
+    if (eventResult.rows.length === 0) {
+        res.status(404).json({ error: "Event not found" });
+        return null;
+    }
+
+    const event = eventResult.rows[0];
+
+    const userResult = await pool.query(
+        "SELECT role, is_active FROM users WHERE id = $1",
+        [req.user.id]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].is_active) {
+        res.status(403).json({ error: "This account has been deactivated." });
+        return null;
+    }
+
+    const isAdminUser = userResult.rows[0].role === "Admin";
+
+    const isOwner =
+        event.category === "Boardroom" &&
+        event.created_by !== null &&
+        String(event.created_by) === String(req.user.id);
+
+    if (!isAdminUser && !isOwner) {
+        res.status(403).json({
+            error: "You do not have permission to manage this event.",
+        });
+        return null;
+    }
+
+    return event;
+}
+
+app.put("/api/calendar-events/:id", authenticateToken, async (req, res) => {
+    try {
+        const event = await loadManageableEvent(req, res);
+        if (!event) return;
+
+        const { title, description, start_time, end_time, location, attendees, requirements } =
+            req.body;
+
+        if (!title || !start_time || !end_time) {
+            return res.status(400).json({
+                error: "Title, start time and end time are required",
+            });
+        }
+
+        if (new Date(end_time) <= new Date(start_time)) {
+            return res
+                .status(400)
+                .json({ error: "End time must be after start time" });
+        }
+
+        let eventLocation = event.location;
+        let parsedAttendees = event.attendees;
+        let eventRequirements = event.requirements;
+
+        if (event.category === "Boardroom") {
+            if (!location || !BOARDROOM_LOCATIONS.includes(location)) {
+                return res.status(400).json({
+                    error: "Please select a valid boardroom.",
+                });
             }
 
-            const result = await pool.query(
-                "DELETE FROM calendar_events WHERE id = $1 RETURNING *",
-                [id]
+            eventLocation = location;
+
+            if (attendees !== undefined && attendees !== null && attendees !== "") {
+                parsedAttendees = Number(attendees);
+
+                if (
+                    !Number.isInteger(parsedAttendees) ||
+                    parsedAttendees < 1 ||
+                    parsedAttendees > 100
+                ) {
+                    return res.status(400).json({
+                        error:
+                            "Number of attendees must be a whole number between 1 and 100.",
+                    });
+                }
+            } else {
+                parsedAttendees = null;
+            }
+
+            eventRequirements = requirements || null;
+
+            // Excludes the booking's own row, so saving it unchanged (or
+            // just changing the title/description) never conflicts with
+            // itself.
+            const conflict = await pool.query(
+                `SELECT * FROM calendar_events
+                 WHERE category = 'Boardroom'
+                 AND location = $3
+                 AND start_time < $2
+                 AND end_time > $1
+                 AND id != $4`,
+                [start_time, end_time, eventLocation, event.id]
             );
 
-            if (result.rows.length === 0) {
-                return res.status(404).json({ error: "Event not found" });
+            if (conflict.rows.length > 0) {
+                return res.status(409).json({
+                    error: `${eventLocation} is already booked for this time.`,
+                });
             }
-
-            res.json({
-                message: "Event cancelled successfully",
-                event: result.rows[0],
-            });
-        } catch (error) {
-            console.error("Error cancelling calendar event:", error);
-            res.status(500).json({ error: "Failed to cancel event" });
         }
+
+        const result = await pool.query(
+            `UPDATE calendar_events
+                SET title = $1, description = $2, start_time = $3, end_time = $4,
+                    location = $5, attendees = $6, requirements = $7
+             WHERE id = $8
+             RETURNING *`,
+            [
+                title,
+                description || null,
+                start_time,
+                end_time,
+                eventLocation,
+                parsedAttendees,
+                eventRequirements,
+                event.id,
+            ]
+        );
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error updating calendar event:", error);
+        res.status(500).json({ error: "Failed to update calendar event" });
     }
-);
+});
+
+app.delete("/api/calendar-events/:id", authenticateToken, async (req, res) => {
+    try {
+        const event = await loadManageableEvent(req, res);
+        if (!event) return;
+
+        const result = await pool.query(
+            "DELETE FROM calendar_events WHERE id = $1 RETURNING *",
+            [event.id]
+        );
+
+        res.json({
+            message: "Event cancelled successfully",
+            event: result.rows[0],
+        });
+    } catch (error) {
+        console.error("Error cancelling calendar event:", error);
+        res.status(500).json({ error: "Failed to cancel event" });
+    }
+});
 
 // ============================================================
 // DOCUMENTS (Knowledge Centre) - Admin-managed content

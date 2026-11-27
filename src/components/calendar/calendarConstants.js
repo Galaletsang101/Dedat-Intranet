@@ -42,7 +42,7 @@ export const WEEKDAY_LABELS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "
 
 // Month-grid cells beyond this many events show a "+N more" indicator
 // instead of overflowing the cell.
-export const MAX_VISIBLE_EVENTS_PER_CELL = 3;
+export const MAX_VISIBLE_EVENTS_PER_CELL = 2;
 
 // Time-grid (Day/Week view) layout.
 export const HOUR_HEIGHT_PX = 60;
